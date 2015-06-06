@@ -62,7 +62,7 @@ namespace ChallengerSeries.Utils
                 }
             }
 
-            if (!ChallengerPlugin.MiscMenu.Item("exploits").GetValue<bool>()) return;
+            if (!ChallengerPlugin.ActivatorMenu.Item("exploits").GetValue<bool>()) return;
 
             if (sender.Name.ToLower() == "cassiopeia" && args.SData.Name.ToLower().Contains("petrifying") && Player.Distance(sender) < 750 && Player.IsFacing(sender))
             {
@@ -107,22 +107,13 @@ namespace ChallengerSeries.Utils
         public static void Combo()
         {
             UseQSS();
+            UseBOTRK();
             var TeamfightRange = 800;
             var TeamfightingEnemies = HeroManager.Enemies.FindAll(e => e.Distance(Player) < TeamfightRange);
-            if (Items.HasItem((int) ItemId.Bilgewater_Cutlass, Player))
-            {
-                var target =
-                    TeamfightingEnemies.FirstOrDefault(
-                        e => e.Distance(Player) < 550 && !e.IsFacing(Player) && e.HealthPercent < 35);
-                if (target != null)
-                {
-                    UseItem(ItemId.Bilgewater_Cutlass, target);
-                }
-            }
             if (Player.HealthPercent < 80 && Items.HasItem((int)ItemId.Blade_of_the_Ruined_King) && Items.CanUseItem((int)ItemId.Blade_of_the_Ruined_King))
             {
                 var KSableEnemy =
-                    HeroManager.Enemies.FirstOrDefault(e => e.Health < (e.MaxHealth * 0.1) - (e.MaxHealth * 0.1) * ((e.Armor / 10) * 8) / 100);
+                    HeroManager.Enemies.FirstOrDefault(e => e.Health < (e.MaxHealth * 0.1) - (e.MaxHealth * 0.1) * ((e.Armor / 10) * 7) / 100);
                 if (KSableEnemy.IsValidTarget())
                 {
                     UseBOTRK(KSableEnemy);
@@ -132,11 +123,6 @@ namespace ChallengerSeries.Utils
                 if (!escaping.IsFacing(Player) && escaping.Distance(Game.CursorPos) < 250)
                 {
                     UseBOTRK(escaping.IsValidTarget(500) ? escaping : null);
-                }
-                if (Items.HasItem((int) ItemId.Quicksilver_Sash, Player) || Items.HasItem((int) ItemId.Mercurial_Scimitar))
-                if (Player.HealthPercent < 70)
-                {
-                    UseBOTRK();
                 }
             }
             if (Items.HasItem((int) ItemId.Youmuus_Ghostblade) &&
@@ -154,6 +140,8 @@ namespace ChallengerSeries.Utils
             {
                 qss = ItemId.Mercurial_Scimitar;
             }
+            if (!Items.CanUseItem((int) qss)) return;
+
             if (Player.HasBuffOfType(BuffType.Suppression))
             {
                 UseItem(qss);
@@ -180,7 +168,7 @@ namespace ChallengerSeries.Utils
                 }
                 if (Player.HasBuffOfType(BuffType.Poison) &&
                     HeroManager.Enemies.Any(
-                        e => e.BaseSkinName.ToLower().Contains("cassiopeia") && e.Distance(Player) < 700))
+                        e => e.BaseSkinName.ToLower().Contains("cassiopeia") && (e.Level > Player.Level || Player.HealthPercent < 30) && e.Distance(Player) < 700))
                 {
                     UseItem(qss);
                 }
@@ -189,8 +177,22 @@ namespace ChallengerSeries.Utils
 
         private static void UseBOTRK(Obj_AI_Hero enemy = null)
         {
+            var botrk = ItemId.Bilgewater_Cutlass;
+            if (Items.HasItem((int) ItemId.Blade_of_the_Ruined_King, Player))
+            {
+                botrk = ItemId.Blade_of_the_Ruined_King;
+            }
             var targetsInRange = Player.GetEnemiesInRange(500).FindAll(e => !e.IsDead && e.IsValidTarget());
-            if (targetsInRange.Count == 0 || !Items.CanUseItem((int)ItemId.Blade_of_the_Ruined_King)) return;
+
+            if (targetsInRange.Count == 0 || !Items.CanUseItem((int)botrk)) return;
+
+            var target =
+                    targetsInRange.OrderByDescending(h => h.Health)
+                        .Take((int) Math.Abs(targetsInRange.Count*0.75))
+                        .OrderBy(h => h.Armor)
+                        .FirstOrDefault();
+            if (botrk == ItemId.Bilgewater_Cutlass || Player.Health + Player.GetItemDamage(target, Damage.DamageItems.Botrk) < ObjectManager.Player.MaxHealth)
+                UseItem(botrk, target);
             if (enemy != null)
             {
                 UseItem(ItemId.Blade_of_the_Ruined_King, enemy);
@@ -201,11 +203,6 @@ namespace ChallengerSeries.Utils
             }
             else
             {
-                var target =
-                    targetsInRange.OrderByDescending(h => h.Health)
-                        .Take((int) Math.Abs(targetsInRange.Count*0.75))
-                        .OrderBy(h => h.Armor)
-                        .FirstOrDefault();
                 if (target != null)
                 {
                     UseItem(ItemId.Blade_of_the_Ruined_King, target);

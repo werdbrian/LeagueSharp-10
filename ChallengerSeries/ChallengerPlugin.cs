@@ -47,10 +47,10 @@ namespace ChallengerSeries
             LaneClearMenu = new Menu("Laneclear Settings", "laneclearmenu");
             EscapeMenu = new Menu("Escape Settings", "escapemenu");
 
-            MiscMenu = new Menu("Misc Settings", "miscmenu");
-            MiscMenu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
-            MiscMenu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
-            PotionManager = new PotionManager(MiscMenu);
+            ActivatorMenu = new Menu("CK Activator", "activatormenu");
+            ActivatorMenu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
+            ActivatorMenu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
+            PotionManager = new PotionManager(ActivatorMenu);
 
             ManaManagementMenu = new Menu("Mana Management", "manamanagementmenu");
             ManaManagementMenu.AddItem(
@@ -81,7 +81,7 @@ namespace ChallengerSeries
             MainMenu.AddSubMenu(LaneClearMenu);
             MainMenu.AddSubMenu(ManaManagementMenu);
             MainMenu.AddSubMenu(EscapeMenu);
-            MainMenu.AddSubMenu(MiscMenu);
+            MainMenu.AddSubMenu(ActivatorMenu);
             MainMenu.AddSubMenu(OrbwalkerMenu);
             MainMenu.AddToMainMenu();
         }
@@ -97,7 +97,7 @@ namespace ChallengerSeries
 
         protected virtual void OnUpdate(EventArgs args)
         {
-            if (MiscMenu.Item("activator").GetValue<bool>())
+            if (ActivatorMenu.Item("activator").GetValue<bool>())
             {
                 if (!Utils.Activator.Loaded)
                 {
@@ -206,7 +206,7 @@ namespace ChallengerSeries
         internal static Menu LaneClearMenu;
         internal static Menu EscapeMenu;
         internal static Menu ManaManagementMenu;
-        internal static Menu MiscMenu;
+        internal static Menu ActivatorMenu;
         internal static Menu OrbwalkerMenu;
         #endregion Menu
     }
