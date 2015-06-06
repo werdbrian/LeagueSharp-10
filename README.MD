@@ -1,0 +1,3 @@
+<center><h1>Challenger Series: Fashion Edition</h1>
+<hr>
+<p>This assembly is protected by international treaties, namely Australian IP Law. By copying any part of it you are getting yourself in trouble, as I will sue you. By checking any part of this repository you agree to the fact that you will not copy or get inspired by any patented algorithms from here and you're not affiliated in anyway with DZ191/Asuna, which I might or might not have previously sued.</p></center>
