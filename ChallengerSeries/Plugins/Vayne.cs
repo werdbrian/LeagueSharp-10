@@ -277,15 +277,20 @@ namespace ChallengerSeries.Plugins
                     {
                         Orbwalker.ForceTarget(t);
                     }
-
-                    var tumblePos = Player.ServerPosition.Extend(t.ServerPosition, Player.Distance(t.ServerPosition) - Player.AttackRange + 45);
-                    if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 && Player.Level >= t.Level)
+                    if (Player.CountEnemiesInRange(1000) <= Player.CountEnemiesInRange(1000) &&
+                        Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
                     {
-                        if (tumblePos.CountEnemiesInRange(300) == 0)
+                        var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
+                            Player.Distance(t.ServerPosition) - Player.AttackRange + 45);
+                        if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
+                            Player.Level >= t.Level)
                         {
-                            Q.Cast(tumblePos);
+                            if (tumblePos.CountEnemiesInRange(300) > 1)
+                            {
+                                Q.Cast(tumblePos);
+                            }
+                            Orbwalker.ForceTarget(t);
                         }
-                        Orbwalker.ForceTarget(t);
                     }
                 }
             }
