@@ -83,11 +83,6 @@ namespace ChallengerSeries.Plugins
             if (target != null)
             {
                 Orbwalker.ForceTarget(target);
-            } 
-            var silveredEnemy = HeroManager.Enemies.FindAll(h => h.Distance(Player.ServerPosition) < Player.AttackRange - 15).FirstOrDefault(h => h.VayneWStacks() == 2);
-            if(silveredEnemy != null)
-            {
-                Q.Cast(Game.CursorPos);
             }
         }
 
@@ -97,9 +92,7 @@ namespace ChallengerSeries.Plugins
             if (Q.IsReady() && LaneClearMenu.Item("QFarm").GetValue<bool>() && Player.ManaPercent > 37)
             {
                 var minions = MinionManager.GetMinions(Player.Position, Q.Range);
-                foreach (var minion in
-                    minions.Where(
-                        m => m.Health < Player.GetSpellDamage(m, SpellSlot.Q)))
+                foreach (var minion in minions.Where(m => m.Health < Player.GetSpellDamage(m, SpellSlot.Q)))
                     Q.Cast(minion);
             }
         }
@@ -270,6 +263,11 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            if (Player.ManaPercent > 25 && target is Obj_AI_Hero && unit.IsMe &&
+                Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                Q.Cast(Game.CursorPos);
+            }
             if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
                 var t = (Obj_AI_Hero) target;
