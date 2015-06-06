@@ -263,7 +263,7 @@ namespace ChallengerSeries.Plugins
                     }
 
                     var tumblePos = Player.ServerPosition.Extend(t.ServerPosition, Player.Distance(t.ServerPosition) - Player.AttackRange + 45);
-                    if (!tumblePos.IsShroom() && t.Distance(Player) > 550)
+                    if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 && Player.Level >= t.Level)
                     {
                         if (tumblePos.CountEnemiesInRange(300) == 0)
                         {
