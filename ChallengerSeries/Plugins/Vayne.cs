@@ -83,6 +83,24 @@ namespace ChallengerSeries.Plugins
             if (target != null)
             {
                 Orbwalker.ForceTarget(target);
+            } 
+            var silveredEnemy = HeroManager.Enemies.FindAll(h => h.Distance(Player.ServerPosition) < Player.AttackRange - 15).FirstOrDefault(h => h.VayneWStacks() == 2);
+            if(silveredEnemy != null)
+            {
+                Q.Cast(Game.CursorPos);
+            }
+        }
+
+        protected override void LaneClear()
+        {
+            base.LaneClear();
+            if (Q.IsReady() && LaneClearMenu.Item("QFarm").GetValue<bool>() && Player.ManaPercent > 37)
+            {
+                var minions = MinionManager.GetMinions(Player.Position, Q.Range);
+                foreach (var minion in
+                    minions.Where(
+                        m => m.Health < Player.GetSpellDamage(m, SpellSlot.Q)))
+                    Q.Cast(minion);
             }
         }
 
