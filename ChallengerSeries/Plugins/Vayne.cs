@@ -201,7 +201,7 @@ namespace ChallengerSeries.Plugins
                     var tumblePos = Player.ServerPosition.Extend(sender.ServerPosition,
                         Player.Distance(sender.ServerPosition) - Player.AttackRange + 75);
 
-                    if (!tumblePos.IsShroom())
+                    if (!tumblePos.IsShroom() && tumblePos.CountEnemiesInRange(300) == 0)
                     {
                         Q.Cast(tumblePos);
                         Orbwalker.ForceTarget(sender);
