@@ -54,5 +54,20 @@ namespace ChallengerSeries.Utils
             return NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Wall) || 
                 NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building);
         }
+        public static bool IsValidState(this Obj_AI_Hero target)
+        {
+            return !target.HasBuffOfType(BuffType.SpellShield) && !target.HasBuffOfType(BuffType.SpellImmunity) &&
+                   !target.HasBuffOfType(BuffType.Invulnerability);
+        }
+
+        public static int CountHerosInRange(this Obj_AI_Hero target, bool checkteam, float range = 1200f)
+        {
+            var objListTeam =
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(
+                        x => x.IsValidTarget(range, false));
+
+            return objListTeam.Count(hero => checkteam ? hero.Team != target.Team : hero.Team == target.Team);
+        }
     }
 }

@@ -313,32 +313,21 @@ namespace ChallengerSeries.Plugins
         protected override void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (ShouldSaveCondemn()) return;
-            if (!sender.IsMelee() || !args.Target.IsMe || !sender.IsValid<Obj_AI_Hero>() || !sender.IsEnemy || args.SData == null)
+            if (sender.Distance(Player) > 700 || !sender.IsMelee() || !args.Target.IsMe || sender.Distance(Player) > 700 ||
+                !sender.IsValid<Obj_AI_Hero>() || !sender.IsEnemy || args.SData == null)
                 return;
             //how to milk alistar/thresh/everytoplaner
-            try
+            var spellData = SpellDb.GetByName(args.SData.Name);
+            if (spellData != null)
             {
-                var spellData = SpellDb.GetByName(args.SData.Name);
-                if (spellData == null) return;
-                if (spellData.CcType != CcType.No)
+                if (spellData.CcType == CcType.Knockup ||
+                    spellData.CcType == CcType.Knockback && spellData.CcType != null)
                 {
                     if (E.CanCast(sender))
                     {
                         E.Cast(sender);
                     }
-                    else if (sender.ServerPosition.UnderTurret(Player.Team) && Player.UnderTurret())
-                    {
-                        var exhaust = Player.GetSpellSlot("summonerexhaust");
-                        if (exhaust != SpellSlot.Unknown)
-                        {
-                            Player.Spellbook.CastSpell(exhaust, sender);
-                        }
-                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
             }
         }
 
@@ -391,10 +380,29 @@ namespace ChallengerSeries.Plugins
 
         bool ShouldSaveCondemn()
         {
-            if (!HeroManager.Enemies.Any(h => h.BaseSkinName == "Katarina")) return false;
-            var katarina = HeroManager.Enemies.FirstOrDefault(h => h.BaseSkinName == "Katarina");
-            var kataR = katarina.GetSpell(SpellSlot.R);
-            return katarina != null && katarina.IsValid<Obj_AI_Hero>() && katarina.Distance(Player.ServerPosition) < 1400 && kataR.IsReady() || (katarina.Spellbook.CanUseSpell(SpellSlot.R) != SpellState.Cooldown && katarina.Spellbook.CanUseSpell(SpellSlot.R) != SpellState.NotLearned);
+            if (HeroManager.Enemies.Any(h => h.BaseSkinName == "Katarina" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
+            {
+                var katarina = HeroManager.Enemies.FirstOrDefault(h => h.BaseSkinName == "Katarina");
+                var kataR = katarina.GetSpell(SpellSlot.R);
+                if (katarina != null)
+                {
+                    return katarina.IsValid<Obj_AI_Hero>() && kataR.IsReady() ||
+                           (katarina.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready &&
+                            katarina.Spellbook.CanUseSpell(SpellSlot.R) != SpellState.NotLearned);
+                }
+            }
+            if (HeroManager.Enemies.Any(h => h.BaseSkinName == "Galio" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
+            {
+                var galio = HeroManager.Enemies.FirstOrDefault(h => h.BaseSkinName == "Galio");
+                if (galio != null)
+                {
+                    var galioR = galio.GetSpell(SpellSlot.R);
+                    return galio.IsValidTarget() && galioR.IsReady() ||
+                           (galio.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready &&
+                            galio.Spellbook.CanUseSpell(SpellSlot.R) != SpellState.NotLearned);
+                }
+            }
+            return false;
         }
     }
 }

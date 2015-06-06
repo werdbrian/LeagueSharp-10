@@ -23,7 +23,6 @@ namespace ChallengerSeries
             InitOrbwalker();
             FinishMenuInit();
             InitSpells();
-            Utils.Activator.Load();
             CustomEvents.Game.OnGameLoad += OnGameLoad;
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
@@ -48,14 +47,16 @@ namespace ChallengerSeries
             EscapeMenu = new Menu("Escape Settings", "escapemenu");
 
             ActivatorMenu = new Menu("CK Activator", "activatormenu");
-            ActivatorMenu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
-            ActivatorMenu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
-            PotionManager = new PotionManager(ActivatorMenu);
+            Activator = new Utils.Activator(ActivatorMenu);
 
             ManaManagementMenu = new Menu("Mana Management", "manamanagementmenu");
             ManaManagementMenu.AddItem(
                 new MenuItem("activateonmanapercent", "Activate on % Mana: ").SetValue(new Slider(30, 15, 60)));
-
+            DrawingsMenu = new Menu("Drawing Settings", "drawingsmenu");
+            DrawingsMenu.AddItem(new MenuItem("streamingmode", "Disable All Drawings").SetValue(false));
+            DrawingsMenu.AddItem(new MenuItem("censorownname", "Censor Own Name").SetValue(true));
+            DrawingsMenu.AddItem(new MenuItem("drawenemycccounter", "Draw Enemy CC Counter").SetValue(true));
+            DrawingsMenu.AddItem(new MenuItem("drawenemyrangecircle", "Draw Enemy Spells Range").SetValue(true));
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
         }
 
@@ -82,6 +83,7 @@ namespace ChallengerSeries
             MainMenu.AddSubMenu(ManaManagementMenu);
             MainMenu.AddSubMenu(EscapeMenu);
             MainMenu.AddSubMenu(ActivatorMenu);
+            MainMenu.AddSubMenu(DrawingsMenu);
             MainMenu.AddSubMenu(OrbwalkerMenu);
             MainMenu.AddToMainMenu();
         }
@@ -97,21 +99,6 @@ namespace ChallengerSeries
 
         protected virtual void OnUpdate(EventArgs args)
         {
-            if (ActivatorMenu.Item("activator").GetValue<bool>())
-            {
-                if (!Utils.Activator.Loaded)
-                {
-                    Utils.Activator.Load();
-                }
-            }
-            else
-            {
-                if (Utils.Activator.Loaded)
-                {
-                    Utils.Activator.Unload();
-                }
-            }
-
             Escape();
 
             if (Player.ManaPercent < ManaManagementMenu.Item("activateonmanapercent").GetValue<Slider>().Value)
@@ -146,32 +133,47 @@ namespace ChallengerSeries
 
         protected virtual void OnDraw(EventArgs args)
         {
-            var enemyCC = Positioning.EnemyCC();
-            if (enemyCC >= 3)
+            if (DrawingsMenu.Item("streamingmode").GetValue<bool>()) return;
+            if (DrawingsMenu.Item("drawenemycccounter").GetValue<bool>())
             {
-                Drawing.DrawText(Player.HPBarPosition.X+5, Player.HPBarPosition.Y - 30, Color.Red, "Enemy HARD-CC: " + enemyCC);
+                var enemyCC = Positioning.EnemyCC();
+                if (enemyCC >= 3)
+                {
+                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.Red,
+                        "Enemy HARD-CC: " + enemyCC);
+                }
+                else if (enemyCC > 0 && enemyCC < 3)
+                {
+                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.Gold,
+                        "Enemy HARD-CC: " + enemyCC);
+                }
+                else
+                {
+                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.White,
+                        "Enemy HARD-CC: " + enemyCC);
+                }
             }
-            else if (enemyCC > 0 && enemyCC < 3)
+            if (DrawingsMenu.Item("censorownname").GetValue<bool>())
             {
-                Drawing.DrawText(Player.HPBarPosition.X+5, Player.HPBarPosition.Y - 30, Color.Gold, "Enemy HARD-CC: " + enemyCC); 
+                Drawing.DrawLine(Player.HPBarPosition.X + 10, Player.HPBarPosition.Y - 15, Player.HPBarPosition.X + 140, Player.HPBarPosition.Y - 15, 20, Color.Black);
+                switch (Player.BaseSkinName)
+                {
+                    case "Vayne":
+                        Drawing.DrawText(Player.HPBarPosition.X + 27, Player.HPBarPosition.Y - 15, Color.Gold,
+                            "PRADA Vayne");
+                        break;
+                    case "Katarina":
+                        Drawing.DrawText(Player.HPBarPosition.X + 27, Player.HPBarPosition.Y - 15, Color.Gold,
+                            "CARTIERina");
+                        break;
+                }
             }
-            else
+            if (DrawingsMenu.Item("drawenemyrangecircle").GetValue<bool>())
             {
-                Drawing.DrawText(Player.HPBarPosition.X+5, Player.HPBarPosition.Y - 30, Color.White, "Enemy HARD-CC: " + enemyCC); 
-            }
-            Drawing.DrawLine(Player.HPBarPosition.X+10, Player.HPBarPosition.Y - 15, Player.HPBarPosition.X+140, Player.HPBarPosition.Y-15, 20, Color.Black);
-            switch (Player.BaseSkinName)
-            {
-                case "Vayne":
-                    Drawing.DrawText(Player.HPBarPosition.X+27, Player.HPBarPosition.Y - 15, Color.Gold, "PRADA Vayne");
-                    break;
-                case "Katarina":
-                    Drawing.DrawText(Player.HPBarPosition.X + 27, Player.HPBarPosition.Y - 15, Color.Gold, "CARTIERina");
-                    break;
-            }
-            foreach (var polygon in Positioning.DangerZone())
-            {
-                polygon.Draw(Color.Red, 3);
+                foreach (var polygon in Positioning.DangerZone())
+                {
+                    polygon.Draw(Color.Red, 3);
+                }
             }
         }
         protected virtual void OnEnemyGapcloser(ActiveGapcloser gapcloser) { }
@@ -191,6 +193,7 @@ namespace ChallengerSeries
 
         internal static Orbwalking.Orbwalker Orbwalker;
         internal static PotionManager PotionManager;
+        internal static Utils.Activator Activator;
         internal static Obj_AI_Hero Player = ObjectManager.Player;
 
         #region Spells
@@ -207,6 +210,7 @@ namespace ChallengerSeries
         internal static Menu EscapeMenu;
         internal static Menu ManaManagementMenu;
         internal static Menu ActivatorMenu;
+        internal static Menu DrawingsMenu;
         internal static Menu OrbwalkerMenu;
         #endregion Menu
     }
