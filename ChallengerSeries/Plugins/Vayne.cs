@@ -255,17 +255,20 @@ namespace ChallengerSeries.Plugins
             if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
                 var t = (Obj_AI_Hero) target;
-                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && !t.InAArange())
+                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && t.Distance(Player) < 850)
                 {
                     if (t.IsKillable())
                     {
                         Orbwalker.ForceTarget(t);
                     }
 
-                    var tumblePos = Player.ServerPosition.Extend(t.ServerPosition, Player.Distance(t.ServerPosition) - Player.AttackRange + 55);
-                    if (!tumblePos.IsShroom())
+                    var tumblePos = Player.ServerPosition.Extend(t.ServerPosition, Player.Distance(t.ServerPosition) - Player.AttackRange + 45);
+                    if (!tumblePos.IsShroom() && t.Distance(Player) > 550)
                     {
-                        Q.Cast(tumblePos);
+                        if (tumblePos.CountEnemiesInRange(300) == 0)
+                        {
+                            Q.Cast(tumblePos);
+                        }
                         Orbwalker.ForceTarget(t);
                     }
                 }
@@ -276,7 +279,7 @@ namespace ChallengerSeries.Plugins
                 return;
             }
             if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
-                TumbleToKillSecondMinion)
+                TumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, 550).Any(m => m.IsValidTarget()))
             {
                 Q.Cast(Game.CursorPos);
                 TumbleToKillSecondMinion = false;
@@ -344,7 +347,11 @@ namespace ChallengerSeries.Plugins
             var closestAlly = HeroManager.Allies.FirstOrDefault(a => a.Distance(Player) < 750);
             if (closestAlly != null && Q.IsReady())
             {
-                Q.Cast(Player.ServerPosition.Extend(closestAlly.ServerPosition, Q.Range));
+                var tumblePos = Player.ServerPosition.Extend(closestAlly.ServerPosition, Q.Range);
+                if (!tumblePos.IsShroom() && tumblePos.CountEnemiesInRange(300) == 0)
+                {
+                    Q.Cast();
+                }
             }
             #endregion
 
