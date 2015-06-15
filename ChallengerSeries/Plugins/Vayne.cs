@@ -35,6 +35,14 @@ namespace ChallengerSeries.Plugins
             EscapeMenu.AddItem(new MenuItem("CondemnEscape", "Escape with E").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("EInterrupt", "Use E to Interrupt").SetValue(true));
             LaneClearMenu.AddItem(new MenuItem("QFarm", "Use Q (SMART)").SetValue(true));
+            SkinhackMenu.AddItem(
+                new MenuItem("skin", "Skin: ").SetValue(
+                    new StringList(new string[]
+                    {"Classic", "Vindicator", "Aristrocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight"}))).ValueChanged +=
+                (sender, args) =>
+                {
+                    Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                };
         }
 
         protected override void InitSpells()
