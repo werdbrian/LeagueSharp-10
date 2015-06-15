@@ -59,6 +59,7 @@ namespace ChallengerSeries
                 "Enemies in 2000 range: ").SetShared().SetValue(0));
             DrawingsMenu.Item("enemycccounter").Permashow(true, "Enemy CC Counter");
             DrawingsMenu.Item("enemycounter").Permashow(true, "Enemies in 2000 range");
+            SkinhackMenu = new Menu("Skin Hack", "skinhackmenu");
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
         }
 
@@ -85,6 +86,7 @@ namespace ChallengerSeries
             MainMenu.AddSubMenu(ManaManagementMenu);
             MainMenu.AddSubMenu(EscapeMenu);
             MainMenu.AddSubMenu(ActivatorMenu);
+            MainMenu.AddSubMenu(SkinhackMenu); // XD
             MainMenu.AddSubMenu(DrawingsMenu);
             MainMenu.AddSubMenu(OrbwalkerMenu);
             MainMenu.AddToMainMenu();
@@ -194,6 +196,7 @@ namespace ChallengerSeries
         internal static Menu ManaManagementMenu;
         internal static Menu ActivatorMenu;
         internal static Menu DrawingsMenu;
+        internal static Menu SkinhackMenu;
         internal static Menu OrbwalkerMenu;
         #endregion Menu
     }
