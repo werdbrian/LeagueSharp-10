@@ -135,6 +135,7 @@ namespace ChallengerSeries.Plugins
                                     .To3D().IsCollisionable()
                         select hero)
                 {
+                    if (hero.HasBuffOfType(BuffType.SpellShield)) break;
                     E.Cast(hero);
                     return;
                 }
