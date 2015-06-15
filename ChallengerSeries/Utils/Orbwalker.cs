@@ -493,7 +493,7 @@ namespace ChallengerSeries.Utils
                 _config.AddSubMenu(misc);
 
                 /* Missile check */
-                _config.AddItem(new MenuItem("MissileCheck", "Use Missile Check").SetShared().SetValue(true));
+                _config.AddItem(new MenuItem("MissileCheck", "Use Missile Check").SetShared().SetValue(false));
 
                 /* Delay sliders */
                 _config.AddItem(
