@@ -497,10 +497,10 @@ namespace ChallengerSeries.Utils
 
                 /* Delay sliders */
                 _config.AddItem(
-                    new MenuItem("ExtraWindup", "Extra windup time").SetShared().SetValue(new Slider(80, 0, 200)));
+                    new MenuItem("ExtraWindup", "Extra windup time").SetShared().SetValue(new Slider(95, 0, 200)));
                 _config.AddItem(new MenuItem("FarmDelay", "Farm delay").SetShared().SetValue(new Slider(0, 0, 200)));
                 _config.AddItem(
-                    new MenuItem("MovementDelay", "Movement delay").SetShared().SetValue(new Slider(30, 0, 250)))
+                    new MenuItem("MovementDelay", "Movement delay").SetShared().SetValue(new Slider(76, 0, 250)))
                     .ValueChanged += (sender, args) => SetMovementDelay(args.GetNewValue<Slider>().Value);
 
 
@@ -785,6 +785,8 @@ namespace ChallengerSeries.Utils
 
             private void DrawingOnOnDraw(EventArgs args)
             {
+                if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>()) return;
+
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(

@@ -22,7 +22,7 @@ namespace ChallengerSeries.Utils
             foreach (
                 var enemy in
                     ObjectManager.Player.GetEnemiesInRange(1400)
-                        .OrderBy(e => e.Distance(ObjectManager.Player.Position)).FindAll(e => e.IsVisible && e.IsValidTarget()))
+                        .OrderBy(e => e.Distance(ObjectManager.Player.Position)).Where(e => e.IsVisible && e.IsValidTarget()))
             {
                 if (enemy.IsDead) continue;
                 var highestSpellRange = 0;
@@ -35,7 +35,7 @@ namespace ChallengerSeries.Utils
                         var sd = SpellDb.GetByName(spell.Name);
                         if (sd != null)
                         {
-                            if (sd.Range > highestSpellRange) highestSpellRange = (int)sd.Range;
+                            if (sd.Range > highestSpellRange && sd.Range < 2000) highestSpellRange = (int)sd.Range;
                         }
                     }
                 }
@@ -60,9 +60,19 @@ namespace ChallengerSeries.Utils
                         var sd = SpellDb.GetByName(spell.Name);
                         if (sd == null) continue;
                         var cct = sd.CcType;
-                        if (cct != CcType.No && cct != CcType.Slow && sd.Type == SpellType.Targeted)
+                        if (ObjectManager.Player.BaseSkinName == "Katarina")
                         {
-                            i++;
+                            if (cct != CcType.No && cct != CcType.Slow && cct != CcType.Snare)
+                            {
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            if (cct != CcType.No && cct != CcType.Slow && sd.Type == SpellType.Targeted)
+                            {
+                                i++;
+                            }
                         }
                     }
                 }

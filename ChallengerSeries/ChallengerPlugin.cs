@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using ChallengerSeries.Utils;
@@ -14,6 +12,7 @@ namespace ChallengerSeries
 {
     internal abstract class ChallengerPlugin
     {
+        private static int _lastUpdate;
         /// <summary>
         /// add me in your plugin's constructor :3
         /// </summary>
@@ -54,9 +53,12 @@ namespace ChallengerSeries
                 new MenuItem("activateonmanapercent", "Activate on % Mana: ").SetValue(new Slider(30, 15, 60)));
             DrawingsMenu = new Menu("Drawing Settings", "drawingsmenu");
             DrawingsMenu.AddItem(new MenuItem("streamingmode", "Disable All Drawings").SetValue(false));
-            DrawingsMenu.AddItem(new MenuItem("censorownname", "Censor Own Name").SetValue(true));
-            DrawingsMenu.AddItem(new MenuItem("drawenemycccounter", "Draw Enemy CC Counter").SetValue(true));
-            DrawingsMenu.AddItem(new MenuItem("drawenemyrangecircle", "Draw Enemy Spells Range").SetValue(true));
+            DrawingsMenu.AddItem(new MenuItem("drawenemyrangecircle", "Draw Enemy Spells Range").SetValue(false));
+            DrawingsMenu.AddItem(new MenuItem("enemycccounter", "Enemy CC Counter: ").SetShared().SetValue(Positioning.EnemyCC()));
+            DrawingsMenu.AddItem(new MenuItem("enemycounter",
+                "Enemies in 2000 range: ").SetShared().SetValue(0));
+            DrawingsMenu.Item("enemycccounter").Permashow(true, "Enemy CC Counter");
+            DrawingsMenu.Item("enemycounter").Permashow(true, "Enemies in 2000 range");
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
         }
 
@@ -92,9 +94,9 @@ namespace ChallengerSeries
 
         protected virtual void OnGameLoad(EventArgs args)
         {
-            const int TIMEONSCREEN = 3000;
-            Notifications.AddNotification("Fashion Series by GUCCI & H&M loaded", TIMEONSCREEN);
-            Utility.DelayAction.Add(TIMEONSCREEN-550, () => { Notifications.AddNotification("HF, you don't need luck ;)", TIMEONSCREEN); });
+            const int timeonscreen = 3000;
+            Notifications.AddNotification("Fashion Series by GUCCI & H&M loaded", timeonscreen);
+            Utility.DelayAction.Add(timeonscreen-550, () => { Notifications.AddNotification("HF, you don't need luck ;)", timeonscreen); });
         }
 
         protected virtual void OnUpdate(EventArgs args)
@@ -133,49 +135,30 @@ namespace ChallengerSeries
 
         protected virtual void OnDraw(EventArgs args)
         {
-            if (DrawingsMenu.Item("streamingmode").GetValue<bool>()) return;
-            if (DrawingsMenu.Item("drawenemycccounter").GetValue<bool>())
+            if (DrawingsMenu.Item("streamingmode").GetValue<bool>())
             {
-                var enemyCC = Positioning.EnemyCC();
-                if (enemyCC >= 3)
-                {
-                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.Red,
-                        "Enemy HARD-CC: " + enemyCC);
-                }
-                else if (enemyCC > 0 && enemyCC < 3)
-                {
-                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.Gold,
-                        "Enemy HARD-CC: " + enemyCC);
-                }
-                else
-                {
-                    Drawing.DrawText(Player.HPBarPosition.X + 5, Player.HPBarPosition.Y - 30, Color.White,
-                        "Enemy HARD-CC: " + enemyCC);
-                }
+                DrawingsMenu.Item("enemycccounter").Permashow(false);
+                DrawingsMenu.Item("enemycounter").Permashow(false);
+                return;
             }
-            if (DrawingsMenu.Item("censorownname").GetValue<bool>())
+
+            DrawingsMenu.Item("enemycccounter").Permashow();
+            DrawingsMenu.Item("enemycounter").Permashow();
+            if (Environment.TickCount - _lastUpdate > 367)
             {
-                Drawing.DrawLine(Player.HPBarPosition.X + 10, Player.HPBarPosition.Y - 15, Player.HPBarPosition.X + 140, Player.HPBarPosition.Y - 15, 20, Color.Black);
-                switch (Player.BaseSkinName)
-                {
-                    case "Vayne":
-                        Drawing.DrawText(Player.HPBarPosition.X + 27, Player.HPBarPosition.Y - 15, Color.Gold,
-                            "PRADA Vayne");
-                        break;
-                    case "Katarina":
-                        Drawing.DrawText(Player.HPBarPosition.X + 27, Player.HPBarPosition.Y - 15, Color.Gold,
-                            "CARTIERina");
-                        break;
-                }
+                DrawingsMenu.Item("enemycccounter").SetValue(Positioning.EnemyCC());
+                DrawingsMenu.Item("enemycounter").SetValue(Player.CountEnemiesInRange(2000));
+                _lastUpdate = Environment.TickCount;
             }
             if (DrawingsMenu.Item("drawenemyrangecircle").GetValue<bool>())
             {
                 foreach (var polygon in Positioning.DangerZone())
                 {
-                    polygon.Draw(Color.Red, 3);
+                    polygon.Draw(Color.Red, 2);
                 }
             }
         }
+
         protected virtual void OnEnemyGapcloser(ActiveGapcloser gapcloser) { }
         protected virtual void OnPossibleToInterrupt(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args) { }
         protected virtual void BeforeAttack(Orbwalking.BeforeAttackEventArgs args) { }

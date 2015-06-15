@@ -19,8 +19,8 @@ namespace ChallengerSeries.Utils
 
         public static int VayneWStacks(this Obj_AI_Base o)
         {
-            if (!o.Buffs.Any(b => b.Name == "vaynesilvereddebuff")) return 0;
-            return o.Buffs.First(b => b.Name == "vaynesilvereddebuff").Count;
+            if (!o.Buffs.Any(b => b.Name.ToLower().Contains("vaynesilver"))) return 0;
+            return o.Buffs.First(b => b.Name.Contains("vaynesilver")).Count;
         }
 
         public static Vector3 Randomize(this Vector3 pos)

@@ -31,10 +31,9 @@ using LeagueSharp.Common;
 using SharpDX;
 
 
-/* This database of targeted spells is actually c+p from Kurisu's Oracle
+/* This database of targeted spells is actually c+p from h3h3
  * and is used under the terms of GNU's GPL.
  * You can grab a copy of GPL here: http://www.gnu.org/licenses/
- * and remember, ALLAHU AKBAR!!!
  */
 
 namespace ChallengerSeries.Utils
