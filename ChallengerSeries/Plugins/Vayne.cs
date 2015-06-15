@@ -94,12 +94,13 @@ namespace ChallengerSeries.Plugins
         protected override void LaneClear()
         {
             base.LaneClear();
+            /* BAD bakaaa
             if (Q.IsReady() && LaneClearMenu.Item("QFarm").GetValue<bool>() && Player.ManaPercent > 37)
             {
                 var minions = MinionManager.GetMinions(Player.Position, Q.Range);
                 if (minions.Any(m => m.Health < Player.GetAutoAttackDamage(m) + Q.GetDamage(m)))
                     Q.Cast(Game.CursorPos);
-            }
+            }*/
         }
 
 
