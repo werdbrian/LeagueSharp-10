@@ -672,6 +672,26 @@ namespace ChallengerSeries.Utils
                 /* turrets / inhibitors / nexus */
                 if (ActiveMode == OrbwalkingMode.LaneClear)
                 {
+                    var player = ObjectManager.Player;
+                    if (player.Level < 9 && player.CountEnemiesInRange(Player.AttackRange) != 0)
+                    {
+                        if (ObjectManager.Player.BaseSkinName == "Vayne")
+                        {
+                            var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
+
+                            var priorityTarget =
+                                attackableHeroes.FirstOrDefault(h => Lists.TargetSelector.Contains(h.BaseSkinName));
+                            if (priorityTarget != null)
+                                return priorityTarget;
+
+                            if (Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
+                            {
+                                return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
+                            }
+                            return attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2) ?? attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
+                        }
+                    }
+
                     /* turrets */
                     foreach (var turret in
                         ObjectManager.Get<Obj_AI_Turret>().Where(t => t.IsValidTarget() && InAutoAttackRange(t)))
@@ -697,6 +717,21 @@ namespace ChallengerSeries.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
+                    if (ObjectManager.Player.BaseSkinName == "Vayne")
+                    {
+                        var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
+
+                        var priorityTarget =
+                            attackableHeroes.FirstOrDefault(h => Lists.TargetSelector.Contains(h.BaseSkinName));
+                        if (priorityTarget != null)
+                            return priorityTarget;
+
+                        if (Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
+                        {
+                            return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
+                        }
+                        return attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2) ?? attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
+                    }
                     var target = TargetSelector.GetTarget(-1, TargetSelector.DamageType.Physical);
                     if (target.IsValidTarget())
                     {

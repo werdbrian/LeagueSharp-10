@@ -25,6 +25,7 @@ namespace ChallengerSeries.Plugins
         protected override void InitMenu()
         {
             base.InitMenu();
+            ComboMenu.AddSubMenu(new Menu("Target Selector", "TargetSelectorMenu"));
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
@@ -54,21 +55,15 @@ namespace ChallengerSeries.Plugins
             R = new Spell(SpellSlot.R);
         }
 
-        private Obj_AI_Hero GetTarget()
-        {
-            var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
-            if (Items.HasItem((int) ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
-            {
-                return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
-            }
-            return attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2) ?? attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
-        }
-
         protected override void OnUpdate(EventArgs args)
         {
             if (E.IsReady())
             {
                 Condemn();
+            }
+            if (Player.InFountain() && Player.Level > 6 && Items.HasItem((int)ItemId.Warding_Totem_Trinket))
+            {
+                Player.BuyItem(ItemId.Scrying_Orb_Trinket);
             }
             base.OnUpdate(args);
         }
@@ -83,13 +78,6 @@ namespace ChallengerSeries.Plugins
 
             if (Player.CountEnemiesInRange(1000) == 0) return;
             base.Combo();
-            //heal
-
-            var target = GetTarget();
-            if (target != null)
-            {
-                Orbwalker.ForceTarget(target);
-            }
         }
 
         protected override void LaneClear()
@@ -239,13 +227,6 @@ namespace ChallengerSeries.Plugins
                     }
                 }
             }
-            if (Player.Level < 9 && sender.IsMe && args.Order == GameObjectOrder.AutoAttack &&
-                HasTumbleBuff() && HeroManager.Enemies.Any(e => !e.IsDead && e.IsValidTarget() && e.Distance(Player) < 535) &&
-                !(args.Target is Obj_AI_Hero))
-            {
-                args.Process = false;
-                Orbwalker.ForceTarget(GetTarget());
-            }
         }
 
         protected override void BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -253,11 +234,6 @@ namespace ChallengerSeries.Plugins
             if (!args.Unit.IsMe) return;
 
             if (!(args.Target is Obj_AI_Hero)) return;
-            var target = GetTarget();
-            if (args.Target != target && target != null && target.IsValidTarget(Player.AttackRange) && !target.IsDead && Player.CountEnemiesInRange(550) <= 2)
-            {
-                Orbwalker.ForceTarget(target);
-            }
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
