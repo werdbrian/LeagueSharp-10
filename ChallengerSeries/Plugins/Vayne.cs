@@ -26,11 +26,12 @@ namespace ChallengerSeries.Plugins
         {
             base.InitMenu();
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
             EscapeMenu.AddItem(new MenuItem("QEscape", "Escape with Q").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("CondemnEscape", "Escape with E").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("EInterrupt", "Use E to Interrupt").SetValue(true));
@@ -283,6 +284,8 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            if (HasUltiBuff() && ComboMenu.Item("QUltSpam").GetValue<bool>())
+                Q.Cast(Game.CursorPos);
             if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
                 _tumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, 550).Any(m => m.IsValidTarget()) && Q.IsReady())
             {
