@@ -153,7 +153,7 @@ namespace ChallengerSeries.Utils
             {
                 UseItem(qss);
             }
-            if (Player.HealthPercent < 80 || Player.CountEnemiesInRange(650) < Player.CountAlliesInRange(650))
+            if (Player.CountEnemiesInRange(650) >= Player.CountAlliesInRange(650))
             {
                 if (Player.HasBuffOfType(BuffType.Stun))
                 {
@@ -184,24 +184,17 @@ namespace ChallengerSeries.Utils
             {
                 botrk = ItemId.Blade_of_the_Ruined_King;
             }
-            var targetsInRange = Player.GetEnemiesInRange(500).FindAll(e => !e.IsDead && e.IsValidTarget());
+            var targetsInRange = Player.GetEnemiesInRange(450).FindAll(e => !e.IsDead && e.IsValidTarget());
 
             if (targetsInRange.Count == 0 || !Items.CanUseItem((int)botrk)) return;
 
-            var target =
-                    targetsInRange.OrderByDescending(h => h.Health)
-                        .Take((int) Math.Abs(targetsInRange.Count*0.75))
-                        .OrderBy(h => h.Armor)
-                        .FirstOrDefault();
+            var target = targetsInRange.OrderBy(h => h.Armor)
+                            .FirstOrDefault();
             if (botrk == ItemId.Bilgewater_Cutlass || Player.Health + Player.GetItemDamage(target, Damage.DamageItems.Botrk) < ObjectManager.Player.MaxHealth)
                 UseItem(botrk, target);
             if (enemy != null)
             {
                 UseItem(ItemId.Blade_of_the_Ruined_King, enemy);
-            }
-            else if (targetsInRange.Count == 1 && targetsInRange.FirstOrDefault() != null)
-            {
-                UseItem(ItemId.Blade_of_the_Ruined_King, targetsInRange.FirstOrDefault());
             }
             else
             {
