@@ -254,9 +254,8 @@ namespace ChallengerSeries.Plugins
 
             if (!(args.Target is Obj_AI_Hero)) return;
             var target = GetTarget();
-            if (args.Target != target && target != null && Player.CountEnemiesInRange(550) <= 2)
+            if (args.Target != target && target != null && target.IsValidTarget(Player.AttackRange) && !target.IsDead && Player.CountEnemiesInRange(550) <= 2)
             {
-                args.Process = false;
                 Orbwalker.ForceTarget(target);
             }
             if (args.Target.IsValid<Obj_AI_Hero>())
