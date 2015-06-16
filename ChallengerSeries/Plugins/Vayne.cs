@@ -56,7 +56,7 @@ namespace ChallengerSeries.Plugins
 
         private Obj_AI_Hero GetTarget()
         {
-            var attackableHeroes = HeroManager.Enemies.FindAll(h => h.Distance(Player.ServerPosition) < Player.AttackRange);
+            var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
             if (Items.HasItem((int) ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
             {
                 return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
