@@ -25,7 +25,6 @@ namespace ChallengerSeries.Plugins
         protected override void InitMenu()
         {
             base.InitMenu();
-            ComboMenu.AddSubMenu(new Menu("Target Selector", "TargetSelectorMenu"));
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
