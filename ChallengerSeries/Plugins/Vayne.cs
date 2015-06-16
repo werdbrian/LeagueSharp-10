@@ -56,7 +56,7 @@ namespace ChallengerSeries.Plugins
 
         private Obj_AI_Hero GetTarget()
         {
-            var attackableHeroes = HeroManager.Enemies.FindAll(h => h.Distance(Player.ServerPosition) < Player.AttackRange - 15);
+            var attackableHeroes = HeroManager.Enemies.FindAll(h => h.Distance(Player.ServerPosition) < Player.AttackRange);
             if (Items.HasItem((int) ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
             {
                 return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
@@ -253,6 +253,12 @@ namespace ChallengerSeries.Plugins
             if (!args.Unit.IsMe) return;
 
             if (!(args.Target is Obj_AI_Hero)) return;
+            var target = GetTarget();
+            if (args.Target != target && target != null)
+            {
+                args.Process = false;
+                Orbwalker.ForceTarget(target);
+            }
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
