@@ -266,7 +266,7 @@ namespace ChallengerSeries.Plugins
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             var tg = (Obj_AI_Hero)target;
-            if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W)))
+            if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
             {
                 E.Cast(tg);
             }
