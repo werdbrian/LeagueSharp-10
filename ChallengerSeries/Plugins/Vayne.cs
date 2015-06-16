@@ -26,6 +26,7 @@ namespace ChallengerSeries.Plugins
         {
             base.InitMenu();
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
@@ -264,6 +265,21 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            var tg = (Obj_AI_Hero)target;
+            if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W)))
+            {
+                E.Cast(tg);
+            }
+
+            if (!Q.IsReady())
+            {
+                if (_tumbleToKillSecondMinion)
+                {
+                    _tumbleToKillSecondMinion = false;
+                }
+                return;
+            }
+
             if (HasUltiBuff() && ComboMenu.Item("QUltSpam").GetValue<bool>())
                 Q.Cast(Game.CursorPos);
             if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
@@ -274,6 +290,15 @@ namespace ChallengerSeries.Plugins
                 return;
             }
 
+            if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear ||
+                Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < Player.AttackRange && Q.IsReady())
+                {
+                    Q.Cast(Game.CursorPos);
+                }
+            }
+
             if (!ComboMenu.Item("QCombo").GetValue<bool>()) return;
             if (Player.ManaPercent > 25 && target is Obj_AI_Hero)
             {
@@ -282,11 +307,6 @@ namespace ChallengerSeries.Plugins
                     !Player.GetEnemiesInRange(700).Any(h => h.BaseSkinName.ToLower().Contains("kalista")))
                 {
                     Q.Cast(Game.CursorPos);
-                }
-                var t = (Obj_AI_Hero) target;
-                if (t.VayneWStacks() == 2 && t.Health < Player.GetSpellDamage(t, SpellSlot.W))
-                {
-                    E.Cast(t);
                 }
             }
             if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
