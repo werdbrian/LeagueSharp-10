@@ -75,7 +75,7 @@ namespace ChallengerSeries.Plugins
         protected override void Combo()
         {
             var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).ToList();
-            if (Player.CountEnemiesInRange(900) == 0 && Items.HasItem((int)ItemId.The_Bloodthirster, Player) && minionsInRange.Count != 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.HealthPercent < 60)
+            if (Player.CountEnemiesInRange(600) == 0 && Items.HasItem((int)ItemId.The_Bloodthirster, Player) && minionsInRange.Count != 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.HealthPercent < 60)
             {
                 Orbwalker.ForceTarget(minionsInRange.FirstOrDefault());
             }
@@ -94,13 +94,7 @@ namespace ChallengerSeries.Plugins
         protected override void LaneClear()
         {
             base.LaneClear();
-            /* BAD bakaaa
-            if (Q.IsReady() && LaneClearMenu.Item("QFarm").GetValue<bool>() && Player.ManaPercent > 37)
-            {
-                var minions = MinionManager.GetMinions(Player.Position, Q.Range);
-                if (minions.Any(m => m.Health < Player.GetAutoAttackDamage(m) + Q.GetDamage(m)))
-                    Q.Cast(Game.CursorPos);
-            }*/
+            //SOON^TM
         }
 
 
@@ -229,6 +223,7 @@ namespace ChallengerSeries.Plugins
             {
                 if (sender.InAArange())
                 {
+                    args.Process = false;
                     Orbwalker.ForceTarget(sender);
                 }
                 else
@@ -260,7 +255,7 @@ namespace ChallengerSeries.Plugins
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
-                if (t.IsMelee() && t.IsFacing(Player) && t != null)
+                if (t.IsMelee() && t.IsFacing(Player) && t != null && ComboMenu.Item("QCombo").GetValue<bool>())
                 {
                     if (t.Distance(Player.ServerPosition) < Q.Range && Q.IsReady() && t.IsFacing(Player) && !Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)).IsShroom())
                     {
@@ -271,7 +266,7 @@ namespace ChallengerSeries.Plugins
             }
             if (Items.HasItem((int)ItemId.Thornmail, (Obj_AI_Hero)args.Target) &&
                 !Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 25 &&
-                args.Target.HealthPercent > 15)
+                args.Target.HealthPercent > 15 && (args.Target as Obj_AI_Hero).VayneWStacks() != 2)
             {
                 args.Process = false;
                 var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).ToList();
@@ -288,6 +283,15 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
+                _tumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, 550).Any(m => m.IsValidTarget()) && Q.IsReady())
+            {
+                Q.Cast(Game.CursorPos);
+                _tumbleToKillSecondMinion = false;
+                return;
+            }
+
+            if (!ComboMenu.Item("QCombo").GetValue<bool>()) return;
             if (Player.ManaPercent > 25 && target is Obj_AI_Hero)
             {
                 if (unit.IsMe &&
@@ -315,7 +319,7 @@ namespace ChallengerSeries.Plugins
                         Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
                     {
                         var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
-                            Player.Distance(t.ServerPosition) - Player.AttackRange + 45);
+                            Player.Distance(t.ServerPosition) - Player.AttackRange + 35);
                         if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
                             Player.Level >= t.Level)
                         {
@@ -330,13 +334,6 @@ namespace ChallengerSeries.Plugins
             }
             if (Player.CountEnemiesInRange(1000) > 0 || Player.ManaPercent < 70)
             {
-                _tumbleToKillSecondMinion = false;
-                return;
-            }
-            if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
-                _tumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, 550).Any(m => m.IsValidTarget()) && Q.IsReady())
-            {
-                Q.Cast(Game.CursorPos);
                 _tumbleToKillSecondMinion = false;
             }
         }
