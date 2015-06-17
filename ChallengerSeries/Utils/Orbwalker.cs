@@ -327,6 +327,11 @@ namespace ChallengerSeries.Utils
 
             Player.IssueOrder(GameObjectOrder.MoveTo, point);
             LastMoveCommandPosition = point;
+
+            if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>())
+            {
+                VirtualMouse.RightClick(point);
+            }
         }
 
         /// <summary>
@@ -355,6 +360,10 @@ namespace ChallengerSeries.Utils
                         }
                         Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastTarget = target;
+                        if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>())
+                        {
+                            VirtualMouse.ShiftClick(target.Position);
+                        }
                         return;
                     }
                 }
