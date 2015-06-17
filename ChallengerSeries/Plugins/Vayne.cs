@@ -56,6 +56,19 @@ namespace ChallengerSeries.Plugins
             R = new Spell(SpellSlot.R);
         }
 
+        protected override void OnGameLoad(EventArgs args)
+        {
+            base.OnGameLoad(args);
+            if (SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex == 0)
+            {
+                Player.SetSkin(Player.BaseSkinName, 4);
+            }
+            else
+            {
+                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+            }
+        }
+
         protected override void OnUpdate(EventArgs args)
         {
             if (E.IsReady())
@@ -230,7 +243,7 @@ namespace ChallengerSeries.Plugins
             {
                 Q.Cast(Game.CursorPos);
             }
-            if (Player.HealthPercent > 45 && Player.ManaPercent > 60 && sender.IsValid<Obj_AI_Hero>() && sender.IsEnemy && args.Target is Obj_AI_Minion &&
+            if (Player.HealthPercent > 45 && Player.ManaPercent > 60 && Player.CountEnemiesInRange(1000) <= 2 && sender.IsValid<Obj_AI_Hero>() && sender.IsEnemy && args.Target is Obj_AI_Minion &&
                 sender.Distance(Player.ServerPosition) < Player.AttackRange + 250)
             {
                 if (sender.InAArange())
