@@ -725,7 +725,7 @@ namespace ChallengerSeries.Utils
                                     return DesiredTarget;
                                 }
 
-                                if (DesiredTarget.IsDead || Player.Distance(DesiredTarget) >= 1000 || !DesiredTarget.IsVisible)
+                                if (DesiredTarget.IsDead || Player.Distance(DesiredTarget) >= 1000)
                                 {
                                     DesiredTarget = null;
                                 }
