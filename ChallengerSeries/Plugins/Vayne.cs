@@ -33,6 +33,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
+            ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("QEscape", "Escape with Q").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("CondemnEscape", "Escape with E").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("EInterrupt", "Use E to Interrupt").SetValue(true));
@@ -57,18 +58,35 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnUpdate(EventArgs args)
         {
-            if (Player.InFountain() && Player.IsDead)
-            {
-                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
-            }
-
             if (E.IsReady())
             {
                 Condemn();
             }
-            if (Player.InFountain() && Player.Level > 6 && Items.HasItem((int)ItemId.Warding_Totem_Trinket))
+
+            if (Player.IsDead)
+            {
+                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+            }
+
+            if (Player.Buffs.Any(b => b.Name.ToLower().Contains("rengarr")))
+            {
+                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
+                {
+                    Items.UseItem((int)ItemId.Oracles_Lens_Trinket, Player.Position);
+                }
+                else if (Items.HasItem((int)ItemId.Vision_Ward, Player))
+                {
+                    Items.UseItem((int) ItemId.Vision_Ward, Player.Position.Randomize(0, 125));
+                }
+            }
+            
+            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && Player.Level > 6 && Items.HasItem((int)ItemId.Warding_Totem_Trinket))
             {
                 Player.BuyItem(ItemId.Scrying_Orb_Trinket);
+            }
+            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.BaseSkinName == "Rengar"))
+            {
+                Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
             base.OnUpdate(args);
         }
