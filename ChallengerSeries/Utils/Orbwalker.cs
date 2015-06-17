@@ -702,6 +702,19 @@ namespace ChallengerSeries.Utils
                         var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
                         if (attackableHeroes.Any())
                         {
+                            var EZKill =
+                                attackableHeroes.FirstOrDefault(
+                                    h =>
+                                        h.Health <
+                                        Player.GetAutoAttackDamage(h)*3 +
+                                        Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W));
+                            if (EZKill != null)
+                                return EZKill;
+
+                            var TwoWStacks = attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2);
+                            if (TwoWStacks != null)
+                                return TwoWStacks;
+
                             var priorityTarget =
                                 attackableHeroes.FirstOrDefault(h => Lists.TargetSelector.Contains(h.BaseSkinName));
                             if (priorityTarget != null)
@@ -711,8 +724,7 @@ namespace ChallengerSeries.Utils
                             {
                                 return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
                             }
-                            return attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2) ??
-                                   attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
+                            return attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
                         }
                     }
                     var target = TargetSelector.GetTarget(-1, TargetSelector.DamageType.Physical);

@@ -57,6 +57,11 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnUpdate(EventArgs args)
         {
+            if (Player.InFountain() && Player.IsDead)
+            {
+                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+            }
+
             if (E.IsReady())
             {
                 Condemn();
