@@ -706,7 +706,8 @@ namespace ChallengerSeries.Utils
                         {
                             if (Mouse.LeftButton == MouseButtonState.Pressed)
                             {
-                                DesiredTarget = attackableHeroes.FirstOrDefault(h => h.Distance(Game.CursorPos) <= 200);
+                                DesiredTarget =
+                                    attackableHeroes.OrderBy(h => h.Distance(Game.CursorPos)).FirstOrDefault();
                             }
                             if (DesiredTarget != null)
                             {
