@@ -27,6 +27,7 @@ namespace ChallengerSeries.Plugins
             base.InitMenu();
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
@@ -241,6 +242,7 @@ namespace ChallengerSeries.Plugins
         {
             if (HasUltiBuff() && Q.IsReady() && sender.BaseSkinName.Equals("Kalista") && args.Order == GameObjectOrder.AutoAttack && args.Target.IsMe)
             {
+                if (ComboMenu.Item("QChecks").GetValue<bool>() && Game.CursorPos.IsShroom()) return;
                 Q.Cast(Game.CursorPos);
             }
             if (Player.HealthPercent > 45 && Player.ManaPercent > 60 && Player.CountEnemiesInRange(1000) <= 2 && sender.IsValid<Obj_AI_Hero>() && sender.IsEnemy && args.Target is Obj_AI_Minion &&
@@ -301,6 +303,8 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            if (target == null) return;
+
             var tg = (Obj_AI_Hero)target;
             if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
             {
@@ -315,6 +319,35 @@ namespace ChallengerSeries.Plugins
                 }
                 return;
             }
+
+            if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                var t = (Obj_AI_Hero)target;
+                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && t.Distance(Player) < 850)
+                {
+                    if (t.IsKillable())
+                    {
+                        Orbwalker.ForceTarget(t);
+                    }
+                    if (Player.CountEnemiesInRange(1000) <= Player.CountAlliesInRange(1000) &&
+                        Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
+                    {
+                        var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
+                            Player.Distance(t.ServerPosition) - Player.AttackRange + 35);
+                        if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
+                            Player.Level >= t.Level)
+                        {
+                            if (tumblePos.CountEnemiesInRange(300) > 1 && Q.IsReady())
+                            {
+                                Q.Cast(tumblePos);
+                            }
+                            Orbwalker.ForceTarget(t);
+                        }
+                    }
+                }
+            }
+
+            if (ComboMenu.Item("QChecks").GetValue<bool>() && Game.CursorPos.IsShroom()) return;
 
             if (HasUltiBuff() && ComboMenu.Item("QUltSpam").GetValue<bool>())
                 Q.Cast(Game.CursorPos);
@@ -343,32 +376,6 @@ namespace ChallengerSeries.Plugins
                     !Player.GetEnemiesInRange(700).Any(h => h.BaseSkinName.ToLower().Contains("kalista")))
                 {
                     Q.Cast(Game.CursorPos);
-                }
-            }
-            if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-            {
-                var t = (Obj_AI_Hero) target;
-                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && t.Distance(Player) < 850)
-                {
-                    if (t.IsKillable())
-                    {
-                        Orbwalker.ForceTarget(t);
-                    }
-                    if (Player.CountEnemiesInRange(1000) <= Player.CountAlliesInRange(1000) &&
-                        Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
-                    {
-                        var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
-                            Player.Distance(t.ServerPosition) - Player.AttackRange + 35);
-                        if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
-                            Player.Level >= t.Level)
-                        {
-                            if (tumblePos.CountEnemiesInRange(300) > 1 && Q.IsReady())
-                            {
-                                Q.Cast(tumblePos);
-                            }
-                            Orbwalker.ForceTarget(t);
-                        }
-                    }
                 }
             }
             if (Player.CountEnemiesInRange(1000) > 0 || Player.ManaPercent < 70)

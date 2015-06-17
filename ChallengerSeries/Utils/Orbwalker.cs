@@ -24,6 +24,7 @@
 
 using System;
 using System.Linq;
+using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -99,6 +100,7 @@ namespace ChallengerSeries.Utils
         private static float _minDistance = 400;
         private static bool _missileLaunched;
         private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+        public static Obj_AI_Hero DesiredTarget;
 
         static Orbwalking()
         {
@@ -702,6 +704,23 @@ namespace ChallengerSeries.Utils
                         var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
                         if (attackableHeroes.Any())
                         {
+                            if (Mouse.LeftButton == MouseButtonState.Pressed)
+                            {
+                                DesiredTarget = attackableHeroes.FirstOrDefault(h => h.Distance(Game.CursorPos) <= 200);
+                            }
+                            if (DesiredTarget != null)
+                            {
+                                if (DesiredTarget.IsValidTarget())
+                                {
+                                    return DesiredTarget;
+                                }
+
+                                if (DesiredTarget.IsDead || Player.Distance(DesiredTarget) >= 1000 || !DesiredTarget.IsVisible)
+                                {
+                                    DesiredTarget = null;
+                                }
+                            }
+
                             var EZKill =
                                 attackableHeroes.FirstOrDefault(
                                     h =>
