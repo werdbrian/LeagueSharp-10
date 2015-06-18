@@ -36,12 +36,11 @@ namespace ChallengerSeries.Utils
 
         public static bool IsShroom(this Vector3 pos)
         {
-            return MinionManager.GetMinions(pos, 150, MinionTypes.All,
-                MinionTeam.Enemy)
+            return MinionManager.GetMinions(pos, 150)
                 .Any(
                     m =>
                         m.BaseSkinName.Contains("mine") || m.BaseSkinName.Contains("trap") ||
-                        m.BaseSkinName.Contains("shroom") || m.BaseSkinName.Contains("cait"));
+                        m.BaseSkinName.Contains("shroom") || m.BaseSkinName.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 150);
         }
 
         public static bool IsKillable(this Obj_AI_Hero hero)
@@ -52,7 +51,7 @@ namespace ChallengerSeries.Utils
         public static bool IsCollisionable(this Vector3 pos)
         {
             return NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Wall) || 
-                (NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building) && Player.Distance(pos) < 600);
+                (NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building) && Player.Distance(pos) < 550);
         }
         public static bool IsValidState(this Obj_AI_Hero target)
         {

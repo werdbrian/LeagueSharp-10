@@ -131,9 +131,8 @@ namespace ChallengerSeries.Plugins
 
             if (ComboMenu.Item("PradaE").GetValue<bool>())
             {
-                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range))
+                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield)))
                 {
-                    if (hero.HasBuffOfType(BuffType.SpellShield)) break;
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
                     for (var i = 420; i > 0; i -= 70)
@@ -150,7 +149,7 @@ namespace ChallengerSeries.Plugins
             else
             {
                 foreach (var hero in
-                        from hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f))
+                        from hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f) && !hero.HasBuffOfType(BuffType.SpellShield))
                         let prediction = E.GetPrediction(hero)
                         where
                             prediction.UnitPosition.To2D()
@@ -165,7 +164,6 @@ namespace ChallengerSeries.Plugins
                                     .To3D().IsCollisionable()
                         select hero)
                 {
-                    if (hero.HasBuffOfType(BuffType.SpellShield)) break;
                     E.Cast(hero);
                     return;
                 }
