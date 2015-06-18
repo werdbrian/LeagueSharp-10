@@ -406,9 +406,9 @@ namespace ChallengerSeries.Plugins
                     if (Items.HasItem((int)ItemId.Greater_Stealth_Totem_Trinket, Player)) yellowTrinket = ItemId.Greater_Stealth_Totem_Trinket;
 
                     if (Items.CanUseItem((int)blueTrinket))
-                        Items.UseItem((int)blueTrinket, _condemnEndPos);
+                        Items.UseItem((int)blueTrinket, _condemnEndPos.Randomize());
                     if (Items.CanUseItem((int)yellowTrinket))
-                        Items.UseItem((int)yellowTrinket, _condemnEndPos);
+                        Items.UseItem((int)yellowTrinket, _condemnEndPos.Randomize());
                 }
             }
             #endregion

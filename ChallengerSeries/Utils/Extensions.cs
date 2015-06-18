@@ -52,8 +52,7 @@ namespace ChallengerSeries.Utils
         public static bool IsCollisionable(this Vector3 pos)
         {
             return NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Wall) || 
-                (NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building) && ObjectManager.Player.UnderTurret()) ||
-                (NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building) && (ObjectManager.Get<Obj_BarracksDampener>().Any(b => Player.Distance(b.Position) < 600) || ObjectManager.Get<Obj_HQ>().Any(hq => Player.Distance(hq.Position) < 600)));
+                (NavMesh.GetCollisionFlags(pos).HasFlag(CollisionFlags.Building) && Player.Distance(pos) < 600);
         }
         public static bool IsValidState(this Obj_AI_Hero target)
         {
