@@ -126,8 +126,9 @@ namespace ChallengerSeries.Plugins
 
         private void Condemn()
         {
-            if (ShouldSaveCondemn() || !E.IsReady()) return;
             if (!ComboMenu.Item("ECombo").GetValue<bool>()) return;
+            if (ShouldSaveCondemn() || !E.IsReady() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
+
             if (ComboMenu.Item("PradaE").GetValue<bool>())
             {
                 foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range))
