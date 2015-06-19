@@ -24,6 +24,8 @@ namespace ChallengerSeries.Plugins
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;
         private static int _lastCycledSkin;
+        private static Vector3 _preV3 = new Vector2(12050, 4828).To3D();
+        private static Vector3 _aftV3 = new Vector2(11510, 4470).To3D();
 
         protected override void InitMenu()
         {
@@ -80,6 +82,11 @@ namespace ChallengerSeries.Plugins
                 Condemn();
             }
 
+            if (Q.IsReady())
+            {
+                WallTumble();
+            }
+
             if (Player.Buffs.Any(b => b.Name.ToLower().Contains("rengarr")))
             {
                 if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
@@ -104,6 +111,19 @@ namespace ChallengerSeries.Plugins
             if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
                 SkinHax();
+            }
+        }
+
+        private static void WallTumble()
+        {
+            if (Player.Distance(_preV3) < 50)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, _preV3);
+            }
+            if (Player.Distance(_preV3) < 5)
+            {
+                Q.Cast(_aftV3);
+                Utility.DelayAction.Add(100, () => Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3));
             }
         }
 
@@ -231,7 +251,8 @@ namespace ChallengerSeries.Plugins
 
             if (DrawingsMenu.Item("streamingmode").GetValue<bool>())
                 return;
-
+            if (Player.Distance(_preV3) < 1000)
+            Drawing.DrawCircle(_preV3, 50, Color.Gold);
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
