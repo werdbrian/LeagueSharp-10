@@ -201,7 +201,7 @@ namespace ChallengerSeries.Plugins
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
                         {
-                            if (_condemnEndPos.Randomize(-15, 15).IsCollisionable())
+                            if (_condemnEndPos.Randomize(-20, 20).IsCollisionable())
                             {
                                 E.Cast(hero);
                                 return;
