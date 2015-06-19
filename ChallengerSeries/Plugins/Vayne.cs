@@ -123,8 +123,13 @@ namespace ChallengerSeries.Plugins
             }
             if (Player.Distance(_preV3) < 5)
             {
+                Orbwalker.SetMovement(false);
                 Q.Cast(_aftV3);
-                Utility.DelayAction.Add(100, () => Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3.Randomize(-1, 1)));
+                Utility.DelayAction.Add(100, () =>
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3.Randomize(-1, 1));
+                    Orbwalker.SetMovement(true);
+                });
             }
         }
 
