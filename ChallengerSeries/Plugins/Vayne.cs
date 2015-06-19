@@ -21,6 +21,9 @@ namespace ChallengerSeries.Plugins
         private static Vector3 _condemnEndPos;
         private static Vector3 _condemnEndPosSimplified;
         private static bool _tumbleToKillSecondMinion;
+        private static bool _skinLoaded = false;
+        private static int _cycleThroughSkinsTime = 0;
+        private static int _lastCycledSkin;
 
         protected override void InitMenu()
         {
@@ -47,6 +50,9 @@ namespace ChallengerSeries.Plugins
                 {
                     Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
                 };
+            SkinhackMenu.AddItem(new MenuItem("enableskinhack", "Enable Skinhax").SetValue(true));
+            SkinhackMenu.AddItem(new MenuItem("cyclethroughskins", "Cycle Through Skins").SetValue(false));
+            SkinhackMenu.AddItem(new MenuItem("cyclethroughskinstime", "Cycling Time").SetValue(new Slider(30, 30, 600)));
         }
 
         protected override void InitSpells()
@@ -60,13 +66,10 @@ namespace ChallengerSeries.Plugins
         protected override void OnGameLoad(EventArgs args)
         {
             base.OnGameLoad(args);
-            if (SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex == 0)
-            {
-                Player.SetSkin(Player.BaseSkinName, 4);
-            }
-            else
+            if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
                 Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                _skinLoaded = true;
             }
         }
 
@@ -75,11 +78,6 @@ namespace ChallengerSeries.Plugins
             if (E.IsReady())
             {
                 Condemn();
-            }
-
-            if (Player.IsDead)
-            {
-                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
             }
 
             if (Player.Buffs.Any(b => b.Name.ToLower().Contains("rengarr")))
@@ -103,6 +101,42 @@ namespace ChallengerSeries.Plugins
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
             base.OnUpdate(args);
+            if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
+            {
+                SkinHax();
+            }
+        }
+
+        private static void SkinHax()
+        {
+            if (Player.IsDead && _skinLoaded)
+            {
+                _skinLoaded = false;
+            }
+
+            if (Player.InFountain() && !Player.IsDead && !_skinLoaded &&
+                SkinhackMenu.Item("enableskinhack").GetValue<bool>())
+            {
+                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                _skinLoaded = true;
+            }
+
+            if (SkinhackMenu.Item("cyclethroughskins").GetValue<bool>() &&
+                Environment.TickCount - _cycleThroughSkinsTime >
+                SkinhackMenu.Item("cyclethroughskinstime").GetValue<Slider>().Value * 1000)
+            {
+                if (_lastCycledSkin <= 6)
+                {
+                    _lastCycledSkin++;
+                }
+                else
+                {
+                    _lastCycledSkin = 1;
+                }
+
+                Player.SetSkin(Player.BaseSkinName, _lastCycledSkin);
+                _cycleThroughSkinsTime = Environment.TickCount;
+            }
         }
 
         protected override void Combo()
