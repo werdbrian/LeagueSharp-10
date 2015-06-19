@@ -483,6 +483,10 @@ namespace ChallengerSeries.Utils
             public Orbwalker(Menu attachToMenu)
             {
                 _config = attachToMenu;
+                var targetSelector = new Menu("Target Selector", "targetselector");
+                TargetSelector.AddToMenu(targetSelector);
+                _config.AddSubMenu(targetSelector);
+
                 /* Drawings submenu */
                 var drawings = new Menu("Drawings", "drawings");
                 drawings.AddItem(
@@ -634,7 +638,7 @@ namespace ChallengerSeries.Utils
                 if ((ActiveMode == OrbwalkingMode.Mixed || ActiveMode == OrbwalkingMode.LaneClear) &&
                     !_config.Item("PriorizeFarm").GetValue<bool>())
                 {
-                    var target = TargetSelector.GetTarget(-1, TargetSelector.DamageType.Physical);
+                    var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
                     if (target != null)
                     {
                         return target;
@@ -756,7 +760,7 @@ namespace ChallengerSeries.Utils
                             return attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
                         }
                     }
-                    var target = TargetSelector.GetTarget(-1, TargetSelector.DamageType.Physical);
+                    var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
                     if (target.IsValidTarget())
                     {
                         return target;

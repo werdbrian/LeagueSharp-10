@@ -249,7 +249,6 @@ namespace ChallengerSeries.Plugins
             {
                 if (sender.InAArange())
                 {
-                    args.Process = false;
                     Orbwalker.ForceTarget(sender);
                 }
                 else
@@ -283,13 +282,16 @@ namespace ChallengerSeries.Plugins
                     }
                 }
             }
+
+            var minion = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).FirstOrDefault();
+            if (minion == null) return;
+
             if (Items.HasItem((int)ItemId.Thornmail, (Obj_AI_Hero)args.Target) &&
                 !Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 25 &&
                 args.Target.HealthPercent > 15 && (args.Target as Obj_AI_Hero).VayneWStacks() != 2)
             {
                 args.Process = false;
-                var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).ToList();
-                Orbwalker.ForceTarget(minionsInRange.FirstOrDefault());
+                Orbwalker.ForceTarget(minion);
             }
         }
 

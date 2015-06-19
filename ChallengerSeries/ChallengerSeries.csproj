@@ -70,6 +70,7 @@
     <Compile Include="Utils\Orbwalker.cs" />
     <Compile Include="Utils\Positioning.cs" />
     <Compile Include="Utils\SpellDb.cs" />
+    <Compile Include="Utils\TargetSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
