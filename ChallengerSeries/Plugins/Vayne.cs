@@ -47,7 +47,7 @@ namespace ChallengerSeries.Plugins
             SkinhackMenu.AddItem(
                 new MenuItem("skin", "Skin: ").SetValue(
                     new StringList(new string[]
-                    {"Classic", "Vindicator", "Aristrocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight"}))).ValueChanged +=
+                    {"Classic", "Vindicator", "Aristocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight"}))).ValueChanged +=
                 (sender, args) =>
                 {
                     Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
