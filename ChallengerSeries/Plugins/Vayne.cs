@@ -420,16 +420,17 @@ namespace ChallengerSeries.Plugins
             {
                 if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < Player.AttackRange && Q.IsReady())
                 {
-                    Q.Cast(Game.CursorPos);
+                    var pos = Player.Position.Extend(Game.CursorPos,
+                        Player.Distance(target.Position) - Player.AttackRange + 15);
+                    Q.Cast(pos);
                 }
             }
 
             if (!ComboMenu.Item("QCombo").GetValue<bool>()) return;
-            if (Player.ManaPercent > 25 && target is Obj_AI_Hero)
+            if (Player.ManaPercent > 25)
             {
                 if (unit.IsMe &&
-                    Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !HasUltiBuff() && Q.IsReady() &&
-                    !Player.GetEnemiesInRange(700).Any(h => h.BaseSkinName.ToLower().Contains("kalista")))
+                    Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !HasUltiBuff() && Q.IsReady())
                 {
                     Q.Cast(Game.CursorPos);
                 }
