@@ -35,6 +35,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
+            ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));

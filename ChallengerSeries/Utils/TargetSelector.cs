@@ -404,10 +404,22 @@ namespace ChallengerSeries.Utils
                         return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
 
                     case TargetingMode.AutoPriority:
-                        return
-                            targets.MaxOrDefault(
+                        return ObjectManager.Player.BaseSkinName == "Vayne"
+                            ? (targets.FirstOrDefault(
+                                h =>
+                                    h.Health <
+                                    ObjectManager.Player.GetAutoAttackDamage(h)*3 +
+                                    ObjectManager.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
+                               (ChallengerPlugin.ComboMenu.Item("FocusTwoW").GetValue<bool>()
+                                   ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
+                                   : null) ?? targets.MaxOrDefault(
+                                       hero =>
+                                           (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
+                                           GetPriority(hero)))
+                            : targets.MaxOrDefault(
                                 hero =>
-                                    champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health) * GetPriority(hero));
+                                    (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
+                                    GetPriority(hero));
 
                     case TargetingMode.LessAttack:
                         return

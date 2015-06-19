@@ -712,54 +712,6 @@ namespace ChallengerSeries.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
-                    if (ObjectManager.Player.BaseSkinName == "Vayne")
-                    {
-                        var attackableHeroes = HeroManager.Enemies.FindAll(h => !h.IsDead && h.IsValidTarget(Player.AttackRange));
-                        if (attackableHeroes.Any())
-                        {
-                            if (Mouse.LeftButton == MouseButtonState.Pressed)
-                            {
-                                DesiredTarget =
-                                    attackableHeroes.OrderBy(h => h.Distance(Game.CursorPos)).FirstOrDefault();
-                            }
-                            if (DesiredTarget != null)
-                            {
-                                if (DesiredTarget.IsValidTarget())
-                                {
-                                    return DesiredTarget;
-                                }
-
-                                if (DesiredTarget.IsDead || Player.Distance(DesiredTarget) >= 1000)
-                                {
-                                    DesiredTarget = null;
-                                }
-                            }
-
-                            var EZKill =
-                                attackableHeroes.FirstOrDefault(
-                                    h =>
-                                        h.Health <
-                                        Player.GetAutoAttackDamage(h)*3 +
-                                        Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W));
-                            if (EZKill != null)
-                                return EZKill;
-
-                            var TwoWStacks = attackableHeroes.FirstOrDefault(h => h.VayneWStacks() == 2);
-                            if (TwoWStacks != null)
-                                return TwoWStacks;
-
-                            var priorityTarget =
-                                attackableHeroes.FirstOrDefault(h => Lists.TargetSelector.Contains(h.BaseSkinName));
-                            if (priorityTarget != null)
-                                return priorityTarget;
-
-                            if (Items.HasItem((int) ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 30)
-                            {
-                                return attackableHeroes.OrderBy(h => h.Armor).FirstOrDefault();
-                            }
-                            return attackableHeroes.OrderBy(h => h.Health).FirstOrDefault();
-                        }
-                    }
                     var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
                     if (target.IsValidTarget())
                     {
