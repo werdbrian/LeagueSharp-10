@@ -10,17 +10,7 @@ namespace ChallengerSeries
 
         public static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += lc =>
-            {
-                switch (ObjectManager.Player.BaseSkinName)
-                {
-                    case ("Vayne"):
-                    {
-                        RunningPlugin = new Vayne();
-                        break;
-                    }
-                }
-            };
+            RunningPlugin = new Vayne();
         }
     }
 }
