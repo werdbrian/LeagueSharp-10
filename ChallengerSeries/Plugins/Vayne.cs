@@ -33,6 +33,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
@@ -82,7 +83,7 @@ namespace ChallengerSeries.Plugins
                 Condemn();
             }
 
-            if (Q.IsReady())
+            if (ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500)
             {
                 WallTumble();
             }
@@ -116,14 +117,14 @@ namespace ChallengerSeries.Plugins
 
         private static void WallTumble()
         {
-            if (Player.Distance(_preV3) < 50)
+            if (Player.Distance(_preV3) < 100)
             {
-                Player.IssueOrder(GameObjectOrder.MoveTo, _preV3);
+                Player.IssueOrder(GameObjectOrder.MoveTo, _preV3.Randomize(-1, 1));
             }
             if (Player.Distance(_preV3) < 5)
             {
                 Q.Cast(_aftV3);
-                Utility.DelayAction.Add(100, () => Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3));
+                Utility.DelayAction.Add(100, () => Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3.Randomize(-1, 1)));
             }
         }
 
@@ -252,7 +253,7 @@ namespace ChallengerSeries.Plugins
             if (DrawingsMenu.Item("streamingmode").GetValue<bool>())
                 return;
             if (Player.Distance(_preV3) < 1000)
-            Drawing.DrawCircle(_preV3, 50, Color.Gold);
+            Drawing.DrawCircle(_preV3, 75, Color.Gold);
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
