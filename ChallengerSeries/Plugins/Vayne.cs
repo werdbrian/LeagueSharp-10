@@ -96,7 +96,7 @@ namespace ChallengerSeries.Plugins
             {
                 Player.BuyItem(ItemId.Scrying_Orb_Trinket);
             }
-            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.BaseSkinName == "Rengar"))
+            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.BaseSkinName == "Rengar" || h.BaseSkinName == "Talon"))
             {
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
@@ -432,7 +432,7 @@ namespace ChallengerSeries.Plugins
             #region ward brush after condemn
             if (sender.IsMe && args.SData.Name.ToLower().Contains("condemn"))
             {
-                if (NavMesh.IsWallOfGrass(_condemnEndPos, 250))
+                if (NavMesh.IsWallOfGrass(_condemnEndPos, 150))
                 {
                     var blueTrinket = ItemId.Scrying_Orb_Trinket;
                     if (Items.HasItem((int)ItemId.Farsight_Orb_Trinket, Player)) blueTrinket = ItemId.Farsight_Orb_Trinket;
@@ -441,9 +441,9 @@ namespace ChallengerSeries.Plugins
                     if (Items.HasItem((int)ItemId.Greater_Stealth_Totem_Trinket, Player)) yellowTrinket = ItemId.Greater_Stealth_Totem_Trinket;
 
                     if (Items.CanUseItem((int)blueTrinket))
-                        Items.UseItem((int)blueTrinket, _condemnEndPos.Randomize());
+                        Items.UseItem((int)blueTrinket, _condemnEndPos.Randomize(0, 150));
                     if (Items.CanUseItem((int)yellowTrinket))
-                        Items.UseItem((int)yellowTrinket, _condemnEndPos.Randomize());
+                        Items.UseItem((int)yellowTrinket, _condemnEndPos.Randomize(0, 150));
                 }
             }
             #endregion
@@ -463,6 +463,18 @@ namespace ChallengerSeries.Plugins
                     {
                         E.Cast(sender);
                     }
+                }
+            }
+
+            if (args.SData.Name.ToLower().Contains("talonshadow"))
+            {
+                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
+                {
+                    Items.UseItem((int)ItemId.Oracles_Lens_Trinket, Player.Position);
+                }
+                else if (Items.HasItem((int)ItemId.Vision_Ward, Player))
+                {
+                    Items.UseItem((int)ItemId.Vision_Ward, Player.Position.Randomize(0, 125));
                 }
             }
         }
