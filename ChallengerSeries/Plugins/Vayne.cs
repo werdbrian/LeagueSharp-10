@@ -494,7 +494,7 @@ namespace ChallengerSeries.Plugins
             if (spellData != null)
             {
                 if (spellData.CcType == CcType.Knockup ||
-                    spellData.CcType == CcType.Knockback || spellData.CcType == CcType.Stun)
+                    spellData.CcType == CcType.Knockback)
                 {
                     if (E.CanCast(sender))
                     {
@@ -542,13 +542,6 @@ namespace ChallengerSeries.Plugins
                 {
                     Q.Cast(tumblePos);
                 }
-            }
-            #endregion
-
-            #region AntiGC E for LowHealth Escape
-            if (Player.HealthPercent < 30f && E.IsReady())
-            {
-                E.Cast(gapcloser.Sender);
             }
             #endregion
         }
