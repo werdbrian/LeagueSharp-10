@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using LeagueSharp;
 using LeagueSharp.Common;
 using ChallengerSeries.Utils;
@@ -205,7 +206,12 @@ namespace ChallengerSeries.Plugins
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
                         {
-                            if (_condemnEndPos.Randomize(-20, 20).IsCollisionable())
+                            if (Player.Distance(_condemnEndPos) < 500)
+                            {
+                                E.Cast(hero);
+                                return;
+                            }
+                            if (Player.Position.Extend(E.GetPrediction(hero).UnitPosition, -420).IsCollisionable())
                             {
                                 E.Cast(hero);
                                 return;
