@@ -378,7 +378,7 @@ namespace ChallengerSeries.Utils
                 var targets =
                     HeroManager.Enemies
                         .FindAll(
-                            hero =>
+                            hero => !IsInvulnerable(hero, type) &&
                                 ignoredChamps.All(ignored => ignored.NetworkId != hero.NetworkId) &&
                                 IsValidTarget(hero, range, type, ignoreShieldSpells, rangeCheckFrom));
 
@@ -405,9 +405,7 @@ namespace ChallengerSeries.Utils
 
                     case TargetingMode.AutoPriority:
                         return ObjectManager.Player.BaseSkinName == "Vayne"
-                            ? (targets.FirstOrDefault(
-                                h =>
-                                    h.Health <
+                            ? (targets.FirstOrDefault(h =>h.Health <
                                     ObjectManager.Player.GetAutoAttackDamage(h)*3 +
                                     ObjectManager.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
                                (ChallengerPlugin.ComboMenu.Item("FocusTwoW").GetValue<bool>()
@@ -416,8 +414,7 @@ namespace ChallengerSeries.Utils
                                        hero =>
                                            (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
                                            GetPriority(hero)))
-                            : targets.MaxOrDefault(
-                                hero =>
+                            : targets.MaxOrDefault(hero =>
                                     (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
                                     GetPriority(hero));
 
