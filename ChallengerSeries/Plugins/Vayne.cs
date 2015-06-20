@@ -65,7 +65,7 @@ namespace ChallengerSeries.Plugins
         {
             Q = new Spell(SpellSlot.Q, 300f);
             W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 550f);
+            E = new Spell(SpellSlot.E, 545f);
             R = new Spell(SpellSlot.R);
         }
 
@@ -203,17 +203,17 @@ namespace ChallengerSeries.Plugins
                 {
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    for (var i = 420; i > 0; i -= 70)
+                    for (var i = 400; i > 0; i -= 50)
                     {
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
                         {
-                            if (Player.Distance(_condemnEndPos) < 500)
+                            if (Player.Distance(_condemnEndPos) < 500 || !hero.CanMove || !hero.GetWaypoints().Any())
                             {
                                 E.Cast(hero);
                                 return;
                             }
-                            if (Player.Position.Extend(E.GetPrediction(hero).UnitPosition, -420).IsCollisionable())
+                            if (Player.Position.Extend(E.GetPrediction(hero).UnitPosition, -400).IsCollisionable())
                             {
                                 E.Cast(hero);
                                 return;
@@ -228,8 +228,8 @@ namespace ChallengerSeries.Plugins
                 {
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    var pp = E.GetPrediction(hero).UnitPosition.To2D();
-                    for (var i = 420; i > 0; i -= 70)
+                    var pp = (hero.GetWaypoints().Any() || !hero.CanMove) ? E.GetPrediction(hero).UnitPosition.To2D() : hero.ServerPosition.To2D();
+                    for (var i = 400; i > 0; i -= 50)
                     {
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(pp, -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
