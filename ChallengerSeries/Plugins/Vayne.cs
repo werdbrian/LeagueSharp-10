@@ -218,7 +218,7 @@ namespace ChallengerSeries.Plugins
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
                         {
-                            if (!hero.CanMove || !hero.GetWaypoints().Any())
+                            if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
                             {
                                 E.Cast(hero);
                                 return;
@@ -227,7 +227,7 @@ namespace ChallengerSeries.Plugins
                             var wayPoints = hero.GetWaypoints();
                             var wCount = wayPoints.Count;
 
-                            var pushDist = 550 - Player.Distance(hero) + 420;
+                            var pushDist = 550 - Player.Distance(hero) + 410;
                             if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), -pushDist).IsCollisionable()) >= wCount/2)
                             {
                                 E.Cast(hero);
