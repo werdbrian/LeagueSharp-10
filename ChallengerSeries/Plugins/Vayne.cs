@@ -228,7 +228,7 @@ namespace ChallengerSeries.Plugins
                             var wCount = wayPoints.Count;
 
                             var pushDist = 550 - Player.Distance(hero) + 420;
-                            if (wayPoints.FindAll(w => Player.ServerPosition.Extend(w.To3D(), -pushDist).IsCollisionable()).Count > wCount/2)
+                            if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), -pushDist).IsCollisionable()) >= wCount/2)
                             {
                                 E.Cast(hero);
                                 return;
