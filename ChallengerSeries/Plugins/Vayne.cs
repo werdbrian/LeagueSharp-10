@@ -193,10 +193,13 @@ namespace ChallengerSeries.Plugins
         {
             if (!ComboMenu.Item("ECombo").GetValue<bool>()) return;
             if (ShouldSaveCondemn() || !E.IsReady() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
+            var condemnTargets =
+                HeroManager.Enemies.Where(
+                    h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield));
 
             if (Game.Ping < 50 || (ComboMenu.Item("PradaE").GetValue<bool>() && Game.Ping < 90))
             {
-                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield)))
+                foreach (var hero in condemnTargets)
                 {
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
@@ -221,7 +224,7 @@ namespace ChallengerSeries.Plugins
             }
             else
             {
-                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield)))
+                foreach (var hero in condemnTargets)
                 {
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
@@ -234,27 +237,6 @@ namespace ChallengerSeries.Plugins
                                 E.Cast(hero);
                                 return;
                         }
-                    }
-                }
-            }
-
-            if (ComboMenu.Item("InsecE").GetValue<bool>())
-            {
-                if (ShouldSaveCondemn()) return;
-                if (Player.CountAlliesInRange(1000) > Player.CountEnemiesInRange(1000)) return;
-                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range))
-                {
-                    //he's not a danger for me and he's not trying to run away either.
-                    if (!hero.IsValidTarget(E.Range)) break;
-                    if (hero.HealthPercent > 75) break;
-                    if (!hero.IsFacing(Player)) break;
-                    //k I suspect he's trying to escape a gank, let's ruin his fun (devil)
-                    var prediction = E.GetPrediction(hero);
-                    var predictedEPos = prediction.UnitPosition.Extend(Player.ServerPosition, -(E.Range));
-                    if (predictedEPos.CountAlliesInRange(100) >= 2 || predictedEPos.UnderTurret(Player.Team))
-                    {
-                        E.Cast(hero);
-                        return;
                     }
                 }
             }
@@ -493,8 +475,7 @@ namespace ChallengerSeries.Plugins
             var spellData = SpellDb.GetByName(args.SData.Name);
             if (spellData != null)
             {
-                if (spellData.CcType == CcType.Knockup ||
-                    spellData.CcType == CcType.Knockback)
+                if (spellData.CcType == CcType.Knockup)
                 {
                     if (E.CanCast(sender))
                     {

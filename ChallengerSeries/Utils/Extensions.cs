@@ -43,6 +43,11 @@ namespace ChallengerSeries.Utils
                         m.BaseSkinName.Contains("shroom") || m.BaseSkinName.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 150);
         }
 
+        public static IOrderedEnumerable<Obj_AI_Hero> OrderByPriority(this IEnumerable<Obj_AI_Hero> heroes)
+        {
+            return heroes.OrderBy(TargetSelector.GetPriority);
+        }
+
         public static bool IsKillable(this Obj_AI_Hero hero)
         {
             return Player.GetAutoAttackDamage(hero)*2 < hero.Health;
