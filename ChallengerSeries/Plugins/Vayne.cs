@@ -194,7 +194,7 @@ namespace ChallengerSeries.Plugins
             if (!ComboMenu.Item("ECombo").GetValue<bool>()) return;
             if (ShouldSaveCondemn() || !E.IsReady() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
 
-            if (ComboMenu.Item("PradaE").GetValue<bool>())
+            if (Game.Ping < 50 || (ComboMenu.Item("PradaE").GetValue<bool>() && Game.Ping < 90))
             {
                 foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield)))
                 {
@@ -221,24 +221,20 @@ namespace ChallengerSeries.Plugins
             }
             else
             {
-                foreach (var hero in
-                        from hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f) && !hero.HasBuffOfType(BuffType.SpellShield))
-                        let prediction = E.GetPrediction(hero)
-                        where
-                            prediction.UnitPosition.To2D()
-                                    .Extend(
-                                        ObjectManager.Player.ServerPosition.To2D(),
-                                        -425)
-                                    .To3D().IsCollisionable() ||
-                                prediction.UnitPosition.To2D()
-                                    .Extend(
-                                        ObjectManager.Player.ServerPosition.To2D(),
-                                        -(425/2))
-                                    .To3D().IsCollisionable()
-                        select hero)
+                foreach (var hero in HeroManager.Enemies.Where(h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield)))
                 {
-                    E.Cast(hero);
-                    return;
+                    _condemnEndPosSimplified = hero.ServerPosition.To2D()
+                        .Extend(Player.ServerPosition.To2D(), -420).To3D();
+                    var pp = E.GetPrediction(hero).UnitPosition.To2D();
+                    for (var i = 420; i > 0; i -= 70)
+                    {
+                        _condemnEndPos = hero.ServerPosition.To2D().Extend(pp, -i).To3D();
+                        if (_condemnEndPos.IsCollisionable())
+                        {
+                                E.Cast(hero);
+                                return;
+                        }
+                    }
                 }
             }
 
