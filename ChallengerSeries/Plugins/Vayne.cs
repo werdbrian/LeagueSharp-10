@@ -218,24 +218,18 @@ namespace ChallengerSeries.Plugins
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
                         {
-                            if (Player.Distance(_condemnEndPos) < 500 || !hero.CanMove || !hero.GetWaypoints().Any())
+                            if (!hero.CanMove || !hero.GetWaypoints().Any())
                             {
                                 E.Cast(hero);
                                 return;
                             }
-                            var eDelay = 0.46f + (Game.Ping / 2000f + 0.06f);
-                            var eTime = Environment.TickCount + eDelay;
 
-                            var posVT = hero.GetWaypointsWithTime().FirstOrDefault(w => w.Time >= eTime);
-                            if (posVT != null)
+                            var wayPoints = hero.GetWaypoints();
+                            var wCount = wayPoints.Count;
+                            if (wayPoints.FindAll(w => Player.ServerPosition.Extend(w.To3D(), -420).IsCollisionable()).Count > wCount/2)
                             {
-                                var pos = posVT.Position.To3D();
-
-                                if (Player.Position.Extend(pos, -420).IsCollisionable())
-                                {
-                                    E.Cast(hero);
-                                    return;
-                                }
+                                E.Cast(hero);
+                                return;
                             }
                         }
                     }
