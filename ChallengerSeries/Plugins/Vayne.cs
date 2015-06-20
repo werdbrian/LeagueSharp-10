@@ -21,6 +21,7 @@ namespace ChallengerSeries.Plugins
         private static Vector3 _condemnEndPos;
         private static Vector3 _condemnEndPosSimplified;
         private static bool _tumbleToKillSecondMinion;
+        private static int _selectedSkin;
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;
         private static int _lastCycledSkin;
@@ -52,7 +53,8 @@ namespace ChallengerSeries.Plugins
                     {"Classic", "Vindicator", "Aristocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight"}))).ValueChanged +=
                 (sender, args) =>
                 {
-                    Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                    _selectedSkin = SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1;
+                    Player.SetSkin(Player.BaseSkinName, _selectedSkin);
                 };
             SkinhackMenu.AddItem(new MenuItem("enableskinhack", "Enable Skinhax").SetValue(true));
             SkinhackMenu.AddItem(new MenuItem("cyclethroughskins", "Cycle Through Skins").SetValue(false));
@@ -72,7 +74,8 @@ namespace ChallengerSeries.Plugins
             base.OnGameLoad(args);
             if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
-                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                _selectedSkin = SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1;
+                Player.SetSkin(Player.BaseSkinName, _selectedSkin);
                 _skinLoaded = true;
             }
         }
@@ -82,6 +85,11 @@ namespace ChallengerSeries.Plugins
             if (E.IsReady())
             {
                 Condemn();
+            }
+
+            if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
+            {
+                SkinHax();
             }
 
             if (ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500)
@@ -110,10 +118,6 @@ namespace ChallengerSeries.Plugins
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
             base.OnUpdate(args);
-            if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
-            {
-                SkinHax();
-            }
         }
 
         private static void WallTumble()
@@ -144,7 +148,7 @@ namespace ChallengerSeries.Plugins
             if (Player.InFountain() && !Player.IsDead && !_skinLoaded &&
                 SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
-                Player.SetSkin(Player.BaseSkinName, SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1);
+                Player.SetSkin(Player.BaseSkinName, _selectedSkin);
                 _skinLoaded = true;
             }
 
