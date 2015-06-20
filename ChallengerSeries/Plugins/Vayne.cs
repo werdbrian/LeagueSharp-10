@@ -202,37 +202,38 @@ namespace ChallengerSeries.Plugins
             {
                 foreach (var hero in condemnTargets)
                 {
+                    var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
+                    var wayPoints = hero.GetWaypoints();
+                    var wCount = wayPoints.Count * 0.70;
+
                     if (hero.IsDashing())
                     {
-                        if (Player.ServerPosition.Extend(hero.GetDashInfo().EndPos.To3D(), -450).IsCollisionable())
+                        if (Player.ServerPosition.Extend(hero.GetDashInfo().EndPos.To3D(), 400).IsCollisionable())
                         {
                             E.Cast(hero);
                         }
                         break;
                     }
 
-                    _condemnEndPosSimplified = hero.ServerPosition.To2D()
-                        .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    for (var i = 450; i > 0; i -= 50)
+                    _condemnEndPosSimplified = Player.ServerPosition.To2D()
+                        .Extend(hero.ServerPosition.To2D(), pushDist).To3D();
+
+                    _condemnEndPos = Player.ServerPosition.To2D()
+                        .Extend(hero.ServerPosition.To2D(), pushDist).To3D();
+
+
+                    if (_condemnEndPos.IsCollisionable())
                     {
-                        _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
-                        if (_condemnEndPos.IsCollisionable())
+                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
                         {
-                            if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
-                            {
-                                E.Cast(hero);
-                                return;
-                            }
+                            E.Cast(hero);
+                            return;
+                        } 
 
-                            var wayPoints = hero.GetWaypoints();
-                            var wCount = wayPoints.Count;
-
-                            var pushDist = 550 - Player.Distance(hero) + 410;
-                            if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), -pushDist).IsCollisionable()) >= wCount/2)
-                            {
-                                E.Cast(hero);
-                                return;
-                            }
+                        if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
+                        {
+                            E.Cast(hero);
+                            return;
                         }
                     }
                 }
