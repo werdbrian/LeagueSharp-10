@@ -192,12 +192,13 @@ namespace ChallengerSeries.Plugins
         private void Condemn()
         {
             if (!ComboMenu.Item("ECombo").GetValue<bool>()) return;
-            if (ShouldSaveCondemn() || !E.IsReady() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
+            if (ShouldSaveCondemn() || !E.IsReady() ||
+                (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
             var condemnTargets =
                 HeroManager.Enemies.Where(
                     h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield));
 
-            if (Game.Ping < 50 || (ComboMenu.Item("PradaE").GetValue<bool>() && Game.Ping < 90))
+            if ((ComboMenu.Item("PradaE").GetValue<bool>()))
             {
                 foreach (var hero in condemnTargets)
                 {
@@ -218,24 +219,6 @@ namespace ChallengerSeries.Plugins
                                 E.Cast(hero);
                                 return;
                             }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (var hero in condemnTargets)
-                {
-                    _condemnEndPosSimplified = hero.ServerPosition.To2D()
-                        .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    var pp = (!(hero.IsMoving) || !hero.CanMove) ? hero.ServerPosition.To2D() : E.GetPrediction(hero).UnitPosition.To2D();
-                    for (var i = 400; i > 0; i -= 50)
-                    {
-                        _condemnEndPos = hero.ServerPosition.To2D().Extend(pp, -i).To3D();
-                        if (_condemnEndPos.IsCollisionable())
-                        {
-                                E.Cast(hero);
-                                return;
                         }
                     }
                 }
