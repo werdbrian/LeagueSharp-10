@@ -228,7 +228,7 @@ namespace ChallengerSeries.Plugins
                 {
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    var pp = (!(hero.GetWaypoints().Count > 1) || !hero.CanMove) ? hero.ServerPosition.To2D() : E.GetPrediction(hero).UnitPosition.To2D();
+                    var pp = (!(hero.IsMoving) || !hero.CanMove) ? hero.ServerPosition.To2D() : E.GetPrediction(hero).UnitPosition.To2D();
                     for (var i = 400; i > 0; i -= 50)
                     {
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(pp, -i).To3D();
