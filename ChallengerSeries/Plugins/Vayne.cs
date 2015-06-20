@@ -202,9 +202,18 @@ namespace ChallengerSeries.Plugins
             {
                 foreach (var hero in condemnTargets)
                 {
+                    if (hero.IsDashing())
+                    {
+                        if (Player.ServerPosition.Extend(hero.GetDashInfo().EndPos.To3D(), -450).IsCollisionable())
+                        {
+                            E.Cast(hero);
+                        }
+                        break;
+                    }
+
                     _condemnEndPosSimplified = hero.ServerPosition.To2D()
                         .Extend(Player.ServerPosition.To2D(), -420).To3D();
-                    for (var i = 400; i > 0; i -= 50)
+                    for (var i = 450; i > 0; i -= 50)
                     {
                         _condemnEndPos = hero.ServerPosition.To2D().Extend(Player.ServerPosition.To2D(), -i).To3D();
                         if (_condemnEndPos.IsCollisionable())
@@ -214,10 +223,19 @@ namespace ChallengerSeries.Plugins
                                 E.Cast(hero);
                                 return;
                             }
-                            if (Player.Position.Extend(E.GetPrediction(hero).UnitPosition, -400).IsCollisionable())
+                            var eDelay = 0.46f + (Game.Ping / 2000f + 0.06f);
+                            var eTime = Environment.TickCount + eDelay;
+
+                            var posVT = hero.GetWaypointsWithTime().FirstOrDefault(w => w.Time >= eTime);
+                            if (posVT != null)
                             {
-                                E.Cast(hero);
-                                return;
+                                var pos = posVT.Position.To3D();
+
+                                if (Player.Position.Extend(pos, -420).IsCollisionable())
+                                {
+                                    E.Cast(hero);
+                                    return;
+                                }
                             }
                         }
                     }
