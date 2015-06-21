@@ -8,6 +8,7 @@ using Color = System.Drawing.Color;
 using SpellSlot = LeagueSharp.SpellSlot;
 using Orbwalking = ChallengerSeries.Utils.Orbwalking;
 using Geometry = ChallengerSeries.Utils.Geometry;
+using TargetSelector = LeagueSharp.Common.TargetSelector;
 
 namespace ChallengerSeries.Plugins
 {
@@ -38,7 +39,6 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("InsecE", "Insec Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
@@ -186,7 +186,7 @@ namespace ChallengerSeries.Plugins
         {
             base.LaneClear();
             //SOON^TM
-            if (Player.CountEnemiesInRange(1200) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>())
+            if (Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, Player.AttackRange).Any())
             {
                 Q.Cast(Game.CursorPos);
             }
@@ -358,8 +358,13 @@ namespace ChallengerSeries.Plugins
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (target == null) return;
-
             var tg = (Obj_AI_Hero)target;
+            var realTarget = Utils.TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical);
+            if (tg != realTarget)
+            {
+                Orbwalker.ForceTarget(realTarget);
+            }
+
             if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
             {
                 E.Cast(tg);

@@ -208,7 +208,7 @@ namespace ChallengerSeries.Utils
             config.AddItem(
                 new MenuItem("SelTColor", "Selected target color").SetShared().SetValue(new Circle(true, Color.Red)));
             config.AddItem(new MenuItem("Sep", "").SetShared());
-            var autoPriorityItem = new MenuItem("AutoPriority", "Auto arrange priorities").SetShared().SetValue(false);
+            var autoPriorityItem = new MenuItem("AutoPriority", "Auto arrange priorities").SetShared().SetValue(true);
             autoPriorityItem.ValueChanged += autoPriorityItem_ValueChanged;
 
             foreach (var enemy in HeroManager.Enemies)
