@@ -473,7 +473,7 @@ namespace ChallengerSeries.Plugins
             var spellData = SpellDb.GetByName(args.SData.Name);
             if (spellData != null)
             {
-                if (spellData.CcType == CcType.Knockup || spellData.CcType == CcType.Stun || spellData.CcType == cctype)
+                if (spellData.CcType == CcType.Knockup || spellData.CcType == CcType.Stun)
                 {
                     if (E.CanCast(sender))
                     {
