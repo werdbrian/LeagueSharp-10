@@ -186,6 +186,10 @@ namespace ChallengerSeries.Plugins
         {
             base.LaneClear();
             //SOON^TM
+            if (Player.CountEnemiesInRange(1200) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait())
+            {
+                Q.Cast(Game.CursorPos);
+            }
         }
 
 
