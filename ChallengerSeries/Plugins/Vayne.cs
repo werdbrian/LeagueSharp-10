@@ -225,7 +225,6 @@ namespace ChallengerSeries.Plugins
                     _condemnEndPos = Player.ServerPosition.To2D()
                         .Extend(hero.ServerPosition.To2D(), pushDist).To3D();
 
-
                     if (_condemnEndPos.IsCollisionable())
                     {
                         if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
@@ -417,7 +416,7 @@ namespace ChallengerSeries.Plugins
             if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear ||
                 Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
-                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < Player.AttackRange && Q.IsReady())
+                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < Player.AttackRange && Q.IsReady() && Player.CountEnemiesInRange(1000) <= 2 && Player.Level < 11)
                 {
                     var pos = Player.Position.Extend(Game.CursorPos,
                         Player.Distance(target.Position) - Player.AttackRange + 15);
