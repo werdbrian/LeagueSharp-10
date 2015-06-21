@@ -327,6 +327,7 @@ namespace ChallengerSeries.Plugins
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
+                if (t == null) return;
                 if (t.IsMelee() && t.IsFacing(Player) && t != null && ComboMenu.Item("QCombo").GetValue<bool>())
                 {
                     if (t.Distance(Player.ServerPosition) < Q.Range && Q.IsReady() && t.IsFacing(Player) && !Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)).IsShroom())
@@ -339,9 +340,9 @@ namespace ChallengerSeries.Plugins
                 var minion = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).FirstOrDefault();
                 if (minion == null) return;
 
-                if (Items.HasItem((int)ItemId.Thornmail, (Obj_AI_Hero)args.Target) &&
+                if (Items.HasItem((int)ItemId.Thornmail, t) &&
                     !Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 25 &&
-                    args.Target.HealthPercent > 15 && (args.Target as Obj_AI_Hero).VayneWStacks() != 2 && t.IsFacing(Player))
+                    t.HealthPercent > 15 && t.VayneWStacks() != 2 && t.IsFacing(Player))
                 {
                     Orbwalker.ForceTarget(minion);
                 }
