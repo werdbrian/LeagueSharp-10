@@ -186,7 +186,7 @@ namespace ChallengerSeries.Plugins
         {
             base.LaneClear();
             //SOON^TM
-            if (Player.CountEnemiesInRange(1200) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait())
+            if (Player.CountEnemiesInRange(1200) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>())
             {
                 Q.Cast(Game.CursorPos);
             }
@@ -335,17 +335,16 @@ namespace ChallengerSeries.Plugins
                         Q.Cast(Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)));
                     }
                 }
-            }
 
-            var minion = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).FirstOrDefault();
-            if (minion == null) return;
+                var minion = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).FirstOrDefault();
+                if (minion == null) return;
 
-            if (Items.HasItem((int)ItemId.Thornmail, (Obj_AI_Hero)args.Target) &&
-                !Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 25 &&
-                args.Target.HealthPercent > 15 && (args.Target as Obj_AI_Hero).VayneWStacks() != 2)
-            {
-                args.Process = false;
-                Orbwalker.ForceTarget(minion);
+                if (Items.HasItem((int)ItemId.Thornmail, (Obj_AI_Hero)args.Target) &&
+                    !Items.HasItem((int)ItemId.The_Bloodthirster, Player) && Player.HealthPercent < 25 &&
+                    args.Target.HealthPercent > 15 && (args.Target as Obj_AI_Hero).VayneWStacks() != 2 && t.IsFacing(Player))
+                {
+                    Orbwalker.ForceTarget(minion);
+                }
             }
         }
 
