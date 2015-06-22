@@ -807,7 +807,7 @@ namespace ChallengerSeries.Utils
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(
-                        Player.Position, GetRealAutoAttackRange(null),
+                        Player.Position, GetRealAutoAttackRange(null) + 15,
                         _config.Item("AACircle").GetValue<Circle>().Color);
                 }
 
