@@ -807,7 +807,7 @@ namespace ChallengerSeries.Utils
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(
-                        Player.Position, Player.BaseSkinName == "Vayne" ? 550 : GetRealAutoAttackRange(null) + 65,
+                        Player.Position, GetRealAutoAttackRange(null),
                         _config.Item("AACircle").GetValue<Circle>().Color);
                 }
 
