@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
+using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
+using GamePath = System.Collections.Generic.List<SharpDX.Vector2>;
 
 namespace ChallengerSeries.Utils
 {
@@ -15,6 +18,28 @@ namespace ChallengerSeries.Utils
         public static bool UnderTurret(this Vector3 pos, GameObjectTeam TurretTeam)
         {
             return ObjectManager.Get<Obj_AI_Turret>().Any(t => t.Distance(pos) < 600 && t.Team == TurretTeam);
+        }
+
+        public static int IncludePing(this float delay)
+        {
+            return (int)Math.Round(delay + (Game.Ping / 2000f + 0.06f));
+        }
+
+        public static Vector2 PositionAfter(this GamePath self, int t, int speed, int delay = 0)
+        {
+            var distance = Math.Max(0, t - delay) * speed / 1000;
+            for (var i = 0; i <= self.Count - 2; i++)
+            {
+                var from = self[i];
+                var to = self[i + 1];
+                var d = (int)to.Distance(from);
+                if (d > distance)
+                {
+                    return from + distance * (to - from).Normalized();
+                }
+                distance -= d;
+            }
+            return self[self.Count - 1];
         }
 
         public static int VayneWStacks(this Obj_AI_Base o)
@@ -41,6 +66,32 @@ namespace ChallengerSeries.Utils
                     m =>
                         m.BaseSkinName.Contains("mine") || m.BaseSkinName.Contains("trap") ||
                         m.BaseSkinName.Contains("shroom") || m.BaseSkinName.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 150);
+        }
+
+        public static IEnumerable<Vector3> GetCondemnPositions(Vector3 position)
+        {
+            var pointList = new List<Vector3>();
+
+            for (var j = 485; j >= 50; j -= 100)
+            {
+                var offset = (int)(2 * Math.PI * j / 100);
+
+                for (var i = 0; i <= offset; i++)
+                {
+                    var angle = i * Math.PI * 2 / offset;
+                    var point =
+                        new Vector2(
+                            (float)(position.X + j * Math.Cos(angle)),
+                            (float)(position.Y - j * Math.Sin(angle))).To3D();
+
+                    if (point.IsWall())
+                    {
+                        pointList.Add(point);
+                    }
+                }
+            }
+
+            return pointList;
         }
 
         public static IOrderedEnumerable<Obj_AI_Hero> OrderByPriority(this IEnumerable<Obj_AI_Hero> heroes)

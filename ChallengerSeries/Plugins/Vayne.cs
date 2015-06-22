@@ -40,7 +40,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("EHitchance", "Condemn % Hitchance").SetValue(new Slider(100, 0, 100)));
+            ComboMenu.AddItem(new MenuItem("EHitchance", "condemn ONLY if 100% stun").SetValue(false));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
@@ -83,6 +83,8 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnUpdate(EventArgs args)
         {
+            Console.WriteLine(Game.IP);
+            Console.WriteLine(Game.Port);
             if (E.IsReady())
             {
                 Condemn();
@@ -232,12 +234,25 @@ namespace ChallengerSeries.Plugins
                         {
                             E.Cast(hero);
                             return;
-                        } 
-
-                        if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
+                        }
+                        //99.9% hitchance
+                        if (ComboMenu.Item("EHitchance").GetValue<bool>())
                         {
-                            E.Cast(hero);
-                            return;
+                            if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
+                            {
+                                E.Cast(hero);
+                                return;
+                            }
+                        }
+                        //99% hitchance
+                        else
+                        {
+                            if (Geometry.PositionAfter(wayPoints, 0.5f.IncludePing(), (int) hero.MoveSpeed)
+                                .To3D()
+                                .IsCollisionable())
+                            {
+                                E.Cast(hero);
+                            }
                         }
                     }
                 }
