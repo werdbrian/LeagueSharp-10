@@ -712,7 +712,7 @@ namespace ChallengerSeries.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
-                    var target = TargetSelector.GetTarget(Player.AttackRange,
+                    var target = TargetSelector.GetTarget(ObjectManager.Player.BaseSkinName == "Vayne" ? 550 : -1,
                         LeagueSharp.Common.TargetSelector.DamageType.Physical);
 
                     if (target.IsValidTarget())
@@ -807,7 +807,7 @@ namespace ChallengerSeries.Utils
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(
-                        Player.Position, GetRealAutoAttackRange(null) + 65,
+                        Player.Position, Player.BaseSkinName == "Vayne" ? 550 : GetRealAutoAttackRange(null) + 65,
                         _config.Item("AACircle").GetValue<Circle>().Color);
                 }
 

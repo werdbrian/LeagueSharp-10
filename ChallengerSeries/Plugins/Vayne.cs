@@ -172,7 +172,7 @@ namespace ChallengerSeries.Plugins
 
         protected override void Combo()
         {
-            var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).ToList();
+            var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, 550).OrderBy(m => m.Armor).ToList();
             if (Player.CountEnemiesInRange(600) == 0 && Items.HasItem((int)ItemId.The_Bloodthirster, Player) && minionsInRange.Count != 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.HealthPercent < 60)
             {
                 Orbwalker.ForceTarget(minionsInRange.FirstOrDefault());
@@ -186,7 +186,7 @@ namespace ChallengerSeries.Plugins
         {
             base.LaneClear();
             //SOON^TM
-            if (Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, Player.AttackRange).Any())
+            if (Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, 550).Any())
             {
                 Q.Cast(Game.CursorPos);
             }
@@ -298,7 +298,7 @@ namespace ChallengerSeries.Plugins
                 Q.Cast(Game.CursorPos);
             }
             if (Player.HealthPercent > 45 && Player.ManaPercent > 60 && Player.CountEnemiesInRange(1000) <= 2 && sender.IsValid<Obj_AI_Hero>() && sender.IsEnemy && args.Target is Obj_AI_Minion &&
-                sender.Distance(Player.ServerPosition) < Player.AttackRange + 250)
+                sender.Distance(Player.ServerPosition) < 550 + 250)
             {
                 if (sender.InAArange())
                 {
@@ -307,7 +307,7 @@ namespace ChallengerSeries.Plugins
                 else
                 {
                     var tumblePos = Player.ServerPosition.Extend(sender.ServerPosition,
-                        Player.Distance(sender.ServerPosition) - Player.AttackRange);
+                        Player.Distance(sender.ServerPosition) - 550);
 
                     if (!tumblePos.IsShroom() && tumblePos.CountEnemiesInRange(300) == 0 && Q.IsReady())
                     {
@@ -336,7 +336,7 @@ namespace ChallengerSeries.Plugins
                     }
                 }
 
-                var minion = MinionManager.GetMinions(Player.ServerPosition, Player.AttackRange).OrderBy(m => m.Armor).FirstOrDefault();
+                var minion = MinionManager.GetMinions(Player.ServerPosition, 550).OrderBy(m => m.Armor).FirstOrDefault();
                 if (minion == null) return;
 
                 if (Items.HasItem((int)ItemId.Thornmail, t) &&
@@ -359,11 +359,13 @@ namespace ChallengerSeries.Plugins
         {
             if (target == null) return;
             var tg = (Obj_AI_Hero)target;
-            var realTarget = Utils.TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical);
-            if (tg != realTarget)
+            var realTarget = Utils.TargetSelector.GetTarget(550, TargetSelector.DamageType.Physical);
+            if (tg != realTarget && realTarget.IsValidTarget(550))
             {
                 Orbwalker.ForceTarget(realTarget);
             }
+
+
 
             if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
             {
@@ -392,7 +394,7 @@ namespace ChallengerSeries.Plugins
                         Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
                     {
                         var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
-                            Player.Distance(t.ServerPosition) - Player.AttackRange + 35);
+                            Player.Distance(t.ServerPosition) - 550 + 25);
                         if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
                             Player.Level >= t.Level)
                         {
@@ -421,10 +423,10 @@ namespace ChallengerSeries.Plugins
             if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear ||
                 Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
-                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < Player.AttackRange && Q.IsReady() && Player.CountEnemiesInRange(1000) <= 2 && Player.Level < 11)
+                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < 550 && Q.IsReady() && Player.CountEnemiesInRange(1000) <= 2 && Player.Level < 11)
                 {
                     var pos = Player.Position.Extend(Game.CursorPos,
-                        Player.Distance(target.Position) - Player.AttackRange + 15);
+                        Player.Distance(target.Position) - 550 + 15);
                     Q.Cast(pos);
                 }
             }
