@@ -247,7 +247,7 @@ namespace ChallengerSeries.Plugins
                         //99% hitchance
                         else
                         {
-                            if (Geometry.PositionAfter(wayPoints, 0.5f.IncludePing(), (int) hero.MoveSpeed)
+                            if (Geometry.PositionAfter(wayPoints, 500, (int) hero.MoveSpeed)
                                 .To3D()
                                 .IsCollisionable())
                             {
