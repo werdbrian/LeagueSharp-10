@@ -357,7 +357,7 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var AArange = Orbwalking.GetRealAutoAttackRange(null);
+            var AArange = Orbwalking.GetRealAutoAttackRange(null) + 15;
             if (target == null) return;
             var tg = (Obj_AI_Hero)target;
             var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
