@@ -712,7 +712,7 @@ namespace ChallengerSeries.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
-                    var target = TargetSelector.GetTarget(GetRealAutoAttackRange(null) + 10,
+                    var target = TargetSelector.GetTarget(GetRealAutoAttackRange(null) + 15,
                         LeagueSharp.Common.TargetSelector.DamageType.Physical);
 
                     if (target.IsValidTarget())
