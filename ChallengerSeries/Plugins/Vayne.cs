@@ -361,7 +361,7 @@ namespace ChallengerSeries.Plugins
             if (target == null) return;
             var tg = (Obj_AI_Hero)target;
             var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
-            if (tg != realTarget && realTarget.IsValidTarget(AArange))
+            if (target is Obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget(AArange))
             {
                 Orbwalker.ForceTarget(realTarget);
             }
