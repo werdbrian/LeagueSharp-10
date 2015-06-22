@@ -40,6 +40,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("EHitchance", "Condemn % Hitchance").SetValue(new Slider(100, 0, 100)));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
@@ -208,7 +209,7 @@ namespace ChallengerSeries.Plugins
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
                     var wayPoints = hero.GetWaypoints();
-                    var wCount = wayPoints.Count;
+                    var wCount = ((ComboMenu.Item("EHitchance").GetValue<Slider>().Value)/100) * wayPoints.Count;
 
                     if (hero.IsDashing())
                     {
@@ -276,7 +277,7 @@ namespace ChallengerSeries.Plugins
                 }
             }
 
-            if (!ComboMenu.Item("DrawE").GetValue<bool>()) return;
+            if (!ComboMenu.Item("DrawE").GetValue<bool>() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
             if (!E.IsReady() || !_condemnEndPosSimplified.IsValid() || Player.CountEnemiesInRange(E.Range) == 0) return;
             if (_condemnEndPos.IsCollisionable())
             {
