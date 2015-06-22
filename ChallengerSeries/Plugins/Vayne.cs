@@ -172,7 +172,7 @@ namespace ChallengerSeries.Plugins
 
         protected override void Combo()
         {
-            var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, 550).OrderBy(m => m.Armor).ToList();
+            var minionsInRange = MinionManager.GetMinions(Player.ServerPosition, Orbwalking.GetRealAutoAttackRange(null)).OrderBy(m => m.Armor).ToList();
             if (Player.CountEnemiesInRange(600) == 0 && Items.HasItem((int)ItemId.The_Bloodthirster, Player) && minionsInRange.Count != 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.HealthPercent < 60)
             {
                 Orbwalker.ForceTarget(minionsInRange.FirstOrDefault());
@@ -357,10 +357,11 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            var AArange = Orbwalking.GetRealAutoAttackRange(null);
             if (target == null) return;
             var tg = (Obj_AI_Hero)target;
-            var realTarget = Utils.TargetSelector.GetTarget(550, TargetSelector.DamageType.Physical);
-            if (tg != realTarget && realTarget.IsValidTarget(550))
+            var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
+            if (tg != realTarget && realTarget.IsValidTarget(AArange))
             {
                 Orbwalker.ForceTarget(realTarget);
             }
