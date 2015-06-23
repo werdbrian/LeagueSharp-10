@@ -127,7 +127,7 @@ namespace ChallengerSeries.Plugins
         {
             if (Player.Distance(_preV3) < 100)
             {
-                Player.IssueOrder(GameObjectOrder.MoveTo, _preV3);
+                Player.IssueOrder(GameObjectOrder.MoveTo, _preV3.Randomize(-1, 1));
             }
             if (Player.Distance(_preV3) < 5)
             {
@@ -135,7 +135,7 @@ namespace ChallengerSeries.Plugins
                 Q.Cast(_aftV3);
                 Utility.DelayAction.Add(100, () =>
                 {
-                    Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3);
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _aftV3.Randomize(-1, 1));
                     Orbwalker.SetMovement(true);
                 });
             }
@@ -211,7 +211,7 @@ namespace ChallengerSeries.Plugins
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
                     var wayPoints = hero.GetWaypoints();
-                    var wCount = wayPoints.Count;
+                    var wCount = wayPoints.Count * 0.80;
 
                     if (hero.IsDashing())
                     {
@@ -235,25 +235,11 @@ namespace ChallengerSeries.Plugins
                             E.Cast(hero);
                             return;
                         }
-                        //99.9% hitchance
-                        if (ComboMenu.Item("EHitchance").GetValue<bool>())
-                        {
                             if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
                             {
                                 E.Cast(hero);
                                 return;
                             }
-                        }
-                        //99% hitchance
-                        else
-                        {
-                            if (Geometry.PositionAfter(wayPoints, 463, (int) hero.MoveSpeed)
-                                .To3D()
-                                .IsCollisionable())
-                            {
-                                E.Cast(hero);
-                            }
-                        }
                     }
                 }
             }
