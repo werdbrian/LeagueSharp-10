@@ -83,8 +83,6 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnUpdate(EventArgs args)
         {
-            Console.WriteLine(Game.IP);
-            Console.WriteLine(Game.Port);
             if (E.IsReady())
             {
                 Condemn();
@@ -235,11 +233,25 @@ namespace ChallengerSeries.Plugins
                             E.Cast(hero);
                             return;
                         }
+                        //99.9% hitchance
+                        if (ComboMenu.Item("EHitchance").GetValue<bool>())
+                        {
                             if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
                             {
                                 E.Cast(hero);
                                 return;
                             }
+                        }
+                        //99% hitchance
+                        else
+                        {
+                            if (Geometry.PositionAfter(wayPoints, 463, (int) hero.MoveSpeed)
+                                .To3D()
+                                .IsCollisionable())
+                            {
+                                E.Cast(hero);
+                            }
+                        }
                     }
                 }
             }
