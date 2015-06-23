@@ -211,7 +211,7 @@ namespace ChallengerSeries.Plugins
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
                     var wayPoints = hero.GetWaypoints();
-                    var wCount = ((ComboMenu.Item("EHitchance").GetValue<Slider>().Value)/100) * wayPoints.Count;
+                    var wCount = wayPoints.Count;
 
                     if (hero.IsDashing())
                     {
