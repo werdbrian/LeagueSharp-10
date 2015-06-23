@@ -230,6 +230,11 @@ namespace ChallengerSeries.Plugins
 
                     if (_condemnEndPos.IsCollisionable())
                     {
+                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
+                        {
+                            E.Cast(hero);
+                            return;
+                        }
                             if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
                             {
                                 E.Cast(hero);
