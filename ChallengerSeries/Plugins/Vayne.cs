@@ -83,8 +83,6 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnUpdate(EventArgs args)
         {
-            Console.WriteLine(Game.IP);
-            Console.WriteLine(Game.Port);
             if (E.IsReady())
             {
                 Condemn();
@@ -185,16 +183,6 @@ namespace ChallengerSeries.Plugins
             base.Combo();
         }
 
-        protected override void LaneClear()
-        {
-            base.LaneClear();
-            //SOON^TM
-            if (Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, 550).Any())
-            {
-                Q.Cast(Game.CursorPos);
-            }
-        }
-
 
         private void Condemn()
         {
@@ -230,16 +218,24 @@ namespace ChallengerSeries.Plugins
 
                     if (_condemnEndPos.IsCollisionable())
                     {
-                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
+                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving || (hero.HealthPercent > 50 && !_condemnEndPos.UnderTurret(Player.Team == GameObjectTeam.Order ? GameObjectTeam.Chaos : GameObjectTeam.Order)))
                         {
                             E.Cast(hero);
                             return;
                         }
-                            if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >= wCount)
+                        if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >=
+                            wCount)
+                        {
+                            E.Cast(hero);
+                            return;
+                        }
+
+                        /*if (Geometry.PositionAfter(wayPoints, 463, (int) hero.MoveSpeed)
+                                .To3D()
+                                .IsCollisionable())
                             {
                                 E.Cast(hero);
-                                return;
-                            }
+                            }*/
                     }
                 }
             }
@@ -359,6 +355,14 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            if (Q.IsReady() && Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, 550).Any())
+            {
+                if (Game.CursorPos.UnderTurret(Player.Team == GameObjectTeam.Order
+                                  ? GameObjectTeam.Chaos
+                                  : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
+                Q.Cast(Game.CursorPos);
+            }
+
             var AArange = Orbwalking.GetRealAutoAttackRange(null) + 15;
             if (target == null) return;
             var tg = (Obj_AI_Hero)target;
@@ -397,7 +401,10 @@ namespace ChallengerSeries.Plugins
                         Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
                     {
                         var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
-                            Player.Distance(t.ServerPosition) - 550 + 25);
+                            Player.Distance(t.ServerPosition) - 550 + 25); 
+                        if (tumblePos.UnderTurret(Player.Team == GameObjectTeam.Order
+                                ? GameObjectTeam.Chaos
+                                : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
                         if (!tumblePos.IsShroom() && t.Distance(Player) > 550 && t.CountEnemiesInRange(550) == 0 &&
                             Player.Level >= t.Level)
                         {
@@ -418,6 +425,9 @@ namespace ChallengerSeries.Plugins
             if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
                 _tumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, 550).Any(m => m.IsValidTarget()) && Q.IsReady())
             {
+                if (Game.CursorPos.UnderTurret(Player.Team == GameObjectTeam.Order
+                               ? GameObjectTeam.Chaos
+                               : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
                 Q.Cast(Game.CursorPos);
                 _tumbleToKillSecondMinion = false;
                 return;
@@ -430,6 +440,10 @@ namespace ChallengerSeries.Plugins
                 {
                     var pos = Player.Position.Extend(Game.CursorPos,
                         Player.Distance(target.Position) - 550 + 15);
+                    if (
+                        pos.UnderTurret(Player.Team == GameObjectTeam.Order
+                            ? GameObjectTeam.Chaos
+                            : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
                     Q.Cast(pos);
                 }
             }
