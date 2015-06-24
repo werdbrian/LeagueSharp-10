@@ -56,7 +56,7 @@ namespace ChallengerSeries.Utils
                 var sData = SpellDb.GetByName(args.SData.Name);
                 if (sData != null && sData.ChampionName.ToLower() == "syndra" && sData.Spellslot == SpellSlot.R)
                 {
-                    Utility.DelayAction.Add(sData.Delay*1000 - Game.Ping, () => UseItem(qss));
+                    Utility.DelayAction.Add(150, () => UseItem(qss));
                 }
                 if (args.SData.Name == "summonerdot" && sender.GetSpellDamage(Player, "summonerdot") < Player.Health + sender.GetAutoAttackDamage(Player))
                 {
@@ -109,99 +109,105 @@ namespace ChallengerSeries.Utils
         public static void Combo()
         {
             UseQSS();
-            UseBOTRK();
-            var TeamfightRange = 800;
-            var TeamfightingEnemies = HeroManager.Enemies.FindAll(e => e.Distance(Player) < TeamfightRange);
-            if (Player.HealthPercent < 80 && Items.HasItem((int)ItemId.Blade_of_the_Ruined_King) && Items.CanUseItem((int)ItemId.Blade_of_the_Ruined_King))
-            {
-                var KSableEnemy =
-                    HeroManager.Enemies.FirstOrDefault(e => e.Health < (e.MaxHealth * 0.1) - (e.MaxHealth * 0.1) * ((e.Armor / 10) * 7) / 100);
-                if (KSableEnemy.IsValidTarget())
-                {
-                    UseBOTRK(KSableEnemy);
-                }
-                if (Player.CountEnemiesInRange(TeamfightRange) >= Player.CountAlliesInRange(TeamfightRange)) return;
-                var escaping = HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40);
-                if (!escaping.IsFacing(Player) && escaping.Distance(Game.CursorPos) < 250)
-                {
-                    UseBOTRK(escaping.IsValidTarget(500) ? escaping : null);
-                }
-            }
-            if (Items.HasItem((int) ItemId.Youmuus_Ghostblade) &&
-                Player.CountEnemiesInRange(TeamfightRange) <= Player.CountAlliesInRange(TeamfightRange) &&
-                HeroManager.Allies.Any(a => a.Distance(TeamfightingEnemies.FirstOrDefault()) < 600))
-            {
-                UseItem(ItemId.Youmuus_Ghostblade);
-            }
+            UseYoumuus();
+            UseBOTRK(TargetSelector.GetTarget(550f, LeagueSharp.Common.TargetSelector.DamageType.Magical));
         }
 
         private static void UseQSS()
         {
-            var qss = ItemId.Quicksilver_Sash;
-            if (Items.HasItem((int) ItemId.Mercurial_Scimitar))
-            {
-                qss = ItemId.Mercurial_Scimitar;
-            }
-            if (!Items.CanUseItem((int) qss)) return;
+            var qss = LeagueSharp.Common.Data.ItemData.Quicksilver_Sash.GetItem();
+            var scimitar = LeagueSharp.Common.Data.ItemData.Mercurial_Scimitar.GetItem();
 
-            if (Player.HasBuffOfType(BuffType.Suppression))
+            if (qss.IsReady())
             {
-                UseItem(qss);
+                if (Player.HasBuffOfType(BuffType.SpellShield) || Player.HasBuffOfType(BuffType.SpellImmunity)) return;
+
+                if (Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Sleep))
+                {
+                    qss.Cast();
+                    return;
+                }
+                if (HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
+                {
+                    qss.Cast();
+                    return;
+                }
+                if (Player.CountEnemiesInRange(650) >= Player.CountAlliesInRange(650))
+                {
+                    if (Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Knockup) ||
+                        Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Flee) ||
+                        Player.HasBuffOfType(BuffType.Fear))
+                    {
+                        qss.Cast();
+                        return;
+                    }
+                }
+                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.BaseSkinName == "Cassiopeia");
+                if (Player.HasBuffOfType(BuffType.Poison) && cassiopeia != null && cassiopeia.Distance(Player) < 450 &&
+                    Player.HealthPercent < 30)
+                {
+                    qss.Cast();
+                    return;
+                }
             }
-            if (Player.HasBuffOfType(BuffType.Knockup) &&
-                HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo")))
+
+            else if (scimitar.IsReady())
             {
-                UseItem(qss);
-            }
-            if (Player.CountEnemiesInRange(650) >= Player.CountAlliesInRange(650))
-            {
-                if (Player.HasBuffOfType(BuffType.Stun))
+                if (Player.HasBuffOfType(BuffType.SpellShield) || Player.HasBuffOfType(BuffType.SpellImmunity)) return;
+
+                if (Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Sleep))
                 {
-                    UseItem(qss);
+                    scimitar.Cast();
+                    return;
                 }
-                if (Player.HasBuffOfType(BuffType.Silence) && Player.Health < 30 &&
-                    Player.Spellbook.CanUseSpell(Player.GetSpellSlot("summonerflash")) == SpellState.Ready)
+                if (HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
                 {
-                    UseItem(qss);
+                    scimitar.Cast();
+                    return;
                 }
-                if (Player.HasBuffOfType(BuffType.Charm))
+                if (Player.CountEnemiesInRange(650) >= Player.CountAlliesInRange(650))
                 {
-                    UseItem(qss);
+                    if (Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Knockup) ||
+                        Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Flee) ||
+                        Player.HasBuffOfType(BuffType.Fear))
+                    {
+                        scimitar.Cast();
+                        return;
+                    }
                 }
-                if (Player.HasBuffOfType(BuffType.Poison) &&
-                    HeroManager.Enemies.Any(
-                        e => e.BaseSkinName.ToLower().Contains("cassiopeia") && (e.Level > Player.Level || Player.HealthPercent < 30) && e.Distance(Player) < 700))
+                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.BaseSkinName == "Cassiopeia");
+                if (Player.HasBuffOfType(BuffType.Poison) && cassiopeia != null && cassiopeia.Distance(Player) < 450 &&
+                    Player.HealthPercent < 30)
                 {
-                    UseItem(qss);
+                    scimitar.Cast();
+                    return;
                 }
             }
         }
 
-        private static void UseBOTRK(Obj_AI_Hero enemy = null)
+        private static void UseBOTRK(Obj_AI_Hero enemy)
         {
-            var botrk = ItemId.Bilgewater_Cutlass;
-            if (Items.HasItem((int) ItemId.Blade_of_the_Ruined_King, Player))
+            var botrk = LeagueSharp.Common.Data.ItemData.Blade_of_the_Ruined_King.GetItem();
+            var cutlass = LeagueSharp.Common.Data.ItemData.Bilgewater_Cutlass.GetItem();
+            if (botrk.IsReady() && enemy.IsValidTarget(botrk.Range) &&
+                Player.Health + Player.GetItemDamage(enemy, Damage.DamageItems.Botrk) < Player.MaxHealth)
             {
-                botrk = ItemId.Blade_of_the_Ruined_King;
+                botrk.Cast(enemy);
+                return;
+            } 
+            if (cutlass.IsReady() && enemy.IsValidTarget(cutlass.Range))
+            {
+                cutlass.Cast(enemy);
             }
-            var targetsInRange = Player.GetEnemiesInRange(450).FindAll(e => !e.IsDead && e.IsValidTarget());
+        }
 
-            if (targetsInRange.Count == 0 || !Items.CanUseItem((int)botrk)) return;
-
-            var target = targetsInRange.OrderBy(h => h.Armor)
-                            .FirstOrDefault();
-            if (botrk == ItemId.Bilgewater_Cutlass || Player.Health + Player.GetItemDamage(target, Damage.DamageItems.Botrk) < ObjectManager.Player.MaxHealth)
-                UseItem(botrk, target);
-            if (enemy != null)
+        private static void UseYoumuus()
+        {
+            var TFRange = 800;
+            var youmuus = LeagueSharp.Common.Data.ItemData.Youmuus_Ghostblade.GetItem();
+            if (youmuus.IsReady() && Player.CountEnemiesInRange(TFRange) <= Player.CountAlliesInRange(TFRange) && HeroManager.Allies.Any(a => a.Distance(HeroManager.Enemies.OrderBy(enemy => enemy.Distance(Player)).FirstOrDefault()) < 600))
             {
-                UseItem(ItemId.Blade_of_the_Ruined_King, enemy);
-            }
-            else
-            {
-                if (target != null)
-                {
-                    UseItem(ItemId.Blade_of_the_Ruined_King, target);
-                }
+                youmuus.Cast();
             }
         }
 
