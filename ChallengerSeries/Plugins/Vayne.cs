@@ -10,6 +10,7 @@ using SpellSlot = LeagueSharp.SpellSlot;
 using Orbwalking = ChallengerSeries.Utils.Orbwalking;
 using Geometry = ChallengerSeries.Utils.Geometry;
 using TargetSelector = LeagueSharp.Common.TargetSelector;
+// ReSharper disable InconsistentNaming
 
 namespace ChallengerSeries.Plugins
 {
@@ -373,36 +374,17 @@ namespace ChallengerSeries.Plugins
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var myRange = Orbwalking.GetRealAutoAttackRange(null);
             if (unit != Player) return;
-            var possibleHeroTarget = TargetSelector.GetTarget(myRange,
-                TargetSelector.DamageType.Physical);
-            if (target is Obj_AI_Minion && target.Health > Player.GetAutoAttackDamage((Obj_AI_Minion)target) && possibleHeroTarget != null)
-            {
-                Orbwalker.ForceTarget(possibleHeroTarget);
-                return;
-            }
-
-            if (Q.IsReady() && Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, myRange).Any())
-            {
-                if (Game.CursorPos.UnderTurret(Player.Team == GameObjectTeam.Order
-                                  ? GameObjectTeam.Chaos
-                                  : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
-                Q.Cast(Game.CursorPos);
-            }
-
+            var myRange = Orbwalking.GetRealAutoAttackRange(null);
             var AArange = myRange + 15;
-            if (target == null) return;
             var tg = (Obj_AI_Hero)target;
             var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
-            if (target is Obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget(AArange))
+            if (target.Type == GameObjectType.obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget(AArange))
             {
                 Orbwalker.ForceTarget(realTarget);
             }
 
-
-
-            if (E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
+            if (tg.IsValidTarget() && E.IsReady() && tg.VayneWStacks() == 2 && tg.Health < Player.GetSpellDamage(tg, SpellSlot.W))
             {
                 E.Cast(tg);
             }
@@ -416,55 +398,33 @@ namespace ChallengerSeries.Plugins
                 return;
             }
 
-            if (Player.ManaPercent > 70 && target is Obj_AI_Hero && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            if (target.Type == GameObjectType.obj_AI_Minion && target.Health > Player.GetAutoAttackDamage((Obj_AI_Minion)target) + 60 && realTarget != null)
             {
-                var t = (Obj_AI_Hero)target;
-                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && t.Distance(Player) < 850)
-                {
-                    if (t.IsKillable())
-                    {
-                        Orbwalker.ForceTarget(t);
-                    }
-                    if (Player.CountEnemiesInRange(1000) <= Player.CountAlliesInRange(1000) &&
-                        Player.CountEnemiesInRange(1000) <= 2 && Player.CountEnemiesInRange(1000) != 0)
-                    {
-                        var tumblePos = Player.ServerPosition.Extend(t.ServerPosition,
-                            Player.Distance(t.ServerPosition) - myRange + 15); 
-                        if (tumblePos.UnderTurret(Player.Team == GameObjectTeam.Order
-                                ? GameObjectTeam.Chaos
-                                : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
-                        if (!tumblePos.IsShroom() && t.Distance(Player) > myRange && t.CountEnemiesInRange(myRange) == 0 &&
-                            Player.Level >= t.Level)
-                        {
-                            if (tumblePos.CountEnemiesInRange(300) < 2 && Q.IsReady())
-                            {
-                                Q.Cast(tumblePos);
-                            }
-                            Orbwalker.ForceTarget(t);
-                        }
-                    }
-                }
+                Orbwalker.ForceTarget(realTarget);
+                return;
             }
 
             if (ComboMenu.Item("QChecks").GetValue<bool>() && Game.CursorPos.IsShroom()) return;
 
-            if (HasUltiBuff() && ComboMenu.Item("QUltSpam").GetValue<bool>())
-                Q.Cast(Game.CursorPos);
-            if (LaneClearMenu.Item("QFarm").GetValue<bool>() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear &&
-                _tumbleToKillSecondMinion && MinionManager.GetMinions(Game.CursorPos, myRange).Any(m => m.IsValidTarget()) && Q.IsReady())
+            if (Player.CountEnemiesInRange(1400) == 0 && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear && !Orbwalker.ShouldWait() && Player.ManaPercent > 70 && LaneClearMenu.Item("QFarm").GetValue<bool>() && MinionManager.GetMinions(Game.CursorPos, myRange).Any())
             {
                 if (Game.CursorPos.UnderTurret(Player.Team == GameObjectTeam.Order
-                               ? GameObjectTeam.Chaos
-                               : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
+                                  ? GameObjectTeam.Chaos
+                                  : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
                 Q.Cast(Game.CursorPos);
-                _tumbleToKillSecondMinion = false;
-                return;
+            }
+            if (Player.ManaPercent > 25 && realTarget.IsValidTarget() && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && realTarget.Distance(Game.CursorPos) < Orbwalking.GetRealAutoAttackRange(null))
+                {
+                    Q.Cast(Game.CursorPos);
+                }
             }
 
             if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear ||
                 Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
-                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < myRange && Q.IsReady() && Player.CountEnemiesInRange(1000) <= 2 && Player.Level < 11)
+                if (ComboMenu.Item("QHarass").GetValue<bool>() && Game.CursorPos.Distance(target.Position) < myRange && Player.CountEnemiesInRange(1000) <= 2 && Player.Level < 11)
                 {
                     var pos = Player.Position.Extend(Game.CursorPos,
                         Player.Distance(target.Position) - myRange + 15);
@@ -480,14 +440,10 @@ namespace ChallengerSeries.Plugins
             if (Player.ManaPercent > 25)
             {
                 if (unit.IsMe &&
-                    Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !HasUltiBuff() && Q.IsReady())
+                    Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !HasUltiBuff())
                 {
                     Q.Cast(Game.CursorPos);
                 }
-            }
-            if (Player.CountEnemiesInRange(1000) > 0 || Player.ManaPercent < 70)
-            {
-                _tumbleToKillSecondMinion = false;
             }
         }
 
