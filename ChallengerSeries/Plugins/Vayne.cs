@@ -358,7 +358,16 @@ namespace ChallengerSeries.Plugins
         protected override void OnAttack(AttackableUnit sender, AttackableUnit target)
         {
             base.OnAttack(sender, target);
+
             if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear) return;
+
+            var t = (Obj_AI_Base) target;
+            var possibleHeroTarget = TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null),
+                TargetSelector.DamageType.Physical);
+            if (target is Obj_AI_Minion && t.Health > Player.GetAutoAttackDamage(t) + 25 && possibleHeroTarget != null)
+            {
+                Orbwalker.ForceTarget(possibleHeroTarget);
+            }
             _tumbleToKillSecondMinion = MinionManager.GetMinions(Player.Position, Orbwalking.GetRealAutoAttackRange(null)).Any(m => m.Health < Player.GetAutoAttackDamage(m) + 15);
         }
 
