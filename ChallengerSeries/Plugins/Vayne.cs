@@ -200,8 +200,6 @@ namespace ChallengerSeries.Plugins
                 foreach (var hero in condemnTargets)
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
-                    var wayPoints = hero.GetWaypoints();
-                    var wCount = ((ComboMenu.Item("EHitchance").GetValue<Slider>().Value) / 100) * wayPoints.Count;
 
                     if (hero.IsDashing())
                     {
@@ -226,18 +224,20 @@ namespace ChallengerSeries.Plugins
                             return;
                         }
 
-                        if (wayPoints.Count < 300 && Player.ServerPosition.To2D()
+                        var wayPoints = hero.GetWaypoints();
+                        var ETime = (int)((436 + Game.Ping / 2) / hero.CharData.MoveSpeed) * 100;
+
+                        if (wayPoints.Count <= ETime && Player.ServerPosition.To2D()
                             .Extend(wayPoints.Last(), pushDist).To3D().IsCollisionable())
                         {
                             E.Cast(hero);
                             return;
                         }
 
-                        if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >=
-                            wCount)
+                        if (wayPoints.Count > ETime && Player.ServerPosition.To2D()
+                            .Extend(wayPoints[ETime], pushDist).To3D().IsCollisionable())
                         {
                             E.Cast(hero);
-                            return;
                         }
 
                         /*if (Geometry.PositionAfter(wayPoints, 463, (int) hero.MoveSpeed)
