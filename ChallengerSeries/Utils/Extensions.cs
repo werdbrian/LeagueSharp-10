@@ -44,7 +44,8 @@ namespace ChallengerSeries.Utils
 
         public static int VayneWStacks(this Obj_AI_Base o)
         {
-            if (!o.Buffs.Any(b => b.Name.ToLower().Contains("vaynesilver"))) return 0;
+            if (o == null) return 0;
+            if (o.Buffs.First(b => b.Name.Contains("vaynesilver")) == null || !o.Buffs.Any(b => b.Name.Contains("vaynesilver"))) return 0;
             return o.Buffs.First(b => b.Name.Contains("vaynesilver")).Count;
         }
 

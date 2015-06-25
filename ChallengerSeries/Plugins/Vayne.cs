@@ -263,13 +263,6 @@ namespace ChallengerSeries.Plugins
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
                 var AAsNeeded = hero.Health/Player.GetAutoAttackDamage(hero);
-                var WProcDMG = W.GetDamage(hero);
-                if (W.Instance.State != SpellState.NotLearned)
-                {
-                    var Wprocs = AAsNeeded/3;
-                    AAsNeeded -= (hero.Health - Wprocs)/Player.GetAutoAttackDamage(hero);
-                }
-
                 Drawing.DrawText(hero.HPBarPosition.X + 5, hero.HPBarPosition.Y - 30,
                     AAsNeeded <= 3 ? Color.Gold : Color.White,
                     "AAs to kill: " + AAsNeeded);
@@ -322,8 +315,7 @@ namespace ChallengerSeries.Plugins
             if (!args.Unit.IsMe) return;
 
             var realTarget = Utils.TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null), TargetSelector.DamageType.Physical);
-            if (realTarget == null) return;
-            if (args.Target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget != null)
+            if (args.Target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget.IsValidTarget())
             {
                 Orbwalker.ForceTarget(realTarget);
                 return;
@@ -367,9 +359,7 @@ namespace ChallengerSeries.Plugins
             var AArange = myRange + 15;
             var tg = (Obj_AI_Hero)target;
             var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
-            if (realTarget == null)
-                return;
-            if (target.Type == GameObjectType.obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget(AArange))
+            if (target.Type == GameObjectType.obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget())
             {
                 Orbwalker.ForceTarget(realTarget);
             }
@@ -388,7 +378,7 @@ namespace ChallengerSeries.Plugins
                 return;
             }
 
-            if (target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget != null)
+            if (target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget.IsValidTarget())
             {
                 Orbwalker.ForceTarget(realTarget);
                 return;
