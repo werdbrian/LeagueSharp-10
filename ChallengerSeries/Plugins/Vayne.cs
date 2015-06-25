@@ -226,8 +226,8 @@ namespace ChallengerSeries.Plugins
 
                         var wayPoints = hero.GetWaypoints();
 
-                        if (wayPoints.Count <= 300 && Player.ServerPosition.To2D()
-                            .Extend(wayPoints.Last(), pushDist).To3D().IsCollisionable())
+                        if (wayPoints.All(w => Player.ServerPosition.To2D()
+                            .Extend(w, pushDist).IsWall()))
                         {
                             E.Cast(hero);
                             return;
