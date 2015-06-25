@@ -42,7 +42,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(100, 1, 100)));
+            ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(100, 50, 100)));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
@@ -200,7 +200,6 @@ namespace ChallengerSeries.Plugins
                 foreach (var hero in condemnTargets)
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
-
                     if (hero.IsDashing())
                     {
                         if (Player.ServerPosition.Extend(hero.GetDashInfo().EndPos.To3D(), -400).IsCollisionable())
@@ -225,9 +224,10 @@ namespace ChallengerSeries.Plugins
                         }
 
                         var wayPoints = hero.GetWaypoints();
+                        var wCount = ((ComboMenu.Item("EHitchance").GetValue<Slider>().Value) / 100) * wayPoints.Count;
 
-                        if (wayPoints.All(w => Player.ServerPosition.To2D()
-                            .Extend(w, pushDist).IsWall()))
+                        if (wayPoints.Count(w => Player.ServerPosition.Extend(w.To3D(), pushDist).IsCollisionable()) >=
+                            wCount)
                         {
                             E.Cast(hero);
                             return;
