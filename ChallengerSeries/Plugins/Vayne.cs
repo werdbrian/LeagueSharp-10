@@ -225,19 +225,12 @@ namespace ChallengerSeries.Plugins
                         }
 
                         var wayPoints = hero.GetWaypoints();
-                        var ETime = (int)((436 + Game.Ping / 2) / hero.CharData.MoveSpeed) * 100;
 
-                        if (wayPoints.Count <= ETime && Player.ServerPosition.To2D()
+                        if (wayPoints.Count <= 300 && Player.ServerPosition.To2D()
                             .Extend(wayPoints.Last(), pushDist).To3D().IsCollisionable())
                         {
                             E.Cast(hero);
                             return;
-                        }
-
-                        if (wayPoints.Count > ETime && Player.ServerPosition.To2D()
-                            .Extend(wayPoints[ETime], pushDist).To3D().IsCollisionable())
-                        {
-                            E.Cast(hero);
                         }
 
                         /*if (Geometry.PositionAfter(wayPoints, 463, (int) hero.MoveSpeed)
