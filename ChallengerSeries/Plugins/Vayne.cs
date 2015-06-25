@@ -218,7 +218,7 @@ namespace ChallengerSeries.Plugins
 
                     if (_condemnEndPos.IsCollisionable())
                     {
-                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving || (hero.HealthPercent > 60 && !_condemnEndPos.UnderTurret(Player.Team == GameObjectTeam.Order ? GameObjectTeam.Chaos : GameObjectTeam.Order) && !wayPoints.Last().To3D().UnderTurret(Player.Team == GameObjectTeam.Order ? GameObjectTeam.Chaos : GameObjectTeam.Order)))
+                        if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
                         {
                             E.Cast(hero);
                             return;
