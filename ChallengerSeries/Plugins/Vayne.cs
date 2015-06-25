@@ -57,7 +57,7 @@ namespace ChallengerSeries.Plugins
                 (sender, args) =>
                 {
                     _selectedSkin = SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1;
-                    Player.SetSkin(Player.BaseSkinName, _selectedSkin);
+                    Player.SetSkin(Player.CharData.BaseSkinName, _selectedSkin);
                 };
             SkinhackMenu.AddItem(new MenuItem("enableskinhack", "Enable Skinhax").SetValue(true));
             SkinhackMenu.AddItem(new MenuItem("cyclethroughskins", "Cycle Through Skins").SetValue(false));
@@ -78,7 +78,7 @@ namespace ChallengerSeries.Plugins
             if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
                 _selectedSkin = SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1;
-                Player.SetSkin(Player.BaseSkinName, _selectedSkin);
+                Player.SetSkin(Player.CharData.BaseSkinName, _selectedSkin);
                 _skinLoaded = true;
             }
         }
@@ -116,7 +116,7 @@ namespace ChallengerSeries.Plugins
             {
                 Player.BuyItem(ItemId.Scrying_Orb_Trinket);
             }
-            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.BaseSkinName == "Rengar" || h.BaseSkinName == "Talon"))
+            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Rengar" || h.CharData.BaseSkinName == "Talon"))
             {
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
@@ -151,7 +151,7 @@ namespace ChallengerSeries.Plugins
             if (Player.InFountain() && !Player.IsDead && !_skinLoaded &&
                 SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
-                Player.SetSkin(Player.BaseSkinName, _selectedSkin);
+                Player.SetSkin(Player.CharData.BaseSkinName, _selectedSkin);
                 _skinLoaded = true;
             }
 
@@ -168,7 +168,7 @@ namespace ChallengerSeries.Plugins
                     _lastCycledSkin = 1;
                 }
 
-                Player.SetSkin(Player.BaseSkinName, _lastCycledSkin);
+                Player.SetSkin(Player.CharData.BaseSkinName, _lastCycledSkin);
                 _cycleThroughSkinsTime = Environment.TickCount;
             }
         }
@@ -262,26 +262,17 @@ namespace ChallengerSeries.Plugins
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
-                var WProcDMG = (((hero.Health / Player.GetAutoAttackDamage(hero)) / 3) - 1) * W.GetDamage(hero);
-                var AAsNeeded = 0;
+                var AAsNeeded = hero.Health/Player.GetAutoAttackDamage(hero);
+                var WProcDMG = W.GetDamage(hero);
                 if (W.Instance.State != SpellState.NotLearned)
                 {
-                    AAsNeeded = (int) ((hero.Health - WProcDMG)/Player.GetAutoAttackDamage(hero));
+                    var Wprocs = AAsNeeded/3;
+                    AAsNeeded -= (hero.Health - Wprocs)/Player.GetAutoAttackDamage(hero);
                 }
-                else
-                {
-                    AAsNeeded = (int)(hero.Health / Player.GetAutoAttackDamage(hero));
-                }
-                if (AAsNeeded <= 3)
-                {
-                    Drawing.DrawText(hero.HPBarPosition.X+5, hero.HPBarPosition.Y - 30, Color.Gold,
-                        "AAs to kill: " + AAsNeeded);
-                }
-                else
-                {
-                    Drawing.DrawText(hero.HPBarPosition.X+5, hero.HPBarPosition.Y - 30, Color.White,
-                        "AAs to kill: " + AAsNeeded);
-                }
+
+                Drawing.DrawText(hero.HPBarPosition.X + 5, hero.HPBarPosition.Y - 30,
+                    AAsNeeded <= 3 ? Color.Gold : Color.White,
+                    "AAs to kill: " + AAsNeeded);
             }
 
             if (!ComboMenu.Item("DrawE").GetValue<bool>() || (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
@@ -300,7 +291,7 @@ namespace ChallengerSeries.Plugins
 
         protected override void OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
-            if (HasUltiBuff() && Q.IsReady() && sender.BaseSkinName.Equals("Kalista") && args.Order == GameObjectOrder.AutoAttack && args.Target.IsMe)
+            if (HasUltiBuff() && Q.IsReady() && sender.CharData.BaseSkinName.Equals("Kalista") && args.Order == GameObjectOrder.AutoAttack && args.Target.IsMe)
             {
                 if (ComboMenu.Item("QChecks").GetValue<bool>() && Game.CursorPos.IsShroom()) return;
                 Q.Cast(Game.CursorPos);
@@ -330,14 +321,19 @@ namespace ChallengerSeries.Plugins
         {
             if (!args.Unit.IsMe) return;
 
-            if (!(args.Target is Obj_AI_Hero)) return;
+            var realTarget = Utils.TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null), TargetSelector.DamageType.Physical);
+
+            if (args.Target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget != null)
+            {
+                Orbwalker.ForceTarget(realTarget);
+                return;
+            }
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
-                if (t == null) return;
-                if (t.IsMelee() && t.IsFacing(Player) && t != null && ComboMenu.Item("QCombo").GetValue<bool>())
+                if (Q.IsReady() && t.IsValidTarget() && t.IsMelee() && t.IsFacing(Player) && ComboMenu.Item("QCombo").GetValue<bool>())
                 {
-                    if (t.Distance(Player.ServerPosition) < Q.Range && Q.IsReady() && t.IsFacing(Player) && !Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)).IsShroom())
+                    if (t.Distance(Player.ServerPosition) < Q.Range && t.IsFacing(Player) && !Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)).IsShroom())
                     {
                         args.Process = false;
                         Q.Cast(Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)));
@@ -361,20 +357,12 @@ namespace ChallengerSeries.Plugins
             base.OnAttack(sender, target);
 
             if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear) return;
-
-            var t = (Obj_AI_Base) target;
-            var possibleHeroTarget = TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null),
-                TargetSelector.DamageType.Physical);
-            if (target is Obj_AI_Minion && t.Health > Player.GetAutoAttackDamage(t) + 25 && possibleHeroTarget != null)
-            {
-                Orbwalker.ForceTarget(possibleHeroTarget);
-            }
             _tumbleToKillSecondMinion = MinionManager.GetMinions(Player.Position, Orbwalking.GetRealAutoAttackRange(null)).Any(m => m.Health < Player.GetAutoAttackDamage(m) + 15);
         }
 
         protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (unit != Player) return;
+            if (!unit.IsMe) return;
             var myRange = Orbwalking.GetRealAutoAttackRange(null);
             var AArange = myRange + 15;
             var tg = (Obj_AI_Hero)target;
@@ -398,7 +386,7 @@ namespace ChallengerSeries.Plugins
                 return;
             }
 
-            if (target.Type == GameObjectType.obj_AI_Minion && target.Health > Player.GetAutoAttackDamage((Obj_AI_Minion)target) + 60 && realTarget != null)
+            if (target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget != null)
             {
                 Orbwalker.ForceTarget(realTarget);
                 return;
@@ -413,7 +401,7 @@ namespace ChallengerSeries.Plugins
                                   : GameObjectTeam.Order) && !Player.UnderTurret(true)) return;
                 Q.Cast(Game.CursorPos);
             }
-            if (Player.ManaPercent > 25 && realTarget.IsValidTarget() && unit.IsMe && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            if (Player.ManaPercent > 25 && realTarget.IsValidTarget() && Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
                 if (Player.CountAlliesInRange(1000) >= Player.CountEnemiesInRange(1000) && realTarget.Distance(Game.CursorPos) < Orbwalking.GetRealAutoAttackRange(null))
                 {
@@ -439,8 +427,7 @@ namespace ChallengerSeries.Plugins
             if (!ComboMenu.Item("QCombo").GetValue<bool>()) return;
             if (Player.ManaPercent > 25)
             {
-                if (unit.IsMe &&
-                    Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && !HasUltiBuff())
+                if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                 {
                     Q.Cast(Game.CursorPos);
                 }
@@ -517,7 +504,7 @@ namespace ChallengerSeries.Plugins
             //k so that's not the case, we're going to check if we should condemn the gapcloser away.
 
             #region If it's a cancer champ, condemn without even thinking, lol
-            if (Lists.CancerChamps.Contains(gapcloser.Sender.BaseSkinName) && E.IsReady())
+            if (Lists.CancerChamps.Contains(gapcloser.Sender.CharData.BaseSkinName) && E.IsReady())
             {
                 E.Cast(gapcloser.Sender);
             }
@@ -548,9 +535,9 @@ namespace ChallengerSeries.Plugins
 
         bool ShouldSaveCondemn()
         {
-            if (HeroManager.Enemies.Any(h => h.BaseSkinName == "Katarina" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
+            if (HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Katarina" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
             {
-                var katarina = HeroManager.Enemies.FirstOrDefault(h => h.BaseSkinName == "Katarina");
+                var katarina = HeroManager.Enemies.FirstOrDefault(h => h.CharData.BaseSkinName == "Katarina");
                 var kataR = katarina.GetSpell(SpellSlot.R);
                 if (katarina != null)
                 {
@@ -558,9 +545,9 @@ namespace ChallengerSeries.Plugins
                            (katarina.Spellbook.CanUseSpell(SpellSlot.R) == SpellState.Ready);
                 }
             }
-            if (HeroManager.Enemies.Any(h => h.BaseSkinName == "Galio" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
+            if (HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Galio" && h.Distance(Player) < 1400 && !h.IsDead && h.IsValidTarget()))
             {
-                var galio = HeroManager.Enemies.FirstOrDefault(h => h.BaseSkinName == "Galio");
+                var galio = HeroManager.Enemies.FirstOrDefault(h => h.CharData.BaseSkinName == "Galio");
                 if (galio != null)
                 {
                     var galioR = galio.GetSpell(SpellSlot.R);

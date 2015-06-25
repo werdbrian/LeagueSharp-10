@@ -62,10 +62,8 @@ namespace ChallengerSeries.Utils
         public static bool IsShroom(this Vector3 pos)
         {
             return MinionManager.GetMinions(pos, 150)
-                .Any(
-                    m =>
-                        m.BaseSkinName.Contains("mine") || m.BaseSkinName.Contains("trap") ||
-                        m.BaseSkinName.Contains("shroom") || m.BaseSkinName.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 150);
+                .Any(m => m.CharData.Name.Contains("mine") || m.CharData.Name.Contains("trap") ||
+                        m.CharData.Name.Contains("shroom") || m.CharData.Name.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 200);
         }
 
         public static IEnumerable<Vector3> GetCondemnPositions(Vector3 position)
