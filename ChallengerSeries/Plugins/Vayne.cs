@@ -322,7 +322,7 @@ namespace ChallengerSeries.Plugins
             if (!args.Unit.IsMe) return;
 
             var realTarget = Utils.TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null), TargetSelector.DamageType.Physical);
-
+            if (realTarget == null) return;
             if (args.Target.Type == GameObjectType.obj_AI_Minion && !Orbwalker.ShouldWait() && realTarget != null)
             {
                 Orbwalker.ForceTarget(realTarget);
@@ -367,6 +367,8 @@ namespace ChallengerSeries.Plugins
             var AArange = myRange + 15;
             var tg = (Obj_AI_Hero)target;
             var realTarget = Utils.TargetSelector.GetTarget(AArange, TargetSelector.DamageType.Physical);
+            if (realTarget == null)
+                return;
             if (target.Type == GameObjectType.obj_AI_Hero && tg != realTarget && realTarget.IsValidTarget(AArange))
             {
                 Orbwalker.ForceTarget(realTarget);
