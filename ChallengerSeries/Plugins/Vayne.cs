@@ -255,7 +255,7 @@ namespace ChallengerSeries.Plugins
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
-                var AAsNeeded = hero.Health/Player.GetAutoAttackDamage(hero);
+                var AAsNeeded = (int)(hero.Health/Player.GetAutoAttackDamage(hero));
                 Drawing.DrawText(hero.HPBarPosition.X + 5, hero.HPBarPosition.Y - 30,
                     AAsNeeded <= 3 ? Color.Gold : Color.White,
                     "AAs to kill: " + AAsNeeded);
