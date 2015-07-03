@@ -504,18 +504,18 @@ namespace ChallengerSeries.Utils
                 var misc = new Menu("Misc", "Misc");
                 misc.AddItem(
                     new MenuItem("HoldPosRadius", "Hold Position Radius").SetValue(new Slider(70, 0, 250)));
-                misc.AddItem(new MenuItem("PriorizeFarm", "Priorize farm over harass").SetShared().SetValue(true));
+                misc.AddItem(new MenuItem("PriorizeFarm", "Prioritize farm").SetShared().SetValue(true));
                 _config.AddSubMenu(misc);
 
                 /* Missile check */
-                _config.AddItem(new MenuItem("MissileCheck", "Use Missile Check").SetShared().SetValue(false));
+                _config.AddItem(new MenuItem("MissileCheck", "Use Missile Check").SetValue(false));
 
                 /* Delay sliders */
                 _config.AddItem(
                     new MenuItem("ExtraWindup", "Extra windup time").SetValue(new Slider(123, 0, 200)));
                 _config.AddItem(new MenuItem("FarmDelay", "Farm delay").SetShared().SetValue(new Slider(0, 0, 200)));
                 _config.AddItem(
-                    new MenuItem("MovementDelay", "Movement delay").SetValue(new Slider(100, 0, 250)))
+                    new MenuItem("MovementDelay", "Movement delay").SetValue(new Slider(150, 100, 250)))
                     .ValueChanged += (sender, args) => SetMovementDelay(args.GetNewValue<Slider>().Value);
 
 
@@ -807,7 +807,7 @@ namespace ChallengerSeries.Utils
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(
-                        Player.Position, GetRealAutoAttackRange(null) + 15,
+                        Player.Position, GetRealAutoAttackRange(null) + 25,
                         _config.Item("AACircle").GetValue<Circle>().Color);
                 }
 

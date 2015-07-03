@@ -62,7 +62,7 @@ namespace ChallengerSeries.Utils
 
         public static bool IsShroom(this Vector3 pos)
         {
-            return MinionManager.GetMinions(pos, 150)
+            return HeroManager.Enemies.Any(e => !e.IsDead && e.IsVisible && e.Distance(pos) < 300) && MinionManager.GetMinions(pos, 150)
                 .Any(m => m.CharData.Name.Contains("mine") || m.CharData.Name.Contains("trap") ||
                         m.CharData.Name.Contains("shroom") || m.CharData.Name.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 200);
         }

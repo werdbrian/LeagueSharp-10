@@ -54,9 +54,10 @@ namespace ChallengerSeries
             DrawingsMenu = new Menu("Drawing Settings", "drawingsmenu");
             DrawingsMenu.AddItem(new MenuItem("streamingmode", "Disable All Drawings").SetValue(false));
             DrawingsMenu.AddItem(new MenuItem("drawenemyrangecircle", "Draw Enemy Spells Range").SetValue(false));
-            DrawingsMenu.AddItem(new MenuItem("enemycccounter", "Enemy CC Counter: ").SetShared().SetValue(Positioning.EnemyCC()));
+            DrawingsMenu.AddItem(new MenuItem("drawenemywaypoints", "Draw Enemy Waypoints").SetValue(true));
+            DrawingsMenu.AddItem(new MenuItem("enemycccounter", "Enemy CC Counter: ").SetValue(Positioning.EnemyCC()));
             DrawingsMenu.AddItem(new MenuItem("enemycounter",
-                "Enemies in 2000 range: ").SetShared().SetValue(0));
+                "Enemies in 2000 range: ").SetValue(0));
             DrawingsMenu.Item("enemycccounter").Permashow(true, "Enemy CC Counter");
             DrawingsMenu.Item("enemycounter").Permashow(true, "Enemies in 2000 range");
             SkinhackMenu = new Menu("Skin Hack", "skinhackmenu");
@@ -144,6 +145,32 @@ namespace ChallengerSeries
                 return;
             }
 
+            if (DrawingsMenu.Item("drawenemyrangecircle").GetValue<bool>())
+            {
+                foreach (var polygon in Positioning.DangerZone())
+                {
+                    polygon.Draw(Color.Red, 1);
+                }
+            }
+
+            if (DrawingsMenu.Item("drawenemywaypoints").GetValue<bool>())
+            {
+                foreach (var e in HeroManager.Enemies.Where(en => en.IsVisible && !en.IsDead && en.Distance(Player) < 2500))
+                {
+                    var ip = Drawing.WorldToScreen(e.Position); //start pos
+
+                    var wp = e.GetWaypoints();
+                    var c = wp.Count - 1;
+                    if (wp.Count() <= 1) break;
+
+                    var w = Drawing.WorldToScreen(wp[c].To3D()); //endpos
+
+                    if (!ip.IsOnScreen() && !w.IsOnScreen())
+
+                    Drawing.DrawLine(ip.X, ip.Y, w.X, w.Y, 2, Color.Red);
+                }
+            }
+
             DrawingsMenu.Item("enemycccounter").Permashow();
             DrawingsMenu.Item("enemycounter").Permashow();
             if (Environment.TickCount - _lastUpdate > 367)
@@ -151,13 +178,6 @@ namespace ChallengerSeries
                 DrawingsMenu.Item("enemycccounter").SetValue(Positioning.EnemyCC());
                 DrawingsMenu.Item("enemycounter").SetValue(Player.CountEnemiesInRange(2000));
                 _lastUpdate = Environment.TickCount;
-            }
-            if (DrawingsMenu.Item("drawenemyrangecircle").GetValue<bool>())
-            {
-                foreach (var polygon in Positioning.DangerZone())
-                {
-                    polygon.Draw(Color.Red, 2);
-                }
             }
         }
 

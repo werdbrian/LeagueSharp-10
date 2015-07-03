@@ -41,7 +41,7 @@ namespace ChallengerSeries.Plugins
             ComboMenu.AddItem(new MenuItem("QUltSpam", "Spam Q when R active").SetValue(false));
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("PradaE", "Authentic Prada Condemn").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("FastCondemn", "Fast Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(100, 50, 100)));
             ComboMenu.AddItem(new MenuItem("DrawE", "Draw Condemn Prediction").SetValue(true));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult (soon)").SetValue(false));
@@ -189,14 +189,14 @@ namespace ChallengerSeries.Plugins
         private void Condemn()
         {
             if (!ComboMenu.Item("ECombo").GetValue<bool>()) return;
+
             if (ShouldSaveCondemn() || !E.IsReady() ||
                 (Player.UnderTurret(true) && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)) return;
+
             var condemnTargets =
                 HeroManager.Enemies.Where(
                     h => Player.Distance(h.ServerPosition) < E.Range && !h.HasBuffOfType(BuffType.SpellShield));
 
-            if ((ComboMenu.Item("PradaE").GetValue<bool>()))
-            {
                 foreach (var hero in condemnTargets)
                 {
                     var pushDist = Player.ServerPosition.Distance(hero.ServerPosition) + 395;
@@ -217,6 +217,15 @@ namespace ChallengerSeries.Plugins
 
                     if (_condemnEndPos.IsCollisionable())
                     {
+                        if (ComboMenu.Item("FastCondemn").GetValue<bool>())
+                        {
+                            if (hero.IsFacing(Player) || !hero.CanMove || !hero.IsMoving)
+                            {
+                                E.Cast(hero);
+                            }
+                            return;
+                        }
+
                         if (!hero.CanMove || hero.GetWaypoints().Count <= 1 || !hero.IsMoving)
                         {
                             E.Cast(hero);
@@ -240,7 +249,6 @@ namespace ChallengerSeries.Plugins
                                 E.Cast(hero);
                             }*/
                     }
-                }
             }
         }
 
@@ -291,10 +299,12 @@ namespace ChallengerSeries.Plugins
                 }
                 else
                 {
+                    if (!Q.IsReady()) return;
+
                     var tumblePos = Player.ServerPosition.Extend(sender.ServerPosition,
                         Player.Distance(sender.ServerPosition) - Orbwalking.GetRealAutoAttackRange(null));
 
-                    if (!tumblePos.IsShroom() && tumblePos.CountEnemiesInRange(300) == 0 && Q.IsReady())
+                    if (!tumblePos.IsShroom())
                     {
                         Q.Cast(tumblePos);
                         Orbwalker.ForceTarget(sender);
@@ -316,12 +326,15 @@ namespace ChallengerSeries.Plugins
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var t = (Obj_AI_Hero)args.Target;
+                var tumblePos = Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range));
+                if (tumblePos.IsShroom()) return;
+
                 if (Q.IsReady() && t.IsValidTarget() && t.IsMelee() && t.IsFacing(Player) && ComboMenu.Item("QCombo").GetValue<bool>())
                 {
-                    if (t.Distance(Player.ServerPosition) < Q.Range && t.IsFacing(Player) && !Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)).IsShroom())
+                    if (t.Distance(Player.ServerPosition) < Q.Range && t.IsFacing(Player))
                     {
                         args.Process = false;
-                        Q.Cast(Player.ServerPosition.Extend(t.ServerPosition, -(Q.Range)));
+                        Q.Cast();
                     }
                 }
 

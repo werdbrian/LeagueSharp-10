@@ -33,7 +33,7 @@ namespace ChallengerSeries.Utils
                         (enemy.Spellbook.CanUseSpell(slot) != SpellState.Cooldown || spell.IsReady()))
                     {
                         var sd = SpellDb.GetByName(spell.Name);
-                        if (sd != null)
+                        if (sd != null && sd.CcType != CcType.No)
                         {
                             if (sd.Range > highestSpellRange && sd.Range < 2000) highestSpellRange = (int)sd.Range;
                         }
