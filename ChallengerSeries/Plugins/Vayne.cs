@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows.Media.Media3D;
 using LeagueSharp;
@@ -95,7 +95,7 @@ namespace ChallengerSeries.Plugins
                 SkinHax();
             }
 
-            if (ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500 && LeagueSharp.Common.Utility.Map.GetMap().Type == LeagueSharp.Common.Utility.Map.MapType.SummonersRift)
+            if (Utility.Map.GetMap().Type == Utility.Map.MapType.SummonersRift && ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500)
             {
                 WallTumble();
             }
@@ -258,7 +258,7 @@ namespace ChallengerSeries.Plugins
 
             if (DrawingsMenu.Item("streamingmode").GetValue<bool>())
                 return;
-            if (Player.Distance(_preV3) < 1000 && LeagueSharp.Common.Utility.Map.GetMap().Type == LeagueSharp.Common.Utility.Map.MapType.SummonersRift)
+            if (Utility.Map.GetMap().Type == Utility.Map.MapType.SummonersRift && Player.Distance(_preV3) < 1000)
             Drawing.DrawCircle(_preV3, 75, Color.Gold);
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
