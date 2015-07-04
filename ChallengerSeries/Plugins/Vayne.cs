@@ -28,6 +28,8 @@ namespace ChallengerSeries.Plugins
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;
         private static int _lastCycledSkin;
+
+        private static bool _canWallTumble;
         private static Vector3 _preV3 = new Vector2(12050, 4828).To3D();
         private static Vector3 _aftV3 = new Vector2(11510, 4470).To3D();
 
@@ -75,6 +77,7 @@ namespace ChallengerSeries.Plugins
         protected override void OnGameLoad(EventArgs args)
         {
             base.OnGameLoad(args);
+            _canWallTumble = (Utility.Map.GetMap().Type == Utility.Map.MapType.SummonersRift);
             if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
             {
                 _selectedSkin = SkinhackMenu.Item("skin").GetValue<StringList>().SelectedIndex + 1;
@@ -95,7 +98,7 @@ namespace ChallengerSeries.Plugins
                 SkinHax();
             }
 
-            if (Utility.Map.GetMap().Type == Utility.Map.MapType.SummonersRift && ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500)
+            if (_canWallTumble && ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_preV3) < 500)
             {
                 WallTumble();
             }
@@ -143,6 +146,7 @@ namespace ChallengerSeries.Plugins
 
         private static void SkinHax()
         {
+            if (!SkinhackMenu.Item("enableskinhack").GetValue<bool>()) return;
             if (Player.IsDead && _skinLoaded)
             {
                 _skinLoaded = false;
@@ -258,7 +262,7 @@ namespace ChallengerSeries.Plugins
 
             if (DrawingsMenu.Item("streamingmode").GetValue<bool>())
                 return;
-            if (Utility.Map.GetMap().Type == Utility.Map.MapType.SummonersRift && Player.Distance(_preV3) < 1000)
+            if (_canWallTumble && Player.Distance(_preV3) < 3000)
             Drawing.DrawCircle(_preV3, 75, Color.Gold);
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))

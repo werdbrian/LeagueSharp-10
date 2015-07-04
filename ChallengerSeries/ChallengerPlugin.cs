@@ -165,8 +165,6 @@ namespace ChallengerSeries
 
                     var w = Drawing.WorldToScreen(wp[c].To3D()); //endpos
 
-                    if (!ip.IsOnScreen() && !w.IsOnScreen())
-
                     Drawing.DrawLine(ip.X, ip.Y, w.X, w.Y, 2, Color.Red);
                 }
             }
