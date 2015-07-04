@@ -338,7 +338,7 @@ namespace ChallengerSeries.Plugins
                     if (t.Distance(Player.ServerPosition) < Q.Range && t.IsFacing(Player))
                     {
                         args.Process = false;
-                        Q.Cast();
+                        Q.Cast(tumblePos);
                     }
                 }
 
@@ -517,7 +517,7 @@ namespace ChallengerSeries.Plugins
             if (closestAlly != null && Q.IsReady())
             {
                 var tumblePos = Player.ServerPosition.Extend(closestAlly.ServerPosition, Q.Range);
-                if (!tumblePos.IsShroom() && tumblePos.CountEnemiesInRange(300) == 0 && Q.IsReady())
+                if (!tumblePos.IsShroom() && Q.IsReady())
                 {
                     Q.Cast(tumblePos);
                 }
