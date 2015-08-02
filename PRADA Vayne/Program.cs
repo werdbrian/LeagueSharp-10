@@ -446,6 +446,7 @@ namespace PRADA_Vayne
             SkinhackMenu = new Menu("Skin Hack", "skinhackmenu");
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
+            //ComboMenu.AddItem(new MenuItem("QMode", "Q Mode: ").SetValue(new StringList(new[] { "GOSU", "SAFE" }))); #TODO
             //ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true)); #TODO
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));

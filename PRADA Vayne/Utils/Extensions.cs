@@ -55,7 +55,7 @@ namespace PRADA_Vayne.Utils
             foreach (var p in aRC)
             {
                 var v3 = new Vector2(p.X, p.Y).To3D();
-                if (v3.Distance(tP) > 325 && v3.Distance(tP) < 550 && (v3.CountEnemiesInRange(325) <= v3.CountAlliesInRange(325) && ((Player.UnderTurret(true) && Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo) || !v3.UnderTurret(true)))) return v3;
+                if (v3.Distance(tP) > 425 && v3.Distance(tP) < 550 && (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325) && ((Player.UnderTurret(true) && Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo) || !v3.UnderTurret(true)))) return v3;
             }
             return Vector3.Zero;
         }
