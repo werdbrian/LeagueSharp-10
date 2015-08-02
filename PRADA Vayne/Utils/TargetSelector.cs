@@ -359,7 +359,7 @@ namespace PRADA_Vayne.Utils
                     ignoredChamps = new List<Obj_AI_Hero>();
                 }
 
-                var damageType = (Damage.DamageType)Enum.Parse(typeof(Damage.DamageType), type.ToString());
+                var damageType = (Damage.DamageType) Enum.Parse(typeof (Damage.DamageType), type.ToString());
 
                 if (_configMenu != null && IsValidTarget(
                     SelectedTarget, _configMenu.Item("ForceFocusSelected").GetValue<bool>() ? float.MaxValue : range,
@@ -379,8 +379,8 @@ namespace PRADA_Vayne.Utils
                     HeroManager.Enemies
                         .FindAll(
                             hero => !IsInvulnerable(hero, type) &&
-                                ignoredChamps.All(ignored => ignored.NetworkId != hero.NetworkId) &&
-                                IsValidTarget(hero, range, type, ignoreShieldSpells, rangeCheckFrom));
+                                    ignoredChamps.All(ignored => ignored.NetworkId != hero.NetworkId) &&
+                                    IsValidTarget(hero, range, type, ignoreShieldSpells, rangeCheckFrom));
 
                 switch (Mode)
                 {
@@ -404,32 +404,27 @@ namespace PRADA_Vayne.Utils
                         return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
 
                     case TargetingMode.AutoPriority:
-                        return Heroes.Player.CharData.BaseSkinName == "Vayne"
-                            ? (targets.FirstOrDefault(h => h.Health <
-                                    Heroes.Player.GetAutoAttackDamage(h) * 3 +
-                                    Heroes.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
-                               (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
-                                   ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
-                                   : null) ?? targets.MaxOrDefault(
-                                       hero =>
-                                           (champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health)) *
-                                           GetPriority(hero)))
-                            : targets.MaxOrDefault(hero =>
-                                    (champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health)) *
-                                    GetPriority(hero));
+                        return (targets.OrderBy(h => h.Health).FirstOrDefault(h => 
+                            h.Health <Heroes.Player.GetAutoAttackDamage(h)*3 +Heroes.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
+                                (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
+                                    ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
+                                    : null) ?? targets.MaxOrDefault(
+                                        hero =>
+                                            (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
+                                            GetPriority(hero)));
 
                     case TargetingMode.LessAttack:
                         return
                             targets.MaxOrDefault(
                                 hero =>
-                                    champion.CalcDamage(hero, Damage.DamageType.Physical, 100) / (1 + hero.Health) *
+                                    champion.CalcDamage(hero, Damage.DamageType.Physical, 100)/(1 + hero.Health)*
                                     GetPriority(hero));
 
                     case TargetingMode.LessCast:
                         return
                             targets.MaxOrDefault(
                                 hero =>
-                                    champion.CalcDamage(hero, Damage.DamageType.Magical, 100) / (1 + hero.Health) *
+                                    champion.CalcDamage(hero, Damage.DamageType.Magical, 100)/(1 + hero.Health)*
                                     GetPriority(hero));
                 }
             }
