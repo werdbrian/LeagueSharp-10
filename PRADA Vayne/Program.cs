@@ -23,7 +23,6 @@ namespace PRADA_Vayne
         #region Fields & Objects
 
         #region Others
-        private static int _lastUpdate = 0; 
         private static Vector3 _condemnEndPos = Vector3.Zero;
         private static bool _tumbleToKillSecondMinion;
         private static int _selectedSkin;
@@ -106,7 +105,7 @@ namespace PRADA_Vayne
             if (sender.Name.ToLower().Contains("leapsound.troy"))
             {
                 var rengo = Heroes.EnemyHeroes.FirstOrDefault(h => h.CharData.BaseSkinName == "Rengar");
-                if (rengo.IsValidTarget(E.Range) && E.IsReady())
+                if (rengo.IsValidTarget(545) && E.IsReady())
                 {
                     E.Cast(rengo);
                 }
@@ -228,7 +227,7 @@ namespace PRADA_Vayne
         {
             if (Heroes.Player.CountEnemiesInRange(600) == 1)
             {
-                var target = Heroes.EnemyHeroes.FirstOrDefault(e => e.IsValidTarget(E.Range));
+                var target = Heroes.EnemyHeroes.FirstOrDefault(e => e.IsValidTarget(545));
 
                 if (target != null)
                 {
@@ -242,7 +241,7 @@ namespace PRADA_Vayne
             }
             else
             {
-                foreach (var enemy in Heroes.EnemyHeroes.Where(e => e.IsValidTarget(E.Range)))
+                foreach (var enemy in Heroes.EnemyHeroes.Where(e => e.IsValidTarget(545)))
                 {
                     if (enemy == null) continue;
                     if (TargetSelector.GetPriority(enemy) >= 2)
