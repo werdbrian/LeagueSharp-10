@@ -248,7 +248,7 @@ namespace PRADA_Vayne.Utils
         public static bool IsInvulnerable(Obj_AI_Base target, DamageType damageType, bool ignoreShields = true)
         {
             // Tryndamere's Undying Rage (R)
-            if (!damageType.Equals(DamageType.True) && target.HasBuff("Undying Rage") && target.Health <= 2f)
+            if (target.HasBuff("Undying Rage") && target.Health <= 2f)
             {
                 return true;
             }
@@ -404,10 +404,10 @@ namespace PRADA_Vayne.Utils
                         return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
 
                     case TargetingMode.AutoPriority:
-                        return ObjectManager.Player.BaseSkinName == "Vayne"
+                        return Heroes.Player.CharData.BaseSkinName == "Vayne"
                             ? (targets.FirstOrDefault(h => h.Health <
-                                    ObjectManager.Player.GetAutoAttackDamage(h) * 3 +
-                                    ObjectManager.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
+                                    Heroes.Player.GetAutoAttackDamage(h) * 3 +
+                                    Heroes.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
                                (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
                                    ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
                                    : null) ?? targets.MaxOrDefault(
