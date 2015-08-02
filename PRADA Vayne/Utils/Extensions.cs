@@ -50,6 +50,9 @@ namespace PRADA_Vayne.Utils
 
         public static Vector3 GetTumblePos(this Obj_AI_Hero target)
         {
+            //if the target is not a melee and he's alone he's not really a danger to us, proceed to 1v1 him :^ )
+            if (!target.IsMelee && Heroes.Player.CountEnemiesInRange(800) == 1) return Game.CursorPos;
+
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
             var tP = target.ServerPosition;
             var pList = new List<Vector3>();
@@ -57,6 +60,7 @@ namespace PRADA_Vayne.Utils
             foreach (var p in aRC)
             {
                 var v3 = new Vector2(p.X, p.Y).To3D();
+
                 if (target.IsFacing(Heroes.Player))
                 {
                     if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 550 &&
@@ -64,7 +68,8 @@ namespace PRADA_Vayne.Utils
                 }
                 else
                 {
-                    if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < (550 - additionalDistance) &&
+                    if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 &&
+                        v3.Distance(tP) < (550 - additionalDistance) &&
                         (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
                 }
             }
