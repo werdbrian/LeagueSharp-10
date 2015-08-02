@@ -11,11 +11,11 @@ using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 using SS = LeagueSharp.SpellSlot;
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
     internal class Positioning
     {
-        public static SS[] SpellSlots = {SS.Q, SS.W, SS.E, SS.R};
+        public static SS[] SpellSlots = { SS.Q, SS.W, SS.E, SS.R };
         public static List<Geometry.Polygon> DangerZone()
         {
             var polygons = new List<Geometry.Polygon>();

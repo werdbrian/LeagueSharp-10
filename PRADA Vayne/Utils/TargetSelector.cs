@@ -33,7 +33,7 @@ using DamageType = LeagueSharp.Common.TargetSelector.DamageType;
 
 #endregion
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
     public class TargetSelector
     {
@@ -208,7 +208,7 @@ namespace ChallengerSeries.Utils
             config.AddItem(
                 new MenuItem("SelTColor", "Selected target color").SetShared().SetValue(new Circle(true, Color.Red)));
             config.AddItem(new MenuItem("Sep", "").SetShared());
-            var autoPriorityItem = new MenuItem("AutoPriority", "Auto arrange priorities").SetShared().SetValue(false);
+            var autoPriorityItem = new MenuItem("AutoPriority", "Auto arrange priorities").SetShared().SetValue(true);
             autoPriorityItem.ValueChanged += autoPriorityItem_ValueChanged;
 
             foreach (var enemy in HeroManager.Enemies)
@@ -378,7 +378,7 @@ namespace ChallengerSeries.Utils
                 var targets =
                     HeroManager.Enemies
                         .FindAll(
-                            hero =>
+                            hero => !IsInvulnerable(hero, type) &&
                                 ignoredChamps.All(ignored => ignored.NetworkId != hero.NetworkId) &&
                                 IsValidTarget(hero, range, type, ignoreShieldSpells, rangeCheckFrom));
 
@@ -404,10 +404,19 @@ namespace ChallengerSeries.Utils
                         return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
 
                     case TargetingMode.AutoPriority:
-                        return
-                            targets.MaxOrDefault(
-                                hero =>
-                                    champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health) * GetPriority(hero));
+                        return ObjectManager.Player.BaseSkinName == "Vayne"
+                            ? (targets.FirstOrDefault(h => h.Health <
+                                    ObjectManager.Player.GetAutoAttackDamage(h) * 3 +
+                                    ObjectManager.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
+                               (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
+                                   ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
+                                   : null) ?? targets.MaxOrDefault(
+                                       hero =>
+                                           (champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health)) *
+                                           GetPriority(hero)))
+                            : targets.MaxOrDefault(hero =>
+                                    (champion.CalcDamage(hero, damageType, 100) / (1 + hero.Health)) *
+                                    GetPriority(hero));
 
                     case TargetingMode.LessAttack:
                         return
@@ -444,7 +453,7 @@ namespace ChallengerSeries.Utils
         public static Obj_AI_Hero _lastTarget;
         private static DamageType _lastDamageType;
 
-        public static Obj_AI_Hero GetTarget(float range, 
+        public static Obj_AI_Hero GetTarget(float range,
             DamageType damageType,
             bool ignoreShield = true,
             IEnumerable<Obj_AI_Hero> ignoredChamps = null,

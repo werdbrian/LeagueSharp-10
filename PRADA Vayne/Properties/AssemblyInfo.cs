@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ChallengerSeries")]
+[assembly: AssemblyTitle("PRADA Vayne")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bot of Legends")]
-[assembly: AssemblyProduct("ChallengerSeries")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2015")]
+[assembly: AssemblyCompany("LeagueSharp")]
+[assembly: AssemblyProduct("PRADA Vayne")]
+[assembly: AssemblyCopyright("Copyright © LeagueSharp 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b6e18661-b2b0-457f-bc39-6fe72fa5e950")]
+[assembly: Guid("1d199386-4fc5-48fa-9f3f-cea5a2cdbca2")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.1.25")]
-[assembly: AssemblyFileVersion("1.0.1.25")]
+[assembly: AssemblyVersion("0.0.1.1154")]
+[assembly: AssemblyFileVersion("0.0.1.1154")]

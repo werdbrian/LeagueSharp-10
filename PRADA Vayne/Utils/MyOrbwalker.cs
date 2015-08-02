@@ -23,8 +23,8 @@
 #region
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -32,12 +32,13 @@ using Color = System.Drawing.Color;
 
 #endregion
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
+
     /// <summary>
     ///     This class offers everything related to auto-attacks and orbwalking.
     /// </summary>
-    public static class Orbwalking
+    public static class MyOrbwalker
     {
         public delegate void AfterAttackEvenH(AttackableUnit unit, AttackableUnit target);
 
@@ -100,9 +101,8 @@ namespace ChallengerSeries.Utils
         private static float _minDistance = 400;
         private static bool _missileLaunched;
         private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-        public static Obj_AI_Hero DesiredTarget;
 
-        static Orbwalking()
+        static MyOrbwalker()
         {
             Player = ObjectManager.Player;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
@@ -188,6 +188,14 @@ namespace ChallengerSeries.Utils
         }
 
         /// <summary>
+        ///     Returns true if the unit is melee
+        /// </summary>
+        public static bool IsMelee(this Obj_AI_Base unit)
+        {
+            return unit.CombatType == GameObjectCombatType.Melee;
+        }
+
+        /// <summary>
         ///     Returns true if the spellname is an auto-attack.
         /// </summary>
         public static bool IsAutoAttack(string name)
@@ -201,7 +209,7 @@ namespace ChallengerSeries.Utils
         /// </summary>
         public static float GetRealAutoAttackRange(AttackableUnit target)
         {
-            var result = Player.AttackRange + Player.BoundingRadius;
+            var result = Player.AttackRange + Player.BoundingRadius - 15;
             if (target.IsValidTarget())
             {
                 return result + target.BoundingRadius;
@@ -230,7 +238,7 @@ namespace ChallengerSeries.Utils
         /// </summary>
         public static float GetMyProjectileSpeed()
         {
-            return Player.IsMelee || Player.ChampionName == "Azir" ? float.MaxValue : Player.BasicAttack.MissileSpeed;
+            return IsMelee(Player) || Player.ChampionName == "Azir" ? float.MaxValue : Player.BasicAttack.MissileSpeed;
         }
 
         /// <summary>
@@ -327,11 +335,6 @@ namespace ChallengerSeries.Utils
 
             Player.IssueOrder(GameObjectOrder.MoveTo, point);
             LastMoveCommandPosition = point;
-
-            if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>())
-            {
-                VirtualMouse.RightClick(point);
-            }
         }
 
         /// <summary>
@@ -360,10 +363,6 @@ namespace ChallengerSeries.Utils
                         }
                         Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastTarget = target;
-                        if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>())
-                        {
-                            VirtualMouse.ShiftClick(target.Position);
-                        }
                         return;
                     }
                 }
@@ -437,7 +436,7 @@ namespace ChallengerSeries.Utils
 
                         //Trigger it for ranged until the missiles catch normal attacks again!
                         Utility.DelayAction.Add(
-                            (int)(unit.AttackCastDelay * 1000 + 40), () => FireAfterAttack(unit, _lastTarget));
+                            (int)(unit.AttackCastDelay * 1000 + 50), () => FireAfterAttack(unit, _lastTarget));
                     }
                 }
 
@@ -479,32 +478,45 @@ namespace ChallengerSeries.Utils
             private OrbwalkingMode _mode = OrbwalkingMode.None;
             private Vector3 _orbwalkingPoint;
             private Obj_AI_Minion _prevMinion;
+            public static List<Orbwalker> Instances = new List<Orbwalker>();
 
             public Orbwalker(Menu attachToMenu)
             {
                 _config = attachToMenu;
                 var targetSelector = new Menu("Target Selector", "targetselector");
-                TargetSelector.AddToMenu(targetSelector);
+                TargetSelector.AddToMenu(targetSelector); 
                 _config.AddSubMenu(targetSelector);
 
                 /* Drawings submenu */
                 var drawings = new Menu("Drawings", "drawings");
                 drawings.AddItem(
-                    new MenuItem("AACircle", "AACircle").SetShared()
+                    new MenuItem("AACircle", "AACircle")
                         .SetValue(new Circle(true, Color.Gold)));
                 drawings.AddItem(
-                    new MenuItem("AACircle2", "Enemy AA circle").SetShared()
+                    new MenuItem("AACircle2", "Enemy AA circle")
                         .SetValue(new Circle(false, Color.White)));
                 drawings.AddItem(
-                    new MenuItem("HoldZone", "HoldZone").SetShared()
+                    new MenuItem("HoldZone", "HoldZone")
                         .SetValue(new Circle(false, Color.DarkRed)));
                 _config.AddSubMenu(drawings);
 
                 /* Misc options */
                 var misc = new Menu("Misc", "Misc");
                 misc.AddItem(
-                    new MenuItem("HoldPosRadius", "Hold Position Radius").SetValue(new Slider(70, 0, 250)));
-                misc.AddItem(new MenuItem("PriorizeFarm", "Prioritize farm").SetShared().SetValue(true));
+                    new MenuItem("HoldPosRadius", "Hold Position Radius").SetValue(new Slider(50, 0, 250)));
+                misc.AddItem(new MenuItem("PriorizeFarm", "Priorize farm over harass").SetShared().SetValue(true));
+                misc.AddItem(new MenuItem("FreezeHealth", "LaneFreeze Damage %").SetShared().SetValue(new Slider(50, 50)));
+                misc.AddItem(new MenuItem("PermaShow", "PermaShow").SetShared().SetValue(true)).ValueChanged += (s, args) =>
+                {
+                    if (args.GetNewValue<bool>())
+                    {
+                        _config.Item("Freeze").Permashow(true, "Freeze");
+                    }
+                    else
+                    {
+                        _config.Item("Freeze").Permashow(false);
+                    }
+                };
                 _config.AddSubMenu(misc);
 
                 /* Missile check */
@@ -515,7 +527,7 @@ namespace ChallengerSeries.Utils
                     new MenuItem("ExtraWindup", "Extra windup time").SetValue(new Slider(123, 0, 200)));
                 _config.AddItem(new MenuItem("FarmDelay", "Farm delay").SetShared().SetValue(new Slider(0, 0, 200)));
                 _config.AddItem(
-                    new MenuItem("MovementDelay", "Movement delay").SetValue(new Slider(100, 100, 250))) // credits jq
+                    new MenuItem("MovementDelay", "Movement delay").SetValue(new Slider(100, 100, 250)))
                     .ValueChanged += (sender, args) => SetMovementDelay(args.GetNewValue<Slider>().Value);
 
 
@@ -531,10 +543,18 @@ namespace ChallengerSeries.Utils
                 _config.AddItem(
                     new MenuItem("Orbwalk", "Combo").SetShared().SetValue(new KeyBind(32, KeyBindType.Press)));
 
+                _config.AddItem(
+                   new MenuItem("Freeze", "Lane Freeze (Toggle)").SetShared().SetValue(new KeyBind('H', KeyBindType.Toggle)));
+
+                _config.Item("Freeze").Permashow(_config.Item("PermaShow").GetValue<bool>(), "Freeze");
+
                 _delay = _config.Item("MovementDelay").GetValue<Slider>().Value;
+
+
                 Player = ObjectManager.Player;
-                Game.OnUpdate += GameOnOnGameUpdate;
+                Game.OnUpdate += OnUpdate;
                 Drawing.OnDraw += DrawingOnOnDraw;
+                Instances.Add(this);
             }
 
             public virtual bool InAutoAttackRange(AttackableUnit target)
@@ -618,7 +638,7 @@ namespace ChallengerSeries.Utils
                 _orbwalkingPoint = point;
             }
 
-            public bool ShouldWait()
+            private bool ShouldWait()
             {
                 return
                     ObjectManager.Get<Obj_AI_Minion>()
@@ -649,19 +669,27 @@ namespace ChallengerSeries.Utils
                 if (ActiveMode == OrbwalkingMode.LaneClear || ActiveMode == OrbwalkingMode.Mixed ||
                     ActiveMode == OrbwalkingMode.LastHit)
                 {
-                    foreach (var minion in
+                    var FreezeActive = _config.Item("Freeze").GetValue<KeyBind>().Active && (ActiveMode != OrbwalkingMode.LaneClear);
+                    var MinionList =
                         ObjectManager.Get<Obj_AI_Minion>()
                             .Where(
                                 minion =>
                                     minion.IsValidTarget() && InAutoAttackRange(minion) &&
                                     minion.Health <
                                     2 *
-                                    (ObjectManager.Player.BaseAttackDamage + ObjectManager.Player.FlatPhysicalDamageMod))
-                        )
+                                    (ObjectManager.Player.BaseAttackDamage + ObjectManager.Player.FlatPhysicalDamageMod));
+
+                    foreach (var minion in MinionList)
                     {
+                        var FreezeDamage = Player.GetAutoAttackDamage(minion, false) * (_config.Item("FreezeHealth").GetValue<Slider>().Value / 100f);
                         var t = (int)(Player.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
                                 1000 * (int)Player.Distance(minion) / (int)GetMyProjectileSpeed();
                         var predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay);
+
+                        if (FreezeActive && predHealth.Equals(minion.Health))
+                        {
+                            continue;
+                        }
 
                         if (minion.Team != GameObjectTeam.Neutral && MinionManager.IsMinion(minion, true))
                         {
@@ -670,7 +698,7 @@ namespace ChallengerSeries.Utils
                                 FireOnNonKillableMinion(minion);
                             }
 
-                            if (predHealth > 0 && predHealth <= Player.GetAutoAttackDamage(minion, true))
+                            if (predHealth > 0 && predHealth <= (FreezeActive ? FreezeDamage : Player.GetAutoAttackDamage(minion, true)))
                             {
                                 return minion;
                             }
@@ -712,12 +740,31 @@ namespace ChallengerSeries.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
-                    var target = TargetSelector.GetTarget(-1,
-                        LeagueSharp.Common.TargetSelector.DamageType.Physical);
-
+                    var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
                     if (target.IsValidTarget())
                     {
-                        return target;
+                        if (target.IsMelee && Items.HasItem((int) ItemId.Thornmail, target) && target.HealthPercent > Player.HealthPercent && Player.HealthPercent < 20)
+                        {
+                            return
+                                MinionManager.GetMinions(Player.ServerPosition, Orbwalking.GetRealAutoAttackRange(null))
+                                    .OrderBy(m => m.Armor)
+                                    .FirstOrDefault() ?? target;
+                        }
+                        else
+                        {
+                            return target;
+                        }
+                    }
+                }
+
+                if (ActiveMode == OrbwalkingMode.Combo && Items.HasItem((int) ItemId.The_Bloodthirster, Player))
+                {
+                    var minion =
+                        MinionManager.GetMinions(Player.ServerPosition, GetRealAutoAttackRange(null))
+                            .OrderBy(m => m.Armor).FirstOrDefault();
+                    if (Player.CountEnemiesInRange(600) == 0 && Player.HealthPercent < 60 && minion != null)
+                    {
+                        return minion;
                     }
                 }
 
@@ -728,7 +775,7 @@ namespace ChallengerSeries.Utils
                         ObjectManager.Get<Obj_AI_Minion>()
                             .Where(
                                 mob =>
-                                    mob.IsValidTarget() && InAutoAttackRange(mob) && mob.Team == GameObjectTeam.Neutral)
+                                    mob.IsValidTarget() && mob.Team == GameObjectTeam.Neutral && InAutoAttackRange(mob) && mob.CharData.BaseSkinName != "gangplankbarrel")
                             .MaxOrDefault(mob => mob.MaxHealth);
                     if (result != null)
                     {
@@ -754,7 +801,7 @@ namespace ChallengerSeries.Utils
 
                         result = (from minion in
                                       ObjectManager.Get<Obj_AI_Minion>()
-                                          .Where(minion => minion.IsValidTarget() && InAutoAttackRange(minion))
+                                          .Where(minion => minion.IsValidTarget() && InAutoAttackRange(minion) && minion.CharData.BaseSkinName != "gangplankbarrel")
                                   let predHealth =
                                       HealthPrediction.LaneClearHealthPrediction(
                                           minion, (int)((Player.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay)
@@ -773,7 +820,7 @@ namespace ChallengerSeries.Utils
                 return result;
             }
 
-            private void GameOnOnGameUpdate(EventArgs args)
+            private void OnUpdate(EventArgs args)
             {
                 try
                 {
@@ -802,12 +849,17 @@ namespace ChallengerSeries.Utils
 
             private void DrawingOnOnDraw(EventArgs args)
             {
-                if (ChallengerPlugin.DrawingsMenu.Item("streamingmode").GetValue<bool>()) return;
+                if (Program.DrawingsMenu.Item("streamingmode").GetValue<bool>())
+                {
+                    Program.DrawingsMenu.Item("enemycccounter").Permashow(false);
+                    Program.DrawingsMenu.Item("enemycounter").Permashow(false);
+                    return;
+                }
 
                 if (_config.Item("AACircle").GetValue<Circle>().Active)
                 {
                     Render.Circle.DrawCircle(
-                        Player.Position, GetRealAutoAttackRange(null) + 25,
+                        Player.Position, GetRealAutoAttackRange(null) + 65,
                         _config.Item("AACircle").GetValue<Circle>().Color);
                 }
 
@@ -828,6 +880,7 @@ namespace ChallengerSeries.Utils
                         Player.Position, _config.Item("HoldPosRadius").GetValue<Slider>().Value,
                         _config.Item("HoldZone").GetValue<Circle>().Color);
                 }
+
             }
         }
     }

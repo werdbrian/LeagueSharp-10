@@ -36,7 +36,7 @@ using SharpDX;
  * You can grab a copy of GPL here: http://www.gnu.org/licenses/
  */
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
     public static class SpellDb
     {

@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using ChallengerSeries.Utils;
 using LeagueSharp.Common.Data;
 using SS = LeagueSharp.SpellSlot;
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
     internal class Activator
     {
@@ -24,8 +23,8 @@ namespace ChallengerSeries.Utils
         public static void Load(Menu menu)
         {
             CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
-            new Cleansers().Initialize(ChallengerPlugin.ActivatorMenu);
-            new PotionManager(ChallengerPlugin.ActivatorMenu);
+            new Cleansers().Initialize(Program.ActivatorMenu);
+            new PotionManager(Program.ActivatorMenu);
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
             menu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
             Game.OnUpdate += OnUpdate;
@@ -36,7 +35,7 @@ namespace ChallengerSeries.Utils
 
         public static void OnUpdate(EventArgs args)
         {
-            if (ChallengerPlugin.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.CountEnemiesInRange(1000) >= 1)
+            if (Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo && Player.CountEnemiesInRange(1000) >= 1)
             {
                 Combo();
             }
@@ -46,7 +45,7 @@ namespace ChallengerSeries.Utils
         {
             if (sender.Distance(Player) > 1400) return;
             var qss = ItemId.Quicksilver_Sash;
-            if (Items.HasItem((int) ItemId.Mercurial_Scimitar))
+            if (Items.HasItem((int)ItemId.Mercurial_Scimitar))
             {
                 qss = ItemId.Mercurial_Scimitar;
             }
@@ -64,44 +63,44 @@ namespace ChallengerSeries.Utils
                 }
             }
 
-            if (!ChallengerPlugin.ActivatorMenu.Item("exploits").GetValue<bool>()) return;
+            if (!Program.ActivatorMenu.Item("exploits").GetValue<bool>()) return;
 
             if (sender.Name.ToLower() == "cassiopeia" && args.SData.Name.ToLower().Contains("petrifying") && Player.Distance(sender) < 750 && Player.IsFacing(sender))
             {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
+                Program.Orbwalker.SetMovement(false);
+                Program.Orbwalker.SetAttack(false);
                 Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender)+100).To3D());
+                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) + 100).To3D());
                 Utility.DelayAction.Add(300, () =>
                 {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
+                    Program.Orbwalker.SetMovement(true);
+                    Program.Orbwalker.SetAttack(true);
                 });
             }
 
             if (sender.Name.ToLower() == "shaco" && args.SData.Name.ToLower().Contains("twoshiv") && args.Target.IsMe && !Player.IsFacing(sender))
             {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
+                Program.Orbwalker.SetMovement(false);
+                Program.Orbwalker.SetAttack(false);
                 Player.IssueOrder(GameObjectOrder.MoveTo,
                     sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
                 Utility.DelayAction.Add(250, () =>
                 {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
+                    Program.Orbwalker.SetMovement(true);
+                    Program.Orbwalker.SetAttack(true);
                 });
             }
 
             if (sender.Name.ToLower() == "tryndamere" && args.SData.Name.ToLower().Contains("mockingshout") && args.Target.IsMe && !Player.IsFacing(sender))
             {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
+                Program.Orbwalker.SetMovement(false);
+                Program.Orbwalker.SetAttack(false);
                 Player.IssueOrder(GameObjectOrder.MoveTo,
                     sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
                 Utility.DelayAction.Add(250, () =>
                 {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
+                    Program.Orbwalker.SetMovement(true);
+                    Program.Orbwalker.SetAttack(true);
                 });
             }
         }
@@ -194,7 +193,7 @@ namespace ChallengerSeries.Utils
             {
                 botrk.Cast(enemy);
                 return;
-            } 
+            }
             if (cutlass.IsReady() && enemy.IsValidTarget(cutlass.Range))
             {
                 cutlass.Cast(enemy);
@@ -213,7 +212,7 @@ namespace ChallengerSeries.Utils
 
         public static void UseItem(ItemId id, Obj_AI_Base target = null)
         {
-            if (!Items.CanUseItem((int) id)) return;
+            if (!Items.CanUseItem((int)id)) return;
             foreach (var slot in Player.InventoryItems.Where(slot => slot.Id == id))
             {
                 if (target != null)
@@ -366,9 +365,9 @@ namespace ChallengerSeries.Utils
             public List<PotionType> TypeList { get; set; }
         }
     }
-#endregion Marksman Potion Manager <3
+    #endregion Marksman Potion Manager <3
 
-#region Kurisu's Oracle's Cleanser.. :cat_lazy: thx Kuriseru <3
+    #region Kurisu's Oracle's Cleanser.. :cat_lazy: thx Kuriseru <3
     internal class Cleansers
     {
         private static Menu _menuConfig, _mainMenu, _ccTypeConfig;
@@ -419,7 +418,7 @@ namespace ChallengerSeries.Utils
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (ChallengerPlugin.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo ||
+            if (Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo ||
                 _mainMenu.Item("cmode").GetValue<StringList>().SelectedIndex != 1)
             {
                 UseItem("Mikaels", 3222, 600f);
@@ -445,7 +444,7 @@ namespace ChallengerSeries.Utils
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(x => x.IsAlly && x.IsValidTarget(900, false))
                         .OrderByDescending(
-                            xe => xe.Health/xe.MaxHealth*100))
+                            xe => xe.Health / xe.MaxHealth * 100))
                 {
                     target = unit ?? Me;
                 }
@@ -759,5 +758,5 @@ namespace ChallengerSeries.Utils
             base.RemoveAll(match);
         }
     }
-#endregion
+    #endregion
 }

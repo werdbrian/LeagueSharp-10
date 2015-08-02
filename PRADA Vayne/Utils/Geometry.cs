@@ -37,7 +37,7 @@ using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 using GamePath = System.Collections.Generic.List<SharpDX.Vector2>;
 
-namespace ChallengerSeries.Utils
+namespace PRADA_Vayne.Utils
 {
     /// <summary>
     /// Class that contains the geometry related methods.
