@@ -52,12 +52,14 @@ namespace PRADA_Vayne.Utils
         {
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
             var tP = target.ServerPosition;
+            var pList = new List<Vector3>();
             foreach (var p in aRC)
             {
                 var v3 = new Vector2(p.X, p.Y).To3D();
-                if (v3.Distance(tP) > 425 && v3.Distance(tP) < 550 && (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325) && !v3.UnderTurret(true))) return v3;
+                if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 585 &&
+                    (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
             }
-            return Vector3.Zero;
+            return pList.Count > 1 ? pList.OrderByDescending(el => el.Distance(tP)).FirstOrDefault() : Vector3.Zero;
         }
 
         public static int VayneWStacks(this Obj_AI_Base o)
