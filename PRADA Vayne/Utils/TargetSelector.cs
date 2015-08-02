@@ -404,14 +404,13 @@ namespace PRADA_Vayne.Utils
                         return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
 
                     case TargetingMode.AutoPriority:
-                        return (targets.OrderBy(h => h.Health).FirstOrDefault(h => 
-                            h.Health <Heroes.Player.GetAutoAttackDamage(h)*3 +Heroes.Player.GetSpellDamage(h, LeagueSharp.SpellSlot.W)) ??
-                                (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
+                        return 
+                            (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
                                     ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
                                     : null) ?? targets.MaxOrDefault(
                                         hero =>
                                             (champion.CalcDamage(hero, damageType, 100)/(1 + hero.Health))*
-                                            GetPriority(hero)));
+                                            GetPriority(hero));
 
                     case TargetingMode.LessAttack:
                         return
