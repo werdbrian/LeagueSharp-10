@@ -10,10 +10,10 @@ using PRADA_Vayne.Utils;
 using SharpDX;
 using Color = System.Drawing.Color;
 using SpellSlot = LeagueSharp.SpellSlot;
-using Geometry = PRADA_Vayne.Utils.Geometry;
 using TargetSelector = LeagueSharp.Common.TargetSelector;
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable RedundantDefaultMemberInitializer
 
 namespace PRADA_Vayne
 {
@@ -24,7 +24,7 @@ namespace PRADA_Vayne
 
         #region Others
         private static Vector3 _condemnEndPos = Vector3.Zero;
-        private static bool _tumbleToKillSecondMinion;
+        //private static bool _tumbleToKillSecondMinion; #TODO
         private static int _selectedSkin;
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;

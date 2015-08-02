@@ -63,12 +63,12 @@ namespace PRADA_Vayne.Utils
 
                 if (target.IsFacing(Heroes.Player))
                 {
-                    if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 550 &&
+                    if (!v3.IsWall() && !v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 550 &&
                         (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
                 }
                 else
                 {
-                    if (!v3.UnderTurret(true) && v3.Distance(tP) > 325 &&
+                    if (!v3.IsWall() && !v3.UnderTurret(true) && v3.Distance(tP) > 325 &&
                         v3.Distance(tP) < (550 - additionalDistance) &&
                         (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
                 }
