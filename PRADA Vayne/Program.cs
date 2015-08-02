@@ -116,7 +116,7 @@ namespace PRADA_Vayne
         public static void BeforeAttack(MyOrbwalker.BeforeAttackEventArgs args)
         {
             if (!args.Unit.IsMe || !Q.IsReady() || !ComboMenu.Item("QCombo").GetValue<bool>()) return;
-            if (HasUltiBuff() && !HasTumbleBuff() && ComboMenu.Item("QUlt").GetValue<bool>() && Heroes.EnemyHeroes.Any(h => h.Distance(Player) < 300))
+            if (HasUltiBuff() && !HasTumbleBuff() && EscapeMenu.Item("QUlt").GetValue<bool>() && Heroes.EnemyHeroes.Any(h => h.Distance(Player) < 300))
             {
                 args.Process = false;
             }
@@ -445,17 +445,17 @@ namespace PRADA_Vayne
             SkinhackMenu = new Menu("Skin Hack", "skinhackmenu");
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true));
+            //ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true)); #TODO
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("QUlt", "Smart Q-Ult").SetValue(true));
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(100, 0, 100)));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult").SetValue(true));
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
+            EscapeMenu.AddItem(new MenuItem("QUlt", "Smart Q-Ult").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("EInterrupt", "Use E to Interrupt").SetValue(true));
-            LaneClearMenu.AddItem(new MenuItem("QFarm", "Use Q").SetValue(true));
+            //LaneClearMenu.AddItem(new MenuItem("QFarm", "Use Q").SetValue(true));#TODO
             SkinhackMenu.AddItem(
                 new MenuItem("skin", "Skin: ").SetValue(
                     new StringList(new[] { "Classic", "Vindicator", "Aristocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight" }))).ValueChanged +=
@@ -482,7 +482,7 @@ namespace PRADA_Vayne
         public static void FinishMenuInit()
         {
             MainMenu.AddSubMenu(ComboMenu);
-            MainMenu.AddSubMenu(LaneClearMenu);
+            //MainMenu.AddSubMenu(LaneClearMenu); #TODO
             MainMenu.AddSubMenu(EscapeMenu);
             MainMenu.AddSubMenu(ActivatorMenu);
             MainMenu.AddSubMenu(SkinhackMenu); // XD
