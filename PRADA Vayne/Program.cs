@@ -323,8 +323,13 @@ namespace PRADA_Vayne
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             #region ward brush after condemn
-            if (sender.IsMe && args.SData.Name.ToLower().Contains("condemn"))
+            if (sender.IsMe && args.SData.Name.ToLower().Contains("condemn") && args.Target.IsValid<Obj_AI_Hero>())
             {
+                var target = (Obj_AI_Hero)args.Target;
+                if (ComboMenu.Item("EQ").GetValue<bool>() && target.IsVisible && !target.HasBuffOfType(BuffType.Stun) && Q.IsReady()) //#TODO: fix
+                {
+                    Q.Cast(target.GetTumblePos());
+                }
                 if (NavMesh.IsWallOfGrass(_condemnEndPos, 100))
                 {
                     var blueTrinket = ItemId.Scrying_Orb_Trinket;
@@ -341,20 +346,7 @@ namespace PRADA_Vayne
             }
             #endregion
 
-            if (ShouldSaveCondemn()) return;
-            if (sender.Distance(Player) > 1500 || !args.Target.IsMe || args.SData == null)
-                return;
-            //how to milk alistar/thresh/everytoplaner
-            var spellData = SpellDb.GetByName(args.SData.Name);
-            if (spellData != null)
-            {
-                if (spellData.CcType == CcType.Knockup || spellData.CcType == CcType.Stun ||
-                    spellData.CcType == CcType.Knockback || spellData.CcType == CcType.Suppression)
-                {
-                    E.Cast(sender);
-                }
-            }
-
+            #region jQuery hates this! Click to find out why!
             if (args.SData.Name.ToLower().Contains("talonshadow") || args.SData.Name.ToLower().Contains("rengarr"))
             {
                 if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
@@ -366,17 +358,33 @@ namespace PRADA_Vayne
                     Items.UseItem((int)ItemId.Vision_Ward, Player.Position.Randomize(0, 125));
                 }
             }
+            #endregion
+
+            if (ShouldSaveCondemn()) return;
+            if (sender.Distance(Player) > 1500 || !args.Target.IsMe || args.SData == null)
+                return;
+            //how to milk alistar/thresh/everytoplaner
+            var spellData = SpellDb.GetByName(args.SData.Name);
+            if (spellData != null && !Heroes.Player.UnderTurret(true) && !Lists.UselessChamps.Contains(sender.CharData.BaseSkinName))
+            {
+                if (spellData.CcType == CcType.Knockup || spellData.CcType == CcType.Stun ||
+                    spellData.CcType == CcType.Knockback || spellData.CcType == CcType.Suppression)
+                {
+                    E.Cast(sender);
+                }
+            }
         }
 
         public static void OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (Q.IsReady() && gapcloser.End.Distance(Player.ServerPosition) < 300)
             {
-                Q.Cast(Player.Position.Extend(gapcloser.End,
-                    Player.Distance(gapcloser.End) - 585 + 25));
+                Q.Cast(gapcloser.Sender.GetTumblePos());
             }
             //KATARINA IN GAME. CONCERN!
             if (ShouldSaveCondemn()) return;
+            //We really don't want to get turret aggro for nothin'.
+            if (Player.UnderTurret(true)) return;
             //we wanna check if the mothafucka can actually do shit to us.
             if (Player.Distance(gapcloser.End) > gapcloser.Sender.AttackRange) return;
             //ok we're no pussies, we don't want to condemn the unsuspecting akali when we can jihad her.
@@ -445,6 +453,7 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QMode", "Q Mode: ").SetValue(new StringList(new[] { "PRADA", "TO MOUSE" })));
             //ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true)); #TODO
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("EQ", "Q After E").SetValue(false));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
