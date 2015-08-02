@@ -19,6 +19,7 @@ namespace PRADA_Vayne.Utils
         public static bool Loaded { get { return loaded; } }
         private static Obj_AI_Hero Player = ObjectManager.Player;
         private static bool loaded = false;
+        private static int exploitEndTime = 0;
 
         public static void Load(Menu menu)
         {
@@ -28,9 +29,18 @@ namespace PRADA_Vayne.Utils
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
             menu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
             Game.OnUpdate += OnUpdate;
+            Obj_AI_Base.OnIssueOrder += OnIssueOrder;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Notifications.AddNotification("CK Activator Loaded", 3000);
             loaded = true;
+        }
+
+        private static void OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
+        {
+            if (exploitEndTime - new Random().Next(0, 75) > Environment.TickCount)
+            {
+                args.Process = false;
+            }
         }
 
         public static void OnUpdate(EventArgs args)
@@ -65,43 +75,22 @@ namespace PRADA_Vayne.Utils
 
             if (!Program.ActivatorMenu.Item("exploits").GetValue<bool>()) return;
 
-            if (sender.Name.ToLower() == "cassiopeia" && args.SData.Name.ToLower().Contains("petrifying") && Player.Distance(sender) < 750 && Player.IsFacing(sender))
+            if (sender.Name.ToLower() == "cassiopeia" && args.SData.Name.ToLower().Contains("petrifying") && Player.IsFacing(sender) && Player.ServerPosition.Distance(sender.ServerPosition) + Player.BoundingRadius <= 1000)
             {
-                Program.Orbwalker.SetMovement(false);
-                Program.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) + 100).To3D());
-                Utility.DelayAction.Add(300, () =>
-                {
-                    Program.Orbwalker.SetMovement(true);
-                    Program.Orbwalker.SetAttack(true);
-                });
+                if (exploitEndTime < Environment.TickCount) exploitEndTime = Environment.TickCount + 1000;
+                Player.IssueOrder(GameObjectOrder.MoveTo, sender.ServerPosition.Extend(Player.ServerPosition, Player.ServerPosition.Distance(sender.ServerPosition) + 100));
             }
 
-            if (sender.Name.ToLower() == "shaco" && args.SData.Name.ToLower().Contains("twoshiv") && args.Target.IsMe && !Player.IsFacing(sender))
+            if (sender.Name.ToLower() == "shaco" && args.SData.Name.ToLower().Contains("twoshiv") && !Player.IsFacing(sender) && args.Target.IsMe && !Player.IsFacing(sender))
             {
-                Program.Orbwalker.SetMovement(false);
-                Program.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
-                Utility.DelayAction.Add(250, () =>
-                {
-                    Program.Orbwalker.SetMovement(true);
-                    Program.Orbwalker.SetAttack(true);
-                });
+                if (exploitEndTime < Environment.TickCount) exploitEndTime = Environment.TickCount + 300;
+                Player.IssueOrder(GameObjectOrder.MoveTo, sender.ServerPosition.Extend(Player.ServerPosition, Player.ServerPosition.Distance(sender.ServerPosition) - 100));
             }
 
-            if (sender.Name.ToLower() == "tryndamere" && args.SData.Name.ToLower().Contains("mockingshout") && args.Target.IsMe && !Player.IsFacing(sender))
+            if (sender.Name.ToLower() == "tryndamere" && args.SData.Name.ToLower().Contains("mockingshout") && !Player.IsFacing(sender) && Player.ServerPosition.Distance(sender.ServerPosition) + Player.BoundingRadius <= 900)
             {
-                Program.Orbwalker.SetMovement(false);
-                Program.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
-                Utility.DelayAction.Add(250, () =>
-                {
-                    Program.Orbwalker.SetMovement(true);
-                    Program.Orbwalker.SetAttack(true);
-                });
+                if (exploitEndTime < Environment.TickCount) exploitEndTime = Environment.TickCount + 800;
+                Player.IssueOrder(GameObjectOrder.MoveTo, sender.ServerPosition.Extend(Player.ServerPosition, Player.ServerPosition.Distance(sender.ServerPosition) - 100));
             }
         }
 
