@@ -9,6 +9,41 @@ using SharpDX;
 
 namespace PRADA_Vayne.Utils
 {
+    public static class Traps
+    {
+        private static List<GameObject> _traps;
+
+        private static List<string> _trapNames = new List<string> {"teemo", "shroom", "trap", "mine", "ziggse_red"};
+
+        public static List<GameObject> EnemyTraps
+        {
+            get { return _traps.FindAll(t => t.IsValid && t.IsEnemy); }
+        }
+
+        public static void OnCreate(GameObject sender, EventArgs args)
+        {
+            foreach (var trapName in _trapNames)
+            {
+                if (sender.Name.ToLower().Contains(trapName)) _traps.Add(sender);
+            }
+        }
+
+        public static void OnDelete(GameObject sender, EventArgs args)
+        {
+            foreach (var trap in _traps)
+            {
+                if (trap.NetworkId == sender.NetworkId) _traps.Remove(trap);
+            }
+        }
+
+        public static void Load()
+        {
+            _traps = new List<GameObject>();
+            GameObject.OnCreate += OnCreate;
+            GameObject.OnDelete += OnDelete;
+        }
+    }
+
     public static class Turrets
     {
         private static List<Obj_AI_Turret> _turrets;
@@ -25,23 +60,24 @@ namespace PRADA_Vayne.Utils
         public static void Load()
         {
             Utility.DelayAction.Add(2000, () => _turrets = ObjectManager.Get<Obj_AI_Turret>().ToList());
-            GameObject.OnCreate += OnCreate;
-            GameObject.OnDelete += OnDelete;
+            Obj_AI_Turret.OnCreate += OnCreate;
+            Obj_AI_Turret.OnDelete += OnDelete;
         }
 
         private static void OnCreate(GameObject sender, EventArgs args)
         {
-            if (sender.Type != GameObjectType.obj_AI_Turret) return;
             if (!_turrets.Contains(sender))
             {
-                _turrets.Add(sender as Obj_AI_Turret);
+                _turrets.Add((Obj_AI_Turret)sender);
             }
         }
 
         private static void OnDelete(GameObject sender, EventArgs args)
         {
-            if (sender.Type != GameObjectType.obj_AI_Turret) return;
-            _turrets.RemoveAll(t => t.NetworkId == sender.NetworkId);
+            foreach (var turret in _turrets)
+            {
+                if (turret.NetworkId == sender.NetworkId) _turrets.Remove(turret);
+            }
         }
     }
 
@@ -91,6 +127,7 @@ namespace PRADA_Vayne.Utils
     {
         public static void Load()
         {
+            Traps.Load();
             Turrets.Load();
             HeadQuarters.Load();
             Heroes.Load();

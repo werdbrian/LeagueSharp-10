@@ -91,9 +91,9 @@ namespace PRADA_Vayne.Utils
 
         public static bool IsShroom(this Vector3 pos)
         {
-            return pos == Vector3.Zero || HeroManager.Enemies.Any(e => !e.IsDead && e.IsVisible && e.Distance(pos) < 300) && MinionManager.GetMinions(pos, 150)
-                .Any(m => m.CharData.Name.Contains("mine") || m.CharData.Name.Contains("trap") ||
-                        m.CharData.Name.Contains("shroom") || m.CharData.Name.Contains("cait")) && !HeroManager.Enemies.Any(h => h.IsMelee() && h.Distance(pos) < 200);
+            return pos == Vector3.Zero ||
+                   HeroManager.Enemies.Any(e => !e.IsDead && e.IsVisible && e.Distance(pos) < 325) ||
+                   Traps.EnemyTraps.Any(t => pos.Distance(t.Position) < 125);
         }
 
         public static bool IsKillable(this Obj_AI_Hero hero)
