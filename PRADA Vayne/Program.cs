@@ -145,8 +145,10 @@ namespace PRADA_Vayne
             if (tg == null) return;
             var tumblePos = tg.GetTumblePos();
             if ((ComboMenu.Item("QChecks").GetValue<bool>() && tumblePos.IsShroom())) return;
-
-            Q.Cast(tumblePos);
+            if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
+            {
+                Q.Cast(tumblePos);
+            }
         }
 
         public static void OnUpdate(EventArgs args)
