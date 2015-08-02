@@ -115,7 +115,7 @@ namespace PRADA_Vayne
         public static void BeforeAttack(MyOrbwalker.BeforeAttackEventArgs args)
         {
             if (!args.Unit.IsMe || !Q.IsReady() || !ComboMenu.Item("QCombo").GetValue<bool>()) return;
-            if (HasUltiBuff() && !HasTumbleBuff() && EscapeMenu.Item("QUlt").GetValue<bool>() && Heroes.EnemyHeroes.Any(h => h.IsMelee && h.Distance(Player) < h.AttackRange + 75))
+            if (HasUltiBuff() && HasTumbleBuff() && EscapeMenu.Item("QUlt").GetValue<bool>() && Heroes.EnemyHeroes.Any(h => h.IsMelee && h.Distance(Player) < h.AttackRange + 75))
             {
                 args.Process = false;
             }
