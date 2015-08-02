@@ -263,9 +263,9 @@ namespace PRADA_Vayne
 
         private static void DragWallTumble()
         {
-            if (Player.Distance(_dragPreV3) < 100)
+            if (Player.Distance(_dragPreV3) < 115)
             {
-                Player.IssueOrder(GameObjectOrder.MoveTo, _dragPreV3);
+                Player.IssueOrder(GameObjectOrder.MoveTo, _dragPreV3.Randomize(0,1));
             }
             if (Player.Distance(_dragPreV3) < 5)
             {
@@ -273,7 +273,7 @@ namespace PRADA_Vayne
                 Q.Cast(_dragAftV3);
                 Utility.DelayAction.Add(100 + Game.Ping/2, () =>
                 {
-                    Player.IssueOrder(GameObjectOrder.MoveTo, _dragAftV3);
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _dragAftV3.Randomize(0,1));
                     Orbwalker.SetMovement(true);
                 });
             }
