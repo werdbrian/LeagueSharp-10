@@ -319,11 +319,6 @@ namespace PRADA_Vayne
             }
         }
 
-        public static void MammaMiaLuigi()
-        {
-            Game.Quit();
-        }
-
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             #region ward brush after condemn
