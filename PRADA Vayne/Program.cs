@@ -123,7 +123,22 @@ namespace PRADA_Vayne
             }
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
-                if (ComboMenu.Item("RCombo").GetValue<bool>() && Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo) {R.Cast();}
+                var target = (Obj_AI_Hero)args.Target;
+                if (ComboMenu.Item("RCombo").GetValue<bool>() &&
+                    Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
+                {
+                    if (target.UnderTurret(true))
+                    {
+                        if (Heroes.Player.UnderTurret(true))
+                        {
+                            R.Cast();
+                        }
+                    }
+                    else
+                    {
+                        R.Cast();
+                    }
+                }
 
                 var t = (Obj_AI_Hero)args.Target;
 
