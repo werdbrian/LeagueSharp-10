@@ -94,6 +94,7 @@ namespace PRADA_Vayne
                 GameObject.OnCreate += GameObject_OnCreate;
                 Interrupter2.OnInterruptableTarget += OnPossibleToInterrupt;
                 Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+                Spellbook.OnCastSpell += OnCastSpell;
                 AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
 
                 ShowLoadedNotifications(); //Everything went well, display successfuly loaded message.
@@ -101,6 +102,22 @@ namespace PRADA_Vayne
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+        }
+
+        private static void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            if (sender.Owner.IsMe)
+            {
+                if (args.Slot == SpellSlot.Q && ComboMenu.Item("QChecks").GetValue<bool>())
+                {
+                    if (args.EndPosition.IsShroom()) args.Process = false;
+                }
+                if (args.Slot == SpellSlot.R && ComboMenu.Item("QR").GetValue<bool>())
+                {
+                    var target = Utils.TargetSelector.GetTarget(-1);
+                    Q.Cast(target != null ? target.GetTumblePos() : Game.CursorPos);
+                }
             }
         }
 
@@ -126,7 +143,7 @@ namespace PRADA_Vayne
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var target = (Obj_AI_Hero)args.Target;
-                if (ComboMenu.Item("RCombo").GetValue<bool>() &&
+                if (ComboMenu.Item("RCombo").GetValue<bool>() && R.IsReady() &&
                     Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
                 {
                     if (target.UnderTurret(true))
@@ -149,7 +166,6 @@ namespace PRADA_Vayne
                     if (t.Distance(Player.ServerPosition) < 325)
                     {
                         var tumblePos = t.GetTumblePos();
-                        if (ComboMenu.Item("QChecks").GetValue<bool>() && tumblePos.IsShroom()) return;
                         args.Process = false;
                         Q.Cast(tumblePos);
                     }
@@ -165,7 +181,6 @@ namespace PRADA_Vayne
             if (tg == null) return;
             var mode = ComboMenu.Item("QMode").GetValue<StringList>().SelectedValue;
             var tumblePos = mode == "PRADA" ? tg.GetTumblePos() : Game.CursorPos;
-            if ((ComboMenu.Item("QChecks").GetValue<bool>() && tumblePos.IsShroom())) return;
             if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
                 Q.Cast(tumblePos);
@@ -368,6 +383,10 @@ namespace PRADA_Vayne
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            if (sender.IsMe)
+            {
+                Console.WriteLine(args.SData.Name);
+            }
             if (sender.IsMe && args.SData.Name == "summonerflash")
             {
                 FlashTime = Environment.TickCount;
@@ -505,6 +524,7 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EQ", "Q After E").SetValue(false));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("QR", "Q after Ult").SetValue(true));
             //ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true)); #TODO ?
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new[] {"PRADA", "MARKSMAN", "GOSU", "SHARPSHOOTER", "VHREWORK"})));
