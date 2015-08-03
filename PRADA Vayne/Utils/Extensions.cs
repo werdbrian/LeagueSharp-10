@@ -137,7 +137,12 @@ namespace PRADA_Vayne.Utils
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
             var tP = target.ServerPosition;
             var pList = new List<Vector3>();
-            var additionalDistance = (0.106 + Game.Ping/2000) * target.MoveSpeed;
+            var cP = Game.CursorPos;
+            var additionalDistance = (0.106 + Game.Ping/2000f) * target.MoveSpeed;
+
+            if ((!cP.IsWall() && !cP.UnderTurret(true) && cP.Distance(tP) > 325 && cP.Distance(tP) < 550 &&
+                 (cP.CountEnemiesInRange(425) <= cP.CountAlliesInRange(325)))) return cP;
+
             foreach (var p in aRC)
             {
                 var v3 = new Vector2(p.X, p.Y).To3D();
