@@ -135,9 +135,9 @@ namespace PRADA_Vayne.Utils
             if (!target.IsMelee && Heroes.Player.CountEnemiesInRange(800) == 1) return Game.CursorPos;
 
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
+            var cP = Game.CursorPos;
             var tP = target.ServerPosition;
             var pList = new List<Vector3>();
-            var cP = Game.CursorPos;
             var additionalDistance = (0.106 + Game.Ping/2000f) * target.MoveSpeed;
 
             if ((!cP.IsWall() && !cP.UnderTurret(true) && cP.Distance(tP) > 325 && cP.Distance(tP) < 550 &&
@@ -158,6 +158,10 @@ namespace PRADA_Vayne.Utils
                         v3.Distance(tP) < (550 - additionalDistance) &&
                         (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
                 }
+            }
+            if (Heroes.Player.UnderTurret() || Heroes.Player.CountEnemiesInRange(800) == 1)
+            {
+                return pList.Count > 1 ? pList.OrderBy(el => el.Distance(cP)).FirstOrDefault() : Vector3.Zero;
             }
             return pList.Count > 1 ? pList.OrderByDescending(el => el.Distance(tP)).FirstOrDefault() : Vector3.Zero;
         }
