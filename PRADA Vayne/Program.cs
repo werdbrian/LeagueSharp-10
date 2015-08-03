@@ -30,9 +30,9 @@ namespace PRADA_Vayne
         private static int _cycleThroughSkinsTime = 0;
         private static int _lastCycledSkin;
 
-        private static bool _canWallTumble;
-        private static Vector3 _dragPreV3 = new Vector2(12055, 4820).To3D();
-        private static Vector3 _dragAftV3 = new Vector2(11740, 4620).To3D();
+        private static bool _canWallTumble; 
+        private static Vector3 _dragPreV3 = new Vector2(12050, 4828).To3D();
+        private static Vector3 _dragAftV3 = new Vector2(11510, 4470).To3D();
         private static Vector3 _midPreV3 = new Vector2(6962, 8952).To3D();
         private static Vector3 _midAftV3 = new Vector2(6667, 8794).To3D();
 
@@ -301,7 +301,7 @@ namespace PRADA_Vayne
                 Q.Cast(_dragAftV3);
                 Utility.DelayAction.Add(100 + Game.Ping/2, () =>
                 {
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(12055, 4800).To3D().Randomize(0, 5));
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _dragAftV3.Randomize(0, 1));
                     Orbwalker.SetMovement(true);
                 });
             }
@@ -319,7 +319,7 @@ namespace PRADA_Vayne
                 Q.Cast(_midAftV3);
                 Utility.DelayAction.Add(100 + Game.Ping / 2, () =>
                 {
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6955, 8950).To3D().Randomize(0, 5));
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _midAftV3.Randomize(0, 1));
                     Orbwalker.SetMovement(true);
                 });
             }
