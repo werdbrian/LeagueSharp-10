@@ -45,6 +45,7 @@ namespace PRADA_Vayne.Utils
 
         public static void OnUpdate(EventArgs args)
         {
+            if (!Program.ActivatorMenu.Item("activator").GetValue<bool>()) return;
             if (Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo && Player.CountEnemiesInRange(1000) >= 1)
             {
                 Combo();
@@ -290,6 +291,7 @@ namespace PRADA_Vayne.Utils
 
         private void OnGameUpdate(EventArgs args)
         {
+            if (!Program.ActivatorMenu.Item("activator").GetValue<bool>()) return;
             if (ObjectManager.Player.HasBuff("Recall") ||
                 ObjectManager.Player.InFountain() && ObjectManager.Player.InShop())
                 return;
@@ -407,6 +409,7 @@ namespace PRADA_Vayne.Utils
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            if (!Program.ActivatorMenu.Item("activator").GetValue<bool>()) return;
             if (Program.Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo ||
                 _mainMenu.Item("cmode").GetValue<StringList>().SelectedIndex != 1)
             {
