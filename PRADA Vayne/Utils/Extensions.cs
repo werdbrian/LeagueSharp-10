@@ -19,15 +19,18 @@ namespace PRADA_Vayne.Utils
 
         public static bool IsCondemnable(this Obj_AI_Hero hero)
         {
-            if (!hero.IsValidTarget(550f) || hero.HasBuffOfType(BuffType.SpellShield) || hero.HasBuffOfType(BuffType.SpellImmunity) || hero.IsDashing()) return false;
-            
+            if (!hero.IsValidTarget(550f) || hero.HasBuffOfType(BuffType.SpellShield) ||
+                hero.HasBuffOfType(BuffType.SpellImmunity) || hero.IsDashing()) return false;
+
             //values for pred calc pP = player position; p = enemy position; pD = push distance
             var pP = Heroes.Player.ServerPosition;
             var p = hero.ServerPosition;
             var pD = Program.ComboMenu.Item("EPushDist").GetValue<Slider>().Value;
             var mode = Program.ComboMenu.Item("EMode").GetValue<StringList>().SelectedValue;
 
-            if (mode == "PRADA" && (p.Extend(pP, -pD).IsCollisionable() || p.Extend(pP, -pD / 2f).IsCollisionable() || p.Extend(pP, -pD / 3f).IsCollisionable()))
+            if (mode == "PRADA" &&
+                (p.Extend(pP, -pD).IsCollisionable() || p.Extend(pP, -pD/2f).IsCollisionable() ||
+                 p.Extend(pP, -pD/3f).IsCollisionable()))
             {
                 if (!hero.CanMove ||
                     (hero.IsWindingUp && Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 100))
@@ -58,13 +61,13 @@ namespace PRADA_Vayne.Utils
                         .Extend(
                             pP.To2D(),
                             -pD)
-                        .To3D()).HasFlag(CollisionFlags.Wall) || 
-                        NavMesh.GetCollisionFlags(
-                    prediction.UnitPosition.To2D()
-                        .Extend(
-                            pP.To2D(),
-                            -pD/2f)
-                        .To3D()).HasFlag(CollisionFlags.Wall);
+                        .To3D()).HasFlag(CollisionFlags.Wall) ||
+                       NavMesh.GetCollisionFlags(
+                           prediction.UnitPosition.To2D()
+                               .Extend(
+                                   pP.To2D(),
+                                   -pD/2f)
+                               .To3D()).HasFlag(CollisionFlags.Wall);
             }
 
             if (mode == "GOSU")
@@ -108,7 +111,7 @@ namespace PRADA_Vayne.Utils
             if (mode == "VHREWORK")
             {
                 var prediction = Program.E.GetPrediction(hero);
-                for (var i = 15; i < pD; i += (int)hero.BoundingRadius) //:frosty:
+                for (var i = 15; i < pD; i += (int) hero.BoundingRadius) //:frosty:
                 {
                     var posCF = NavMesh.GetCollisionFlags(
                         prediction.UnitPosition.To2D()

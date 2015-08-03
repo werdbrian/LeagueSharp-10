@@ -29,7 +29,6 @@ using SharpDX;
 using Color = System.Drawing.Color;
 using LeagueSharp;
 using LeagueSharp.Common;
-using DamageType = LeagueSharp.Common.TargetSelector.DamageType;
 
 #endregion
 
@@ -53,12 +52,9 @@ namespace PRADA_Vayne.Utils
         {
             AutoPriority,
             LowHP,
-            MostAD,
-            MostAP,
             Closest,
-            NearMouse,
-            LessAttack,
-            LessCast
+            LeastAttacks,
+            HighestPriority,
         }
 
         #endregion
@@ -245,7 +241,7 @@ namespace PRADA_Vayne.Utils
             }
         }
 
-        public static bool IsInvulnerable(Obj_AI_Base target, DamageType damageType, bool ignoreShields = true)
+        public static bool IsInvulnerable(Obj_AI_Base target)
         {
             // Tryndamere's Undying Rage (R)
             if (target.HasBuff("Undying Rage") && target.Health <= 2f)
@@ -258,39 +254,6 @@ namespace PRADA_Vayne.Utils
             {
                 return true;
             }
-
-            if (ignoreShields)
-            {
-                return false;
-            }
-
-            // Morgana's Black Shield (E)
-            if (damageType.Equals(DamageType.Magical) && target.HasBuff("BlackShield"))
-            {
-                return true;
-            }
-
-            // Banshee's Veil (PASSIVE)
-            if (damageType.Equals(DamageType.Magical) && target.HasBuff("BansheesVeil"))
-            {
-                // TODO: Get exact Banshee's Veil buff name.
-                return true;
-            }
-
-            // Sivir's Spell Shield (E)
-            if (damageType.Equals(DamageType.Magical) && target.HasBuff("SivirShield"))
-            {
-                // TODO: Get exact Sivir's Spell Shield buff name
-                return true;
-            }
-
-            // Nocturne's Shroud of Darkness (W)
-            if (damageType.Equals(DamageType.Magical) && target.HasBuff("ShroudofDarkness"))
-            {
-                // TODO: Get exact Nocturne's Shourd of Darkness buff name
-                return true;
-            }
-
             return false;
         }
 
@@ -309,46 +272,24 @@ namespace PRADA_Vayne.Utils
         }
 
         public static Obj_AI_Hero GetTarget(float range,
-            DamageType damageType,
-            bool ignoreShield = true,
             IEnumerable<Obj_AI_Hero> ignoredChamps = null,
             Vector3? rangeCheckFrom = null)
         {
-            return GetTarget(ObjectManager.Player, range, damageType, ignoreShield, ignoredChamps, rangeCheckFrom);
-        }
-
-        public static Obj_AI_Hero GetTargetNoCollision(Spell spell,
-            bool ignoreShield = true,
-            IEnumerable<Obj_AI_Hero> ignoredChamps = null,
-            Vector3? rangeCheckFrom = null)
-        {
-            var t = GetTarget(ObjectManager.Player, spell.Range,
-                spell.DamageType, ignoreShield, ignoredChamps, rangeCheckFrom);
-
-            if (spell.Collision && spell.GetPrediction(t).Hitchance != HitChance.Collision)
-            {
-                return t;
-            }
-
-            return null;
+            return GetTarget(ObjectManager.Player, range, ignoredChamps, rangeCheckFrom);
         }
 
         private static bool IsValidTarget(Obj_AI_Base target,
             float range,
-            DamageType damageType,
-            bool ignoreShieldSpells = true,
             Vector3? rangeCheckFrom = null)
         {
             return target.IsValidTarget() &&
                    target.Distance(rangeCheckFrom ?? ObjectManager.Player.ServerPosition, true) <
                    Math.Pow(range <= 0 ? Orbwalking.GetRealAutoAttackRange(target) : range, 2) &&
-                   !IsInvulnerable(target, damageType, ignoreShieldSpells);
+                   !IsInvulnerable(target);
         }
 
         public static Obj_AI_Hero GetTarget(Obj_AI_Base champion,
             float range,
-            DamageType type,
-            bool ignoreShieldSpells = true,
             IEnumerable<Obj_AI_Hero> ignoredChamps = null,
             Vector3? rangeCheckFrom = null)
         {
@@ -359,11 +300,9 @@ namespace PRADA_Vayne.Utils
                     ignoredChamps = new List<Obj_AI_Hero>();
                 }
 
-                var damageType = (Damage.DamageType) Enum.Parse(typeof (Damage.DamageType), type.ToString());
-
                 if (_configMenu != null && IsValidTarget(
                     SelectedTarget, _configMenu.Item("ForceFocusSelected").GetValue<bool>() ? float.MaxValue : range,
-                    type, ignoreShieldSpells, rangeCheckFrom))
+                    rangeCheckFrom))
                 {
                     return SelectedTarget;
                 }
@@ -378,52 +317,42 @@ namespace PRADA_Vayne.Utils
                 var targets =
                     HeroManager.Enemies
                         .FindAll(
-                            hero => !IsInvulnerable(hero, type) &&
+                            hero => !IsInvulnerable(hero) &&
                                     ignoredChamps.All(ignored => ignored.NetworkId != hero.NetworkId) &&
-                                    IsValidTarget(hero, range, type, ignoreShieldSpells, rangeCheckFrom));
+                                    IsValidTarget(hero, range, rangeCheckFrom));
 
                 switch (Mode)
                 {
                     case TargetingMode.LowHP:
                         return targets.MinOrDefault(hero => hero.Health);
-
-                    case TargetingMode.MostAD:
-                        return targets.MaxOrDefault(hero => hero.BaseAttackDamage + hero.FlatPhysicalDamageMod);
-
-                    case TargetingMode.MostAP:
-                        return targets.MaxOrDefault(hero => hero.BaseAbilityDamage + hero.FlatMagicDamageMod);
-
                     case TargetingMode.Closest:
                         return
                             targets.MinOrDefault(
                                 hero =>
                                     (rangeCheckFrom.HasValue ? rangeCheckFrom.Value : champion.ServerPosition).Distance(
                                         hero.ServerPosition, true));
-
-                    case TargetingMode.NearMouse:
-                        return targets.Find(hero => hero.Distance(Game.CursorPos, true) < 22500); // 150 * 150
-
                     case TargetingMode.AutoPriority:
-                        return
-                            (Program.ComboMenu.Item("FocusTwoW").GetValue<bool>()
-                                ? targets.FirstOrDefault(h => h.VayneWStacks() == 2)
-                                : null) ?? targets.MaxOrDefault(
-                                    hero =>
-                                        champion.CalcDamage(hero, Damage.DamageType.Physical, 100)/(1 + hero.Health)*
-                                        GetPriority(hero));
-
-                    case TargetingMode.LessAttack:
                         return
                             targets.MaxOrDefault(
                                 hero =>
                                     champion.CalcDamage(hero, Damage.DamageType.Physical, 100)/(1 + hero.Health)*
                                     GetPriority(hero));
-
-                    case TargetingMode.LessCast:
+                    case TargetingMode.LeastAttacks:
                         return
                             targets.MaxOrDefault(
                                 hero =>
-                                    champion.CalcDamage(hero, Damage.DamageType.Magical, 100)/(1 + hero.Health)*
+                                    champion.CalcDamage(hero, Damage.DamageType.Physical, 100)/(1 + hero.Health)*
+                                    GetPriority(hero));
+                    case TargetingMode.HighestPriority:
+                        return
+                            targets.MaxOrDefault(
+                                hero =>
+                                    GetPriority(hero));
+                    default:
+                        return
+                            targets.MaxOrDefault(
+                                hero =>
+                                    champion.CalcDamage(hero, Damage.DamageType.Physical, 100)/(1 + hero.Health)*
                                     GetPriority(hero));
                 }
             }
@@ -436,57 +365,5 @@ namespace PRADA_Vayne.Utils
         }
 
         #endregion
-    }
-
-    /// <summary>
-    ///     This TS attempts to always lock the same target, useful for people getting targets for each spell, or for champions
-    ///     that have to burst 1 target.
-    /// </summary>
-    public class LockedTargetSelector
-    {
-        public static Obj_AI_Hero _lastTarget;
-        private static DamageType _lastDamageType;
-
-        public static Obj_AI_Hero GetTarget(float range,
-            DamageType damageType,
-            bool ignoreShield = true,
-            IEnumerable<Obj_AI_Hero> ignoredChamps = null,
-            Vector3? rangeCheckFrom = null)
-        {
-            if (_lastTarget == null || !_lastTarget.IsValidTarget() || _lastDamageType != damageType)
-            {
-                var newTarget = TargetSelector.GetTarget(range, damageType, ignoreShield, ignoredChamps, rangeCheckFrom);
-
-                _lastTarget = newTarget;
-                _lastDamageType = damageType;
-
-                return newTarget;
-            }
-
-            if (_lastTarget.IsValidTarget(range) && damageType == _lastDamageType)
-            {
-                return _lastTarget;
-            }
-
-            var newTarget2 = TargetSelector.GetTarget(range, damageType, ignoreShield, ignoredChamps, rangeCheckFrom);
-
-            _lastTarget = newTarget2;
-            _lastDamageType = damageType;
-
-            return newTarget2;
-        }
-
-        /// <summary>
-        ///     Unlocks the currently locked target.
-        /// </summary>
-        public static void UnlockTarget()
-        {
-            _lastTarget = null;
-        }
-
-        public static void AddToMenu(Menu menu)
-        {
-            TargetSelector.AddToMenu(menu);
-        }
     }
 }

@@ -98,7 +98,7 @@ namespace PRADA_Vayne.Utils
         {
             UseQSS();
             UseYoumuus();
-            UseBOTRK(TargetSelector.GetTarget(550f, LeagueSharp.Common.TargetSelector.DamageType.Magical));
+            UseBOTRK(TargetSelector.GetTarget(550f));
         }
 
         private static void UseQSS()

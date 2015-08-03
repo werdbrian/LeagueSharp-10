@@ -658,7 +658,7 @@ namespace PRADA_Vayne.Utils
                 if ((ActiveMode == OrbwalkingMode.Mixed || ActiveMode == OrbwalkingMode.LaneClear) &&
                     !_config.Item("PriorizeFarm").GetValue<bool>())
                 {
-                    var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
+                    var target = TargetSelector.GetTarget(-1);
                     if (target != null)
                     {
                         return target;
@@ -740,7 +740,7 @@ namespace PRADA_Vayne.Utils
                 /*Champions*/
                 if (ActiveMode != OrbwalkingMode.LastHit)
                 {
-                    var target = TargetSelector.GetTarget(-1, LeagueSharp.Common.TargetSelector.DamageType.Physical);
+                    var target = TargetSelector.GetTarget(-1);
                     if (target.IsValidTarget())
                     {
                         if (target.IsMelee && Items.HasItem((int) ItemId.Thornmail, target) && target.HealthPercent > Player.HealthPercent && Player.HealthPercent < 20)
