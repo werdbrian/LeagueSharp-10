@@ -457,7 +457,9 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
             ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(100, 0, 100)));
+            ComboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new[] {"PRADA", "MARKSMAN", "GOSU", "SHARPSHOOTER", "VHREWORK"})));
+            ComboMenu.AddItem(new MenuItem("EPushDist", "E Push Distance").SetValue(new Slider(395, 300, 475)));
+            ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(99, 0, 100)));
             ComboMenu.AddItem(new MenuItem("RCombo", "Auto Ult").SetValue(true));
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("QUlt", "Smart Q-Ult").SetValue(true));

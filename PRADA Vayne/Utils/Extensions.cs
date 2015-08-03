@@ -16,36 +16,114 @@ namespace PRADA_Vayne.Utils
     internal static class Extensions
     {
         private static Obj_AI_Hero Player = ObjectManager.Player;
-        private static int drawn = 0;
 
         public static bool IsCondemnable(this Obj_AI_Hero hero)
         {
+            if (!hero.IsValidTarget(550f) || hero.HasBuffOfType(BuffType.SpellShield) || hero.HasBuffOfType(BuffType.SpellImmunity) || hero.IsDashing()) return false;
+            
+            //values for pred calc pP = player position; p = enemy position; pD = push distance
             var pP = Heroes.Player.ServerPosition;
             var p = hero.ServerPosition;
-            /*var pD = pP.Distance(p) + 385;
+            var pD = Program.ComboMenu.Item("EPushDist").GetValue<Slider>().Value;
+            var mode = Program.ComboMenu.Item("EMode").GetValue<StringList>().SelectedValue;
 
-            if (!pP.Extend(p, pD).IsCollisionable() && !pP.Extend(p, pD/2).IsCollisionable()) return false;*/
-
-            var pD = 385;
-            if (!p.Extend(pP, -pD).IsCollisionable() && !p.Extend(pP, -pD / 2).IsCollisionable() && !p.Extend(pP, -pD / 3).IsCollisionable()) return false;
-
-            if (!hero.CanMove || hero.IsWindingUp)/* || (!hero.IsMoving && hero.HealthPercent > Heroes.Player.HealthPercent))*/ return true;
-
-            var eT = 0.063 + Game.Ping/2000 + 0.06;
-            eT += (double)Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value*4/1000;
-            var d = hero.MoveSpeed * eT;
-            
-            var pList = new List<Vector3>();
-            pList.Add(hero.ServerPosition);
-            
-
-            for (var i = 0; i <= 360; i += 60)
+            if (mode == "PRADA" && (p.Extend(pP, -pD).IsCollisionable() || p.Extend(pP, -pD / 2f).IsCollisionable() || p.Extend(pP, -pD / 3f).IsCollisionable()))
             {
-                var v3 = new Vector2((int) (p.X + d*Math.Cos(i)), (int) (p.Y - d*Math.Sin(i))).To3D();
-                pList.Add(v3.Extend(pP, -pD));
+                if (!hero.CanMove ||
+                    (hero.IsWindingUp && Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 100))
+                    return true;
+
+                var eT = 0.063 + Game.Ping/2000f + 0.06;
+                eT += (double) Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value*4/1000;
+                var d = hero.MoveSpeed*eT;
+
+                var pList = new List<Vector3>();
+                pList.Add(hero.ServerPosition);
+
+
+                for (var i = 0; i <= 360; i += 60)
+                {
+                    var v3 = new Vector2((int) (p.X + d*Math.Cos(i)), (int) (p.Y - d*Math.Sin(i))).To3D();
+                    pList.Add(v3.Extend(pP, -pD));
+                }
+
+                return pList.All(el => el.IsCollisionable());
             }
 
-            return pList.All(el => el.IsCollisionable());
+            if (mode == "MARKSMAN")
+            {
+                var prediction = Program.E.GetPrediction(hero);
+                return NavMesh.GetCollisionFlags(
+                    prediction.UnitPosition.To2D()
+                        .Extend(
+                            pP.To2D(),
+                            -pD)
+                        .To3D()).HasFlag(CollisionFlags.Wall) || 
+                        NavMesh.GetCollisionFlags(
+                    prediction.UnitPosition.To2D()
+                        .Extend(
+                            pP.To2D(),
+                            -pD/2f)
+                        .To3D()).HasFlag(CollisionFlags.Wall);
+            }
+
+            if (mode == "GOSU")
+            {
+                var prediction = Program.E.GetPrediction(hero);
+                for (var i = 15; i < pD; i += 100)
+                {
+                    var posCF = NavMesh.GetCollisionFlags(
+                        prediction.UnitPosition.To2D()
+                            .Extend(
+                                pP.To2D(),
+                                -i)
+                            .To3D());
+                    if (posCF.HasFlag(CollisionFlags.Wall) || posCF.HasFlag(CollisionFlags.Building))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (mode == "SHARPSHOOTER")
+            {
+                var prediction = Program.E.GetPrediction(hero);
+                for (var i = 15; i < pD; i += 75)
+                {
+                    var posCF = NavMesh.GetCollisionFlags(
+                        prediction.UnitPosition.To2D()
+                            .Extend(
+                                pP.To2D(),
+                                -i)
+                            .To3D());
+                    if (posCF.HasFlag(CollisionFlags.Wall) || posCF.HasFlag(CollisionFlags.Building))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (mode == "VHREWORK")
+            {
+                var prediction = Program.E.GetPrediction(hero);
+                for (var i = 15; i < pD; i += (int)hero.BoundingRadius) //:frosty:
+                {
+                    var posCF = NavMesh.GetCollisionFlags(
+                        prediction.UnitPosition.To2D()
+                            .Extend(
+                                pP.To2D(),
+                                -i)
+                            .To3D());
+                    if (posCF.HasFlag(CollisionFlags.Wall) || posCF.HasFlag(CollisionFlags.Building))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            return false;
         }
 
         public static Vector3 GetTumblePos(this Obj_AI_Hero target)
