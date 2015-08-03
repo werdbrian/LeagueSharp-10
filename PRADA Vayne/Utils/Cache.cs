@@ -66,7 +66,7 @@ namespace PRADA_Vayne.Utils
 
         private static void OnCreate(GameObject sender, EventArgs args)
         {
-            if (!_turrets.Contains(sender))
+            if (sender is Obj_AI_Turret && !_turrets.Contains(sender))
             {
                 _turrets.Add((Obj_AI_Turret)sender);
             }
