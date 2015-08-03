@@ -383,10 +383,6 @@ namespace PRADA_Vayne
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsMe)
-            {
-                Console.WriteLine(args.SData.Name);
-            }
             if (sender.IsMe && args.SData.Name == "summonerflash")
             {
                 FlashTime = Environment.TickCount;
