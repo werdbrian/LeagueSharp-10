@@ -35,6 +35,8 @@ namespace PRADA_Vayne
         private static Vector3 _dragAftV3 = new Vector2(11510, 4470).To3D();
         private static Vector3 _midPreV3 = new Vector2(6962, 8952).To3D();
         private static Vector3 _midAftV3 = new Vector2(6667, 8794).To3D();
+
+        public static int FlashTime = 0;
         #endregion
 
         internal static MyOrbwalker.Orbwalker Orbwalker;
@@ -158,6 +160,7 @@ namespace PRADA_Vayne
         public static void AfterAttack(AttackableUnit sender, AttackableUnit target)
         {
             if (!Q.IsReady() || !target.IsValid<Obj_AI_Hero>() || !ComboMenu.Item("QCombo").GetValue<bool>() || !sender.IsMe) return;
+            if (!Flash.IsReady() && Environment.TickCount - FlashTime < 500) return;
             var tg = target as Obj_AI_Hero;
             if (tg == null) return;
             var mode = ComboMenu.Item("QMode").GetValue<StringList>().SelectedValue;
@@ -365,6 +368,10 @@ namespace PRADA_Vayne
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            if (sender.IsMe && args.SData.Name == "summonerflash")
+            {
+                FlashTime = Environment.TickCount;
+            }
             #region ward brush after condemn
             if (sender.IsMe && args.SData.Name.ToLower().Contains("condemn") && args.Target.IsValid<Obj_AI_Hero>())
             {
@@ -429,7 +436,7 @@ namespace PRADA_Vayne
             //We really don't want to get turret aggro for nothin'.
             if (Player.UnderTurret(true)) return;
             //we wanna check if the mothafucka can actually do shit to us.
-            if (Player.Distance(gapcloser.End) > gapcloser.Sender.AttackRange) return;
+            if (Player.Distance(gapcloser.End) > 350) return;
             //ok we're no pussies, we don't want to condemn the unsuspecting akali when we can jihad her.
             if (Player.Level > gapcloser.Sender.Level + 1) return;
             //k so that's not the case, we're going to check if we should condemn the gapcloser away.
@@ -498,7 +505,7 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EQ", "Q After E").SetValue(false));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true));
+            //ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true)); #TODO ?
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new[] {"PRADA", "MARKSMAN", "GOSU", "SHARPSHOOTER", "VHREWORK"})));
             ComboMenu.AddItem(new MenuItem("EPushDist", "E Push Distance").SetValue(new Slider(395, 300, 475)));

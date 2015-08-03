@@ -134,6 +134,13 @@ namespace PRADA_Vayne.Utils
             //if the target is not a melee and he's alone he's not really a danger to us, proceed to 1v1 him :^ )
             if (!target.IsMelee && Heroes.Player.CountEnemiesInRange(800) == 1) return Game.CursorPos;
 
+            var flash = Program.Flash;
+            var flashedAtTick = Program.FlashTime;
+            if (!flash.IsReady())
+            {
+                if (Environment.TickCount - flashedAtTick < 500) return Vector3.Zero;
+            }
+
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
             var cP = Game.CursorPos;
             var tP = target.ServerPosition;
