@@ -33,6 +33,8 @@ namespace PRADA_Vayne
         private static bool _canWallTumble;
         private static Vector3 _dragPreV3 = new Vector2(12050, 4828).To3D();
         private static Vector3 _dragAftV3 = new Vector2(11510, 4470).To3D();
+        private static Vector3 _midPreV3 = new Vector2(6962, 8952).To3D();
+        private static Vector3 _midAftV3 = new Vector2(6667, 8794).To3D();
         #endregion
 
         internal static MyOrbwalker.Orbwalker Orbwalker;
@@ -154,6 +156,7 @@ namespace PRADA_Vayne
 
         public static void OnUpdate(EventArgs args)
         {
+            Console.WriteLine(ObjectManager.Player.ServerPosition);
             if (E.IsReady() && Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
                 Condemn();
@@ -167,6 +170,11 @@ namespace PRADA_Vayne
             if (_canWallTumble && ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_dragPreV3) < 500)
             {
                 DragWallTumble();
+            } 
+            
+            if (_canWallTumble && ComboMenu.Item("QWall").GetValue<bool>() && Q.IsReady() && Player.Distance(_midPreV3) < 500)
+            {
+                MidWallTumble();
             }
 
             if (Player.Buffs.Any(b => b.Name.ToLower().Contains("rengarr")))
@@ -199,7 +207,9 @@ namespace PRADA_Vayne
             }
 
             if (_canWallTumble && Player.Distance(_dragPreV3) < 3000)
-                Drawing.DrawCircle(_dragPreV3, 75, Color.Gold);
+                Drawing.DrawCircle(_dragPreV3, 75, Color.Gold); 
+            if (_canWallTumble && Player.Distance(_midPreV3) < 3000)
+                Drawing.DrawCircle(_midPreV3, 75, Color.Gold);
 
             foreach (var hero in HeroManager.Enemies.Where(h => h.IsValidTarget() && h.Distance(Player) < 1400))
             {
@@ -273,7 +283,25 @@ namespace PRADA_Vayne
                 Q.Cast(_dragAftV3);
                 Utility.DelayAction.Add(100 + Game.Ping/2, () =>
                 {
-                    Player.IssueOrder(GameObjectOrder.MoveTo, _dragAftV3.Randomize(0,1));
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6962, 8952).To3D().Randomize(0, 1));
+                    Orbwalker.SetMovement(true);
+                });
+            }
+        }
+
+        private static void MidWallTumble()
+        {
+            if (Player.Distance(_midPreV3) < 115)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, _midPreV3.Randomize(0, 1));
+            }
+            if (Player.Distance(_midPreV3) < 5)
+            {
+                Orbwalker.SetMovement(false);
+                Q.Cast(_midAftV3);
+                Utility.DelayAction.Add(100 + Game.Ping / 2, () =>
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, _midAftV3.Randomize(0, 1));
                     Orbwalker.SetMovement(true);
                 });
             }
