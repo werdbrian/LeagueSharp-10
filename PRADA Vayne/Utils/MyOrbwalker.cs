@@ -638,7 +638,7 @@ namespace PRADA_Vayne.Utils
                 _orbwalkingPoint = point;
             }
 
-            private bool ShouldWait()
+            public bool ShouldWait()
             {
                 return
                     ObjectManager.Get<Obj_AI_Minion>()

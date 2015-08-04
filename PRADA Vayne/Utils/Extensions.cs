@@ -173,6 +173,59 @@ namespace PRADA_Vayne.Utils
             return pList.Count > 1 ? pList.OrderByDescending(el => el.Distance(tP)).FirstOrDefault() : Vector3.Zero;
         }
 
+        public static Vector3 GetTumblePos(this Vector3 tP)
+        {
+            var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
+            var cP = Game.CursorPos;
+            var pList = new List<Vector3>();
+
+            if ((!cP.IsWall() && !cP.UnderTurret(true) && cP.Distance(tP) > 325 && cP.Distance(tP) < 550 &&
+                 (cP.CountEnemiesInRange(425) <= cP.CountAlliesInRange(325)))) return cP;
+
+            foreach (var p in aRC)
+            {
+                var v3 = new Vector2(p.X, p.Y).To3D();
+
+                if (!v3.IsWall() && !v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 550 &&
+                    (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
+            }
+            if (Heroes.Player.UnderTurret() || Heroes.Player.CountEnemiesInRange(800) == 1)
+            {
+                return pList.Count > 1 ? pList.OrderBy(el => el.Distance(cP)).FirstOrDefault() : Vector3.Zero;
+            }
+            return pList.Count > 1 ? pList.OrderByDescending(el => el.Distance(tP)).FirstOrDefault() : Vector3.Zero;
+        }
+
+        public static Vector3 GetCondemnPosition(this Vector3 position)
+        {
+            var pointList = new List<Vector3>();
+
+            pointList.Add(Vector3.Zero);
+
+            for (var j = 485; j >= 50; j -= 100)
+            {
+                var offset = (int)(2 * Math.PI * j / 100);
+
+                for (var i = 0; i <= offset; i++)
+                {
+                    var angle = i * Math.PI * 2 / offset;
+                    var point =
+                        new Vector2(
+                            (float)(position.X + j * Math.Cos(angle)),
+                            (float)(position.Y - j * Math.Sin(angle))).To3D();
+
+                    var cP = point.Extend(position, point.Distance(position) + 50);
+                    if (point.IsWall() && cP.Distance(point) < 425 && !cP.UnderTurret(true) && cP.Distance(position) > 325 && cP.Distance(position) < 545 &&
+                 (cP.CountEnemiesInRange(425) <= cP.CountAlliesInRange(325)))
+                    {
+                        pointList.Add(cP);
+                    }
+                }
+            }
+
+            return pointList.OrderByDescending(p=>p.Distance(position)).FirstOrDefault();
+        }
+
         public static int VayneWStacks(this Obj_AI_Base o)
         {
             if (o == null) return 0;

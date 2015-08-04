@@ -24,7 +24,6 @@ namespace PRADA_Vayne
 
         #region Others
         private static Vector3 _condemnEndPos = Vector3.Zero;
-        //private static bool _tumbleToKillSecondMinion; #TODO
         private static int _selectedSkin;
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;
@@ -117,6 +116,10 @@ namespace PRADA_Vayne
                 {
                     if (TumbleOrder.IsShroom())
                     {
+                        /*if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
+                        {
+                            return; #TODO if people still complain about it
+                        }*/
                         args.Process = false;
                     }
                 }
@@ -181,9 +184,30 @@ namespace PRADA_Vayne
             var tg = target as Obj_AI_Hero;
             if (tg == null) return;
             var mode = ComboMenu.Item("QMode").GetValue<StringList>().SelectedValue;
-            TumbleOrder = mode == "PRADA" ? tg.GetTumblePos() : Game.CursorPos;
+            switch (mode)
+            {
+                case "PRADA":
+                    TumbleOrder = tg.GetTumblePos();
+                    break;
+                case "TUMBLEANDCONDEMN":
+                    TumbleOrder = tg.ServerPosition.GetCondemnPosition();
+                    break;
+                default:
+                    TumbleOrder = Game.CursorPos;
+                    break;
+            }
             if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
+                Q.Cast(TumbleOrder);
+                return;
+            }
+
+            if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear &&
+                LaneClearMenu.Item("QWaveClear").GetValue<bool>() &&
+                LaneClearMenu.Item("QWaveClearMana").GetValue<Slider>().Value > Player.ManaPercent &&
+                !Orbwalker.ShouldWait())
+            {
+                TumbleOrder = Game.CursorPos;
                 Q.Cast(TumbleOrder);
             }
         }
@@ -242,6 +266,19 @@ namespace PRADA_Vayne
             if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Rengar" || h.CharData.BaseSkinName == "Talon" || h.CharData.BaseSkinName == "Vayne"))
             {
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
+            }
+
+            if (LaneClearMenu.Item("QLastHit").GetValue<bool>() && Q.IsReady() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit)) LastHit();
+        }
+
+        private static void LastHit()
+        {
+            var minion = QLastHitMinion();
+            if (LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent &&
+                minion.IsValidTarget())
+            {
+                TumbleOrder = minion.Position.GetTumblePos();
+                Q.Cast(TumbleOrder);
             }
         }
 
@@ -532,7 +569,7 @@ namespace PRADA_Vayne
             SkinhackMenu = new Menu("Skin Hack", "skinhackmenu");
             OrbwalkerMenu = new Menu("Orbwalker", "orbwalkermenu");
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("QMode", "Q Mode: ").SetValue(new StringList(new[] { "PRADA", "TO MOUSE" })));
+            ComboMenu.AddItem(new MenuItem("QMode", "Q Mode: ").SetValue(new StringList(new[] { "PRADA", "TUMBLEANDCONDEMN", "TO MOUSE" })));
             //ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true)); #TODO
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EQ", "Q After E").SetValue(false));
@@ -547,7 +584,10 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("AutoBuy", "Auto-Swap Trinkets?").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("QUlt", "Smart Q-Ult").SetValue(true));
             EscapeMenu.AddItem(new MenuItem("EInterrupt", "Use E to Interrupt").SetValue(true));
-            //LaneClearMenu.AddItem(new MenuItem("QFarm", "Use Q").SetValue(true));#TODO
+            LaneClearMenu.AddItem(new MenuItem("QLastHit", "Use Q to Lasthit").SetValue(true));
+            LaneClearMenu.AddItem(new MenuItem("QLastHitMana", "Min Mana for Q Lasthit").SetValue(new Slider(45, 0, 100)));
+            LaneClearMenu.AddItem(new MenuItem("QWaveClear", "Use Q to clear the wave").SetValue(false));
+            LaneClearMenu.AddItem(new MenuItem("QWaveClearMana", "Min Mana for Q Wave clear").SetValue(new Slider(75, 0, 100)));
             SkinhackMenu.AddItem(
                 new MenuItem("skin", "Skin: ").SetValue(
                     new StringList(new[] { "Classic", "Vindicator", "Aristocrat", "Dragonslayer", "Heartseeker", "SKT T1", "Arclight" }))).ValueChanged +=
@@ -574,7 +614,7 @@ namespace PRADA_Vayne
         public static void FinishMenuInit()
         {
             MainMenu.AddSubMenu(ComboMenu);
-            //MainMenu.AddSubMenu(LaneClearMenu); #TODO
+            MainMenu.AddSubMenu(LaneClearMenu);
             MainMenu.AddSubMenu(EscapeMenu);
             MainMenu.AddSubMenu(ActivatorMenu);
             MainMenu.AddSubMenu(SkinhackMenu); // XD
@@ -582,6 +622,19 @@ namespace PRADA_Vayne
             MainMenu.AddSubMenu(OrbwalkerMenu);
             //MainMenu.AddSubMenu(PEvade.Config.Menu); //#TODO
             MainMenu.AddToMainMenu();
+        }
+
+        private static Obj_AI_Minion QLastHitMinion()
+        {
+            return
+                ObjectManager.Get<Obj_AI_Minion>()
+                    .FirstOrDefault(
+                        minion =>
+                            minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
+                            Player.Distance(minion) < 600 &&
+                            HealthPrediction.LaneClearHealthPrediction(
+                                minion, (int)((Player.AttackDelay * 1000 + 100) * 2f)) <=
+                            Player.GetAutoAttackDamage(minion) + Q.GetDamage(minion));
         }
 
         public static void InitSpells()
