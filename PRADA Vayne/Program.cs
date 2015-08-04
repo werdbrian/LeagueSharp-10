@@ -115,7 +115,7 @@ namespace PRADA_Vayne
             {
                 if (args.Slot == SpellSlot.Q && ComboMenu.Item("QChecks").GetValue<bool>())
                 {
-                    Console.WriteLine(TumbleOrder);
+                    if (Vector3.Zero.IsZero) Console.WriteLine("yes");
                     if (TumbleOrder.IsShroom())
                     {
                         if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
@@ -441,6 +441,7 @@ namespace PRADA_Vayne
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            if (args.SData == null) return;
             if (sender.IsMe && args.SData.Name == "summonerflash")
             {
                 FlashTime = Environment.TickCount;
@@ -639,7 +640,7 @@ namespace PRADA_Vayne
                             minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                             Player.Distance(minion) < 600 &&
                             HealthPrediction.LaneClearHealthPrediction(
-                                minion, (int)((Player.AttackDelay * 1000 - 100) * 2f)) <=
+                                minion, (int)((Player.AttackDelay * 1000) * 2f)) <=
                             Player.GetAutoAttackDamage(minion) + Q.GetDamage(minion));
         }
 
