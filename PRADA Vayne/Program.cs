@@ -24,6 +24,7 @@ namespace PRADA_Vayne
 
         #region Others
         private static Vector3 _condemnEndPos = Vector3.Zero;
+        private static bool _tumbleToKillSecondMinion = false;
         private static int _selectedSkin;
         private static bool _skinLoaded = false;
         private static int _cycleThroughSkinsTime = 0;
@@ -151,6 +152,10 @@ namespace PRADA_Vayne
             {
                 args.Process = false;
             }
+            if (args.Target.IsValid<Obj_AI_Minion>() && Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear && LastHittableMinions() > 1)
+            {
+                _tumbleToKillSecondMinion = true;
+            }
             if (args.Target.IsValid<Obj_AI_Hero>())
             {
                 var target = (Obj_AI_Hero)args.Target;
@@ -179,7 +184,12 @@ namespace PRADA_Vayne
 
         public static void AfterAttack(AttackableUnit sender, AttackableUnit target)
         {
-            if (!Q.IsReady() || !target.IsValid<Obj_AI_Hero>() || !ComboMenu.Item("QCombo").GetValue<bool>() || !sender.IsMe) return;
+            if (!Q.IsReady())
+            {
+                _tumbleToKillSecondMinion = false;
+                return;
+            }
+            if (!target.IsValid<Obj_AI_Hero>() || !ComboMenu.Item("QCombo").GetValue<bool>() || !sender.IsMe) return;
             if (!Flash.IsReady() && Environment.TickCount - FlashTime < 500) return;
             var tg = target as Obj_AI_Hero;
             if (tg == null) return;
@@ -200,6 +210,14 @@ namespace PRADA_Vayne
             {
                 Q.Cast(TumbleOrder);
                 return;
+            }
+
+            
+            if (Q.IsReady() && _tumbleToKillSecondMinion && LaneClearMenu.Item("QLastHit").GetValue<bool>() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit) && LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent)
+            {
+                TumbleOrder = Game.CursorPos;
+                Q.Cast(TumbleOrder);
+                _tumbleToKillSecondMinion = false;
             }
 
             if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear &&
@@ -267,20 +285,7 @@ namespace PRADA_Vayne
             {
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
-
-            if (LaneClearMenu.Item("QLastHit").GetValue<bool>() && Q.IsReady() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit)) LastHit();
-        }
-
-        private static void LastHit()
-        {
-            var minion = QLastHitMinion();
-            if (LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent &&
-                minion.IsValidTarget())
-            {
-                TumbleOrder = minion.Position.GetTumblePos();
-                Q.Cast(TumbleOrder);
-            }
-        }
+}
 
         public static void OnDraw(EventArgs args)
         {
@@ -624,11 +629,11 @@ namespace PRADA_Vayne
             MainMenu.AddToMainMenu();
         }
 
-        private static Obj_AI_Minion QLastHitMinion()
+        private static int LastHittableMinions()
         {
             return
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .FirstOrDefault(
+                    .Count(
                         minion =>
                             minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                             Player.Distance(minion) < 600 &&
