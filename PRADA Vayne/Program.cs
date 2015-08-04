@@ -37,6 +37,8 @@ namespace PRADA_Vayne
         private static Vector3 _midAftV3 = new Vector2(6667, 8794).To3D();
 
         public static int FlashTime = 0;
+
+        private static Vector3 TumbleOrder;
         #endregion
 
         internal static MyOrbwalker.Orbwalker Orbwalker;
@@ -97,6 +99,8 @@ namespace PRADA_Vayne
                 Spellbook.OnCastSpell += OnCastSpell;
                 AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
 
+                TumbleOrder = _midAftV3;
+
                 ShowLoadedNotifications(); //Everything went well, display successfuly loaded message.
             }
             catch (Exception e)
@@ -111,12 +115,16 @@ namespace PRADA_Vayne
             {
                 if (args.Slot == SpellSlot.Q && ComboMenu.Item("QChecks").GetValue<bool>())
                 {
-                    if (args.EndPosition.IsShroom()) args.Process = false;
+                    if (TumbleOrder.IsShroom())
+                    {
+                        args.Process = false;
+                    }
                 }
                 if (args.Slot == SpellSlot.R && ComboMenu.Item("QR").GetValue<bool>())
                 {
                     var target = Utils.TargetSelector.GetTarget(-1);
-                    Q.Cast(target != null ? target.GetTumblePos() : Game.CursorPos);
+                    TumbleOrder = target != null ? target.GetTumblePos() : Game.CursorPos;
+                    Q.Cast(TumbleOrder);
                 }
             }
         }
@@ -158,9 +166,9 @@ namespace PRADA_Vayne
                 {
                     if (t.Distance(Player.ServerPosition) < 325)
                     {
-                        var tumblePos = t.GetTumblePos();
+                        TumbleOrder = t.GetTumblePos();
                         args.Process = false;
-                        Q.Cast(tumblePos);
+                        Q.Cast(TumbleOrder);
                     }
                 }
             }
@@ -173,10 +181,10 @@ namespace PRADA_Vayne
             var tg = target as Obj_AI_Hero;
             if (tg == null) return;
             var mode = ComboMenu.Item("QMode").GetValue<StringList>().SelectedValue;
-            var tumblePos = mode == "PRADA" ? tg.GetTumblePos() : Game.CursorPos;
+            TumbleOrder = mode == "PRADA" ? tg.GetTumblePos() : Game.CursorPos;
             if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
-                Q.Cast(tumblePos);
+                Q.Cast(TumbleOrder);
             }
         }
 
@@ -318,7 +326,8 @@ namespace PRADA_Vayne
             if (Player.Distance(_dragPreV3) < 5)
             {
                 Orbwalker.SetMovement(false);
-                Q.Cast(_dragAftV3);
+                TumbleOrder = _dragAftV3;
+                Q.Cast(TumbleOrder);
                 Utility.DelayAction.Add(100 + Game.Ping/2, () =>
                 {
                     Player.IssueOrder(GameObjectOrder.MoveTo, _dragAftV3.Randomize(0, 1));
@@ -336,7 +345,8 @@ namespace PRADA_Vayne
             if (Player.Distance(_midPreV3) < 5)
             {
                 Orbwalker.SetMovement(false);
-                Q.Cast(_midAftV3);
+                TumbleOrder = _midAftV3;
+                Q.Cast(TumbleOrder);
                 Utility.DelayAction.Add(100 + Game.Ping / 2, () =>
                 {
                     Player.IssueOrder(GameObjectOrder.MoveTo, _midAftV3.Randomize(0, 1));
@@ -398,7 +408,8 @@ namespace PRADA_Vayne
                 var target = (Obj_AI_Hero)args.Target;
                 if (ComboMenu.Item("EQ").GetValue<bool>() && target.IsVisible && !target.HasBuffOfType(BuffType.Stun) && Q.IsReady()) //#TODO: fix
                 {
-                    Q.Cast(target.GetTumblePos());
+                    TumbleOrder = target.GetTumblePos();
+                    Q.Cast(TumbleOrder);
                 }
                 if (NavMesh.IsWallOfGrass(_condemnEndPos, 100))
                 {
@@ -449,7 +460,8 @@ namespace PRADA_Vayne
         {
             if (Q.IsReady() && gapcloser.End.Distance(Player.ServerPosition) < 300)
             {
-                Q.Cast(gapcloser.Sender.GetTumblePos());
+                TumbleOrder = gapcloser.Sender.GetTumblePos();
+                Q.Cast(TumbleOrder);
             }
             //KATARINA IN GAME. CONCERN!
             if (ShouldSaveCondemn()) return;
