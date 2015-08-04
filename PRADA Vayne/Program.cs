@@ -213,7 +213,7 @@ namespace PRADA_Vayne
             }
 
             
-            if (_tumbleToKillSecondMinion && LaneClearMenu.Item("QLastHit").GetValue<bool>() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit) && LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent)
+            if (_tumbleToKillSecondMinion && LaneClearMenu.Item("QLastHit").GetValue<bool>() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit) &&  Player.ManaPercent > LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value)
             {
                 TumbleOrder = Game.CursorPos;
                 Q.Cast(TumbleOrder);
@@ -221,8 +221,8 @@ namespace PRADA_Vayne
             }
 
             if (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear &&
-                LaneClearMenu.Item("QWaveClear").GetValue<bool>() &&
-                LaneClearMenu.Item("QWaveClearMana").GetValue<Slider>().Value > Player.ManaPercent &&
+                LaneClearMenu.Item("QWaveClear").GetValue<bool>() && Player.ManaPercent >
+                LaneClearMenu.Item("QWaveClearMana").GetValue<Slider>().Value &&
                 !Orbwalker.ShouldWait())
             {
                 TumbleOrder = Game.CursorPos;
@@ -639,7 +639,7 @@ namespace PRADA_Vayne
                             minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                             Player.Distance(minion) < 600 &&
                             HealthPrediction.LaneClearHealthPrediction(
-                                minion, (int)((Player.AttackDelay * 1000) * 2f)) <=
+                                minion, (int)((Player.AttackDelay * 1000 - 100) * 2f)) <=
                             Player.GetAutoAttackDamage(minion) + Q.GetDamage(minion));
         }
 
