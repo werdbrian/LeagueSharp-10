@@ -115,7 +115,6 @@ namespace PRADA_Vayne
             {
                 if (args.Slot == SpellSlot.Q && ComboMenu.Item("QChecks").GetValue<bool>())
                 {
-                    if (Vector3.Zero.IsZero) Console.WriteLine("yes");
                     if (TumbleOrder.IsShroom())
                     {
                         if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
