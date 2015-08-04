@@ -115,12 +115,13 @@ namespace PRADA_Vayne
             {
                 if (args.Slot == SpellSlot.Q && ComboMenu.Item("QChecks").GetValue<bool>())
                 {
+                    Console.WriteLine(TumbleOrder);
                     if (TumbleOrder.IsShroom())
                     {
-                        /*if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
+                        if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
                         {
-                            return; #TODO if people still complain about it
-                        }*/
+                            return;
+                        }
                         args.Process = false;
                     }
                 }
