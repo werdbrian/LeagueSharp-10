@@ -639,7 +639,7 @@ namespace PRADA_Vayne
                             minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                             Player.Distance(minion) < 600 &&
                             HealthPrediction.LaneClearHealthPrediction(
-                                minion, (int)((Player.AttackDelay * 1000 + 100) * 2f)) <=
+                                minion, (int)((Player.AttackDelay * 1000 - 100) * 2f)) <=
                             Player.GetAutoAttackDamage(minion) + Q.GetDamage(minion));
         }
 
