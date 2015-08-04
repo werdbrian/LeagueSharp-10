@@ -213,7 +213,7 @@ namespace PRADA_Vayne
             }
 
             
-            if (Q.IsReady() && _tumbleToKillSecondMinion && LaneClearMenu.Item("QLastHit").GetValue<bool>() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit) && LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent)
+            if (_tumbleToKillSecondMinion && LaneClearMenu.Item("QLastHit").GetValue<bool>() && (Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LaneClear || Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.LastHit) && LaneClearMenu.Item("QLastHitMana").GetValue<Slider>().Value > Player.ManaPercent)
             {
                 TumbleOrder = Game.CursorPos;
                 Q.Cast(TumbleOrder);
