@@ -178,15 +178,16 @@ namespace PRADA_Vayne.Utils
             var aRC = new Geometry.Circle(Heroes.Player.ServerPosition.To2D(), 300).ToPolygon().ToClipperPath();
             var cP = Game.CursorPos;
             var pList = new List<Vector3>();
+            var minDist = Program.ComboMenu.Item("QMinDist").GetValue<Slider>().Value;
 
-            if ((!cP.IsWall() && !cP.UnderTurret(true) && cP.Distance(tP) > 325 && cP.Distance(tP) < 550 &&
+            if ((!cP.IsWall() && !cP.UnderTurret(true) && cP.Distance(tP) > minDist && cP.Distance(tP) < 550 &&
                  (cP.CountEnemiesInRange(425) <= cP.CountAlliesInRange(325)))) return cP;
 
             foreach (var p in aRC)
             {
                 var v3 = new Vector2(p.X, p.Y).To3D();
 
-                if (!v3.IsWall() && !v3.UnderTurret(true) && v3.Distance(tP) > 325 && v3.Distance(tP) < 550 &&
+                if (!v3.IsWall() && !v3.UnderTurret(true) && v3.Distance(tP) > minDist && v3.Distance(tP) < 550 &&
                     (v3.CountEnemiesInRange(425) <= v3.CountAlliesInRange(325))) pList.Add(v3);
             }
             if (Heroes.Player.UnderTurret() || Heroes.Player.CountEnemiesInRange(800) == 1)
@@ -242,7 +243,7 @@ namespace PRADA_Vayne.Utils
         public static bool IsShroom(this Vector3 pos)
         {
             return pos == Vector3.Zero ||
-                   HeroManager.Enemies.Any(e => !e.IsDead && e.IsVisible && e.Distance(pos) < 325) ||
+                   HeroManager.Enemies.Any(e => !e.IsDead && e.IsVisible && e.Distance(pos) < Program.ComboMenu.Item("QMinDist").GetValue<Slider>().Value) ||
                    Traps.EnemyTraps.Any(t => pos.Distance(t.Position) < 125);
         }
 

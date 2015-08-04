@@ -577,6 +577,7 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QCombo", "Auto Tumble").SetValue(true));
             ComboMenu.AddItem(new MenuItem("QMode", "Q Mode: ").SetValue(new StringList(new[] { "PRADA", "TUMBLEANDCONDEMN", "TO MOUSE" })));
             //ComboMenu.AddItem(new MenuItem("QHarass", "AA - Q - AA").SetValue(true)); #TODO
+            ComboMenu.AddItem(new MenuItem("QMinDist", "Min dist from enemies").SetValue(new Slider(375, 325, 525)));
             ComboMenu.AddItem(new MenuItem("QChecks", "Q Safety Checks").SetValue(true));
             ComboMenu.AddItem(new MenuItem("EQ", "Q After E").SetValue(false));
             ComboMenu.AddItem(new MenuItem("QWall", "Enable Wall Tumble?").SetValue(true));
@@ -667,7 +668,7 @@ namespace PRADA_Vayne
             Utility.DelayAction.Add(3000, () =>
             {
                 Notifications.AddNotification("PRADA Vayne", 10000);
-                Notifications.AddNotification("by GUCCI & H&M", 10000);
+                Notifications.AddNotification("by GUCCI & myo", 10000);
                 Notifications.AddNotification("HF, ", 10000);
                 Notifications.AddNotification("U don't need luck", 10000);
             });
