@@ -189,7 +189,6 @@ namespace PRADA_Vayne
 
         public static void OnUpdate(EventArgs args)
         {
-            Console.WriteLine(ObjectManager.Player.ServerPosition);
             if (E.IsReady() && Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
                 Condemn();
@@ -210,9 +209,22 @@ namespace PRADA_Vayne
                 MidWallTumble();
             }
 
-            if (Player.Buffs.Any(b => b.Name.ToLower().Contains("rengarr")))
+            if (Player.HasBuff("rengarralertsound"))
             {
-                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
+                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Items.CanUseItem((int)ItemId.Oracles_Lens_Trinket))
+                {
+                    Items.UseItem((int)ItemId.Oracles_Lens_Trinket, Player.Position);
+                }
+                else if (Items.HasItem((int)ItemId.Vision_Ward, Player))
+                {
+                    Items.UseItem((int)ItemId.Vision_Ward, Player.Position.Randomize(0, 125));
+                }
+            }
+            
+            var enemyVayne = Heroes.EnemyHeroes.FirstOrDefault(e => e.CharData.BaseSkinName == "Vayne");
+            if (enemyVayne != null && enemyVayne.Distance(Player) < 700 && enemyVayne.HasBuff("VayneInquisition"))
+            {
+                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Items.CanUseItem((int)ItemId.Oracles_Lens_Trinket))
                 {
                     Items.UseItem((int)ItemId.Oracles_Lens_Trinket, Player.Position);
                 }
@@ -226,7 +238,7 @@ namespace PRADA_Vayne
             {
                 Player.BuyItem(ItemId.Scrying_Orb_Trinket);
             }
-            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Rengar" || h.CharData.BaseSkinName == "Talon"))
+            if (Player.InFountain() && ComboMenu.Item("AutoBuy").GetValue<bool>() && !Items.HasItem((int)ItemId.Oracles_Lens_Trinket, Player) && Player.Level >= 9 && HeroManager.Enemies.Any(h => h.CharData.BaseSkinName == "Rengar" || h.CharData.BaseSkinName == "Talon" || h.CharData.BaseSkinName == "Vayne"))
             {
                 Player.BuyItem(ItemId.Oracles_Lens_Trinket);
             }
@@ -398,7 +410,7 @@ namespace PRADA_Vayne
                 if (NavMesh.IsWallOfGrass(_condemnEndPos, 100))
                 {
                     var blueTrinket = ItemId.Scrying_Orb_Trinket;
-                    if (Items.HasItem((int)ItemId.Farsight_Orb_Trinket, Player)) blueTrinket = ItemId.Farsight_Orb_Trinket;
+                    if (Items.HasItem((int)ItemId.Farsight_Orb_Trinket, Player) && Items.CanUseItem((int)ItemId.Farsight_Orb_Trinket)) blueTrinket = ItemId.Farsight_Orb_Trinket;
 
                     var yellowTrinket = ItemId.Warding_Totem_Trinket;
                     if (Items.HasItem((int)ItemId.Greater_Stealth_Totem_Trinket, Player)) yellowTrinket = ItemId.Greater_Stealth_Totem_Trinket;
@@ -411,10 +423,10 @@ namespace PRADA_Vayne
             }
             #endregion
 
-            #region jQuery hates this! Click to find out why!
-            if (args.SData.Name.ToLower().Contains("talonshadow") || args.SData.Name.ToLower().Contains("rengarr"))
+            #region Anti-Stealth
+            if (args.SData.Name.ToLower().Contains("talonshadow")) //#TODO get the actual buff name
             {
-                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket))
+                if (Items.HasItem((int)ItemId.Oracles_Lens_Trinket) && Items.CanUseItem((int)ItemId.Oracles_Lens_Trinket))
                 {
                     Items.UseItem((int)ItemId.Oracles_Lens_Trinket, Player.Position);
                 }
