@@ -146,14 +146,7 @@ namespace PRADA_Vayne
                 if (ComboMenu.Item("RCombo").GetValue<bool>() && R.IsReady() &&
                     Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
                 {
-                    if (target.UnderTurret(true))
-                    {
-                        if (Heroes.Player.UnderTurret(true))
-                        {
-                            R.Cast();
-                        }
-                    }
-                    else
+                    if (!target.UnderTurret(true))
                     {
                         R.Cast();
                     }
