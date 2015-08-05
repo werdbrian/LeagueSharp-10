@@ -117,7 +117,7 @@ namespace PRADA_Vayne
                 {
                     if (TumbleOrder.IsShroom())
                     {
-                        if (TumbleOrder.IsZero && !Game.CursorPos.IsShroom())
+                        if (TumbleOrder.IsZero && !Player.ServerPosition.Extend(Game.CursorPos, 300).IsShroom())
                         {
                             return;
                         }
