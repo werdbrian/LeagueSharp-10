@@ -668,7 +668,7 @@ namespace PRADA_Vayne
             Utility.DelayAction.Add(3000, () =>
             {
                 Game.PrintChat("<font color='#D859CD'>PRADA Vayne: </font>" + "<font color='#ADEC00'>loaded. Enemy's chance to win just dropped to about 0.01 percent.</font>");
-                Game.PrintChat("<font color='#D859CD'>PRADA Vayne: </font>" + "<font color='#ADEC00'>if you enjoy PRADA consider upvoting it in the assembly database.</font>");
+                Game.PrintChat("<font color='#D859CD'>PRADA Vayne: </font>" + "<font color='#ADEC00'>if you enjoy PRADA consider upvoting it in the assembly database AMK</font>");
                 Notifications.AddNotification("PRADA Vayne", 10000);
                 Notifications.AddNotification("by GUCCI & myo", 10000);
                 Notifications.AddNotification("HF, ", 10000);
