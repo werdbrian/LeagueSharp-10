@@ -326,6 +326,7 @@ namespace PRADA_Vayne
 
         public static void Condemn()
         {
+            if (ShouldSaveCondemn()) return;
             if (Heroes.Player.CountEnemiesInRange(600) == 1)
             {
                 var target = Heroes.EnemyHeroes.FirstOrDefault(e => e.IsValidTarget(545));
