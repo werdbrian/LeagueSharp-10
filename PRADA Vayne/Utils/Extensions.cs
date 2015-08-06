@@ -36,6 +36,25 @@ namespace PRADA_Vayne.Utils
                     (hero.IsWindingUp && Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 100))
                     return true;
 
+                if (Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 80)
+                {
+                    var prediction = Program.E.GetPrediction(hero);
+                    for (var i = 15; i < pD; i += 75)
+                    {
+                        var posCF = NavMesh.GetCollisionFlags(
+                            prediction.UnitPosition.To2D()
+                                .Extend(
+                                    pP.To2D(),
+                                    -i)
+                                .To3D());
+                        if (posCF.HasFlag(CollisionFlags.Wall) || posCF.HasFlag(CollisionFlags.Building))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
                 var eT = 0.063 + Game.Ping/2000f + 0.06;
                 eT += (double) Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value*4/1000;
                 var d = hero.MoveSpeed*eT;
