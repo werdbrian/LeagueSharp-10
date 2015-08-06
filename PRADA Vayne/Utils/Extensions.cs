@@ -36,7 +36,7 @@ namespace PRADA_Vayne.Utils
                     (hero.IsWindingUp && Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 100))
                     return true;
 
-                if (Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value < 80)
+                if (Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value <= 85)
                 {
                     var prediction = Program.E.GetPrediction(hero);
                     for (var i = 15; i < pD; i += 75)
