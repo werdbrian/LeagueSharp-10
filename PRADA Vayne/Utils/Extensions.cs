@@ -216,7 +216,7 @@ namespace PRADA_Vayne.Utils
             return pList.Count > 1 ? pList.OrderByDescending(el => el.Distance(tP)).FirstOrDefault() : Vector3.Zero;
         }
 
-        public static Vector3 GetCondemnPosition(this Vector3 position)
+        public static Vector3 GetTumbleAndCondemnPosition(this Vector3 position)
         {
             var pointList = new List<Vector3>();
 

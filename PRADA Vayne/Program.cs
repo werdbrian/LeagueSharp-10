@@ -200,7 +200,7 @@ namespace PRADA_Vayne
                     TumbleOrder = tg.GetTumblePos();
                     break;
                 case "TUMBLEANDCONDEMN":
-                    TumbleOrder = tg.ServerPosition.GetCondemnPosition();
+                    TumbleOrder = tg.ServerPosition.GetTumbleAndCondemnPosition();
                     break;
                 default:
                     TumbleOrder = Game.CursorPos;
@@ -232,6 +232,27 @@ namespace PRADA_Vayne
 
         public static void OnUpdate(EventArgs args)
         {
+            if (E.IsReady() && ComboMenu.Item("ManualE").GetValue<KeyBind>().Active)
+            {
+                foreach (var hero in Heroes.EnemyHeroes.Where(h => h.Distance(Player) < 550))
+                {
+                    var prediction = E.GetPrediction(hero);
+                    for (var i = 40; i < 425; i += 125)
+                    {
+                        var flags = NavMesh.GetCollisionFlags(
+                            prediction.UnitPosition.To2D()
+                                .Extend(
+                                    Player.ServerPosition.To2D(),
+                                    -i)
+                                .To3D());
+                        if (flags.HasFlag(CollisionFlags.Wall) || flags.HasFlag(CollisionFlags.Building))
+                        {
+                            E.Cast(hero);
+                            return;
+                        }
+                    }
+                }
+            }
             if (E.IsReady() && Orbwalker.ActiveMode == MyOrbwalker.OrbwalkingMode.Combo)
             {
                 Condemn();
@@ -585,6 +606,7 @@ namespace PRADA_Vayne
             ComboMenu.AddItem(new MenuItem("QR", "Q after Ult").SetValue(true));
             //ComboMenu.AddItem(new MenuItem("FocusTwoW", "Focus 2 W Stacks").SetValue(true)); #TODO ?
             ComboMenu.AddItem(new MenuItem("ECombo", "Auto Condemn").SetValue(true));
+            ComboMenu.AddItem(new MenuItem("ManualE", "Semi-Manual E").SetValue(new KeyBind('E', KeyBindType.Press)));
             ComboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new[] {"PRADA", "MARKSMAN", "GOSU", "SHARPSHOOTER", "VHREWORK"})));
             ComboMenu.AddItem(new MenuItem("EPushDist", "E Push Distance").SetValue(new Slider(395, 300, 475)));
             ComboMenu.AddItem(new MenuItem("EHitchance", "E % Hitchance").SetValue(new Slider(99, 0, 100)));
