@@ -21,6 +21,7 @@ namespace PRADA_Vayne.MyLogic.Q
                     {
                         if (Tumble.TumbleOrderPos.IsDangerousPosition())
                         {
+                            Tumble.TumbleOrderPos = Vector3.Zero;
                             args.Process = false;
                         }
                         else
