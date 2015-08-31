@@ -14,13 +14,12 @@ namespace Most_Useless_Assembly_Ever
             Game.OnUpdate += a =>
             {
                 Slack();
-                //IM NOT DOING ANYTHIN AT ALL LOL
             };
         }
 
         public static void Slack()
         {
-            
+                //IM NOT DOING ANYTHIN AT ALL LOL
         }
     }
 }
