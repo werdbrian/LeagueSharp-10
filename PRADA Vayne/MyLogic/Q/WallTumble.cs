@@ -54,7 +54,7 @@ namespace PRADA_Vayne.MyLogic.Q
 
         private static void DragWallTumble()
         {
-            if (Heroes.Player.Distance(_dragPreV3) < 115)
+            if (Heroes.Player.Distance(_dragPreV3) < 100)
             {
                 Heroes.Player.IssueOrder(GameObjectOrder.MoveTo, _dragPreV3.Randomize(0, 1));
             }
@@ -73,7 +73,8 @@ namespace PRADA_Vayne.MyLogic.Q
 
         private static void MidWallTumble()
         {
-            if (Heroes.Player.Distance(_midPreV3) < 115)
+            if (!Program.Q.IsReady()) return;
+            if (Heroes.Player.Distance(_midPreV3) < 100)
             {
                 Heroes.Player.IssueOrder(GameObjectOrder.MoveTo, _midPreV3.Randomize(0, 1));
             }
