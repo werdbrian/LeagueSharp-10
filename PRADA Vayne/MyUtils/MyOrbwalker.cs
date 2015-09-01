@@ -360,6 +360,12 @@ namespace PRADA_Vayne.MyUtils
                         {
                             LastAATick = LeagueSharp.Common.Utils.GameTimeTickCount + Game.Ping + 100 - (int)(ObjectManager.Player.AttackCastDelay * 1000f);
                             _missileLaunched = false;
+                            
+                            var d = GetRealAutoAttackRange(target) - 65;
+                            if (Player.Distance(target, true) > d * d)
+                            {
+                                LastAATick = LeagueSharp.Common.Utils.GameTimeTickCount + Game.Ping + 400 - (int)(ObjectManager.Player.AttackCastDelay * 1000f);
+                            }
                         }
                         Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastTarget = target;
