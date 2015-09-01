@@ -116,7 +116,7 @@ namespace PRADA_Vayne.MyUtils
                     qss.Cast();
                     return;
                 }
-                if (HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
+                if (HeroManager.Enemies.Any(e => e.CharData.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
                 {
                     qss.Cast();
                     return;
@@ -131,7 +131,7 @@ namespace PRADA_Vayne.MyUtils
                         return;
                     }
                 }
-                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.BaseSkinName == "Cassiopeia");
+                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.CharData.BaseSkinName == "Cassiopeia");
                 if (Player.HasBuffOfType(BuffType.Poison) && cassiopeia != null && cassiopeia.Distance(Player) < 450 &&
                     Player.HealthPercent < 30)
                 {
@@ -149,7 +149,7 @@ namespace PRADA_Vayne.MyUtils
                     scimitar.Cast();
                     return;
                 }
-                if (HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
+                if (HeroManager.Enemies.Any(e => e.CharData.BaseSkinName.ToLower().Contains("yasuo") && Player.HasBuffOfType(BuffType.Knockup) || Player.HasBuffOfType(BuffType.Knockback)))
                 {
                     scimitar.Cast();
                     return;
@@ -164,7 +164,7 @@ namespace PRADA_Vayne.MyUtils
                         return;
                     }
                 }
-                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.BaseSkinName == "Cassiopeia");
+                var cassiopeia = HeroManager.Enemies.FirstOrDefault(e => e.CharData.BaseSkinName == "Cassiopeia");
                 if (Player.HasBuffOfType(BuffType.Poison) && cassiopeia != null && cassiopeia.Distance(Player) < 450 &&
                     Player.HealthPercent < 30)
                 {
