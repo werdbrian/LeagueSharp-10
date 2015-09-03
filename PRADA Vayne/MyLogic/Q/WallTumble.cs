@@ -46,10 +46,10 @@ namespace PRADA_Vayne.MyLogic.Q
                 DragWallTumble();
             }
 
-            if (_canWallTumble && Program.ComboMenu.Item("QWall").GetValue<bool>() && Program.Q.IsReady() && Heroes.Player.Distance(_midPreV3) < 500)
+            /*if (_canWallTumble && Program.ComboMenu.Item("QWall").GetValue<bool>() && Program.Q.IsReady() && Heroes.Player.Distance(_midPreV3) < 500)
             {
                 MidWallTumble();
-            }
+            }*/
         }
 
         private static void DragWallTumble()
