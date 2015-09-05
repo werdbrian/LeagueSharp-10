@@ -28,8 +28,8 @@ namespace ChallengerSeries.Utils
             new PotionManager(ChallengerPlugin.ActivatorMenu);
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
             menu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
-            Game.OnUpdate += OnUpdate;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+         //   Game.OnUpdate += OnUpdate;
+          //  Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Notifications.AddNotification("CK Activator Loaded", 3000);
             loaded = true;
         }
