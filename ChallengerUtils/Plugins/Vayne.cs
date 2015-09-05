@@ -30,9 +30,6 @@ namespace ChallengerSeries.Plugins
             base.InitMenu();
         }
 
-        protected override void InitSpells()
-        {
-        }
 
         protected override void OnGameLoad(EventArgs args)
         {
@@ -43,11 +40,6 @@ namespace ChallengerSeries.Plugins
         {
 
             base.OnUpdate(args);
-        }
-
-        private static void SkinHax()
-        {
-         
         }
 
         protected override void OnDraw(EventArgs args)
