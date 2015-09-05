@@ -490,13 +490,13 @@ namespace ChallengerSeries.Utils
                 /* Drawings submenu */
                 var drawings = new Menu("Drawings", "drawings");
                 drawings.AddItem(
-                    new MenuItem("AACircle", "AACircle").SetShared()
+                    new MenuItem("AACircle", "AACircle2").SetShared()
                         .SetValue(new Circle(true, Color.Gold)));
                 drawings.AddItem(
-                    new MenuItem("AACircle2", "Enemy AA circle").SetShared()
+                    new MenuItem("AACircle2", "Enemy AA circle2").SetShared()
                         .SetValue(new Circle(false, Color.White)));
                 drawings.AddItem(
-                    new MenuItem("HoldZone", "HoldZone").SetShared()
+                    new MenuItem("HoldZone", "HoldZon2e").SetShared()
                         .SetValue(new Circle(false, Color.DarkRed)));
                 _config.AddSubMenu(drawings);
 
