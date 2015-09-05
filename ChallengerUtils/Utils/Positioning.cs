@@ -49,7 +49,7 @@ namespace ChallengerSeries.Utils
             var i = 0;
             foreach (
                 var enemy in
-                    HeroManager.Enemies.Where(h => !h.IsDead && h.Distance(ObjectManager.Player) < 1400 && h.IsMeele))
+                    HeroManager.Enemies.Where(h => !h.IsDead && h.Distance(ObjectManager.Player) < 1400 && h.IsMelee))
             {
                 foreach (var slot in SpellSlots)
                 {
