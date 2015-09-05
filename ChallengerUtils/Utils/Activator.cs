@@ -23,7 +23,7 @@ namespace ChallengerSeries.Utils
 
         public static void Load(Menu menu)
         {
-            CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
+ //           CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
          //   new Cleansers().Initialize(ChallengerPlugin.ActivatorMenu);
             new PotionManager(ChallengerPlugin.ActivatorMenu);
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
@@ -36,10 +36,7 @@ namespace ChallengerSeries.Utils
 
         public static void OnUpdate(EventArgs args)
         {
-            if (ChallengerPlugin.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && Player.CountEnemiesInRange(1000) >= 1)
-            {
-                Combo();
-            }
+          
         }
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
