@@ -25,7 +25,7 @@ namespace ChallengerSeries.Utils
         {
  //           CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
          //   new Cleansers().Initialize(ChallengerPlugin.ActivatorMenu);
-            new PotionManager(ChallengerPlugin.ActivatorMenu);
+         //   new PotionManager(ChallengerPlugin.ActivatorMenu);
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
             menu.AddItem(new MenuItem("exploits", "Enable Exploits?").SetValue(true));
          //   Game.OnUpdate += OnUpdate;
@@ -41,165 +41,17 @@ namespace ChallengerSeries.Utils
 
         public static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.Distance(Player) > 1400) return;
-            var qss = ItemId.Quicksilver_Sash;
-            if (Items.HasItem((int) ItemId.Mercurial_Scimitar))
-            {
-                qss = ItemId.Mercurial_Scimitar;
-            }
-
-            if (sender.IsValid<Obj_AI_Hero>() && sender.IsEnemy && args.Target == Player)
-            {
-                var sData = SpellDb.GetByName(args.SData.Name);
-                if (sData != null && sData.ChampionName.ToLower() == "syndra" && sData.Spellslot == SpellSlot.R)
-                {
-                    Utility.DelayAction.Add(sData.Delay*1000 - Game.Ping, () => UseItem(qss));
-                }
-                if (args.SData.Name == "summonerdot" && sender.GetSpellDamage(Player, "summonerdot") < Player.Health + sender.GetAutoAttackDamage(Player))
-                {
-                    UseItem(qss);
-                }
-            }
-
-            if (!ChallengerPlugin.ActivatorMenu.Item("exploits").GetValue<bool>()) return;
-
-            if (sender.Name.ToLower() == "cassiopeia" && args.SData.Name.ToLower().Contains("petrifying") && Player.Distance(sender) < 750 && Player.IsFacing(sender))
-            {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender)+100).To3D());
-                Utility.DelayAction.Add(300, () =>
-                {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
-                });
-            }
-
-            if (sender.Name.ToLower() == "shaco" && args.SData.Name.ToLower().Contains("twoshiv") && args.Target.IsMe && !Player.IsFacing(sender))
-            {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
-                Utility.DelayAction.Add(250, () =>
-                {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
-                });
-            }
-
-            if (sender.Name.ToLower() == "tryndamere" && args.SData.Name.ToLower().Contains("mockingshout") && args.Target.IsMe && !Player.IsFacing(sender))
-            {
-                ChallengerPlugin.Orbwalker.SetMovement(false);
-                ChallengerPlugin.Orbwalker.SetAttack(false);
-                Player.IssueOrder(GameObjectOrder.MoveTo,
-                    sender.Position.To2D().Extend(Player.ServerPosition.To2D(), Player.Distance(sender) - 100).To3D());
-                Utility.DelayAction.Add(250, () =>
-                {
-                    ChallengerPlugin.Orbwalker.SetMovement(true);
-                    ChallengerPlugin.Orbwalker.SetAttack(true);
-                });
-            }
+            
         }
 
         public static void Combo()
         {
-            UseQSS();
-            UseBOTRK();
-            var TeamfightRange = 800;
-            var TeamfightingEnemies = HeroManager.Enemies.FindAll(e => e.Distance(Player) < TeamfightRange);
-            if (Player.HealthPercent < 80 && Items.HasItem((int)ItemId.Blade_of_the_Ruined_King) && Items.CanUseItem((int)ItemId.Blade_of_the_Ruined_King))
-            {
-                var KSableEnemy =
-                    HeroManager.Enemies.FirstOrDefault(e => e.Health < (e.MaxHealth * 0.1) - (e.MaxHealth * 0.1) * ((e.Armor / 10) * 7) / 100);
-                if (KSableEnemy.IsValidTarget())
-                {
-                    UseBOTRK(KSableEnemy);
-                }
-                if (Player.CountEnemiesInRange(TeamfightRange) >= Player.CountAlliesInRange(TeamfightRange)) return;
-                var escaping = HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40);
-                if (!escaping.IsFacing(Player) && escaping.Distance(Game.CursorPos) < 250)
-                {
-                    UseBOTRK(escaping.IsValidTarget(500) ? escaping : null);
-                }
-            }
-            if (Items.HasItem((int) ItemId.Youmuus_Ghostblade) &&
-                Player.CountEnemiesInRange(TeamfightRange) <= Player.CountAlliesInRange(TeamfightRange) &&
-                HeroManager.Allies.Any(a => a.Distance(TeamfightingEnemies.FirstOrDefault()) < 600))
-            {
-                UseItem(ItemId.Youmuus_Ghostblade);
-            }
-        }
-
-        private static void UseQSS()
-        {
-            var qss = ItemId.Quicksilver_Sash;
-            if (Items.HasItem((int) ItemId.Mercurial_Scimitar))
-            {
-                qss = ItemId.Mercurial_Scimitar;
-            }
-            if (!Items.CanUseItem((int) qss)) return;
-
-            if (Player.HasBuffOfType(BuffType.Suppression))
-            {
-                UseItem(qss);
-            }
-            if (Player.HasBuffOfType(BuffType.Knockup) &&
-                HeroManager.Enemies.Any(e => e.BaseSkinName.ToLower().Contains("yasuo")))
-            {
-                UseItem(qss);
-            }
-            if (Player.CountEnemiesInRange(650) >= Player.CountAlliesInRange(650))
-            {
-                if (Player.HasBuffOfType(BuffType.Stun))
-                {
-                    UseItem(qss);
-                }
-                if (Player.HasBuffOfType(BuffType.Silence) && Player.Health < 30 &&
-                    Player.Spellbook.CanUseSpell(Player.GetSpellSlot("summonerflash")) == SpellState.Ready)
-                {
-                    UseItem(qss);
-                }
-                if (Player.HasBuffOfType(BuffType.Charm))
-                {
-                    UseItem(qss);
-                }
-                if (Player.HasBuffOfType(BuffType.Poison) &&
-                    HeroManager.Enemies.Any(
-                        e => e.BaseSkinName.ToLower().Contains("cassiopeia") && (e.Level > Player.Level || Player.HealthPercent < 30) && e.Distance(Player) < 700))
-                {
-                    UseItem(qss);
-                }
-            }
+          
         }
 
         private static void UseBOTRK(Obj_AI_Hero enemy = null)
         {
-            var botrk = ItemId.Bilgewater_Cutlass;
-            if (Items.HasItem((int) ItemId.Blade_of_the_Ruined_King, Player))
-            {
-                botrk = ItemId.Blade_of_the_Ruined_King;
-            }
-            var targetsInRange = Player.GetEnemiesInRange(450).FindAll(e => !e.IsDead && e.IsValidTarget());
-
-            if (targetsInRange.Count == 0 || !Items.CanUseItem((int)botrk)) return;
-
-            var target = targetsInRange.OrderBy(h => h.Armor)
-                            .FirstOrDefault();
-            if (botrk == ItemId.Bilgewater_Cutlass || Player.Health + Player.GetItemDamage(target, Damage.DamageItems.Botrk) < ObjectManager.Player.MaxHealth)
-                UseItem(botrk, target);
-            if (enemy != null)
-            {
-                UseItem(ItemId.Blade_of_the_Ruined_King, enemy);
-            }
-            else
-            {
-                if (target != null)
-                {
-                    UseItem(ItemId.Blade_of_the_Ruined_King, target);
-                }
-            }
+          
         }
 
         public static void UseItem(ItemId id, Obj_AI_Base target = null)
