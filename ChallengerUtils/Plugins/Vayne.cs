@@ -43,10 +43,6 @@ namespace ChallengerSeries.Plugins
         {
 
             base.OnUpdate(args);
-            if (SkinhackMenu.Item("enableskinhack").GetValue<bool>())
-            {
-                SkinHax();
-            }
         }
 
         private static void SkinHax()
