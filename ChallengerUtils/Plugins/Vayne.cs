@@ -58,4 +58,5 @@ namespace ChallengerSeries.Plugins
         {
             base.OnDraw(args);
         }
+    }
 }
