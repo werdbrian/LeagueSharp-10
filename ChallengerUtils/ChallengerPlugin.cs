@@ -27,10 +27,10 @@ namespace ChallengerSeries
             AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += OnPossibleToInterrupt;
             Orbwalking.BeforeAttack += BeforeAttack;
-            Orbwalking.OnAttack += OnAttack;
-            Orbwalking.AfterAttack += AfterAttack;
-            Orbwalking.OnNonKillableMinion += OnNonKillableMinion;
-            Obj_AI_Base.OnIssueOrder += OnIssueOrder;
+           // Orbwalking.OnAttack += OnAttack;
+            //Orbwalking.AfterAttack += AfterAttack;
+            //Orbwalking.OnNonKillableMinion += OnNonKillableMinion;
+            //Obj_AI_Base.OnIssueOrder += OnIssueOrder;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
         }
 
@@ -75,36 +75,7 @@ namespace ChallengerSeries
 
         protected virtual void OnUpdate(EventArgs args)
         {
-            Escape();
-
-            if (Player.ManaPercent < ManaManagementMenu.Item("activateonmanapercent").GetValue<Slider>().Value)
-            {
-                LowMana();
-            }
-
-            switch (Orbwalker.ActiveMode)
-            {
-                case Orbwalking.OrbwalkingMode.Combo:
-                {
-                    Combo();
-                    break;
-                }
-                case Orbwalking.OrbwalkingMode.LaneClear:
-                {
-                    LaneClear();
-                    break;
-                }
-                case Orbwalking.OrbwalkingMode.Mixed:
-                {
-                    Mixed();
-                    break;
-                }
-                case Orbwalking.OrbwalkingMode.LastHit:
-                {
-                    Mixed();
-                    break;
-                }
-            }
+            
         }
 
         protected virtual void OnDraw(EventArgs args)
