@@ -24,14 +24,14 @@ namespace ChallengerSeries
             CustomEvents.Game.OnGameLoad += OnGameLoad;
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
-            AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
-            Interrupter2.OnInterruptableTarget += OnPossibleToInterrupt;
+          //  AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
+          //  Interrupter2.OnInterruptableTarget += OnPossibleToInterrupt;
         //    Orbwalking.BeforeAttack += BeforeAttack;
            // Orbwalking.OnAttack += OnAttack;
             //Orbwalking.AfterAttack += AfterAttack;
             //Orbwalking.OnNonKillableMinion += OnNonKillableMinion;
             //Obj_AI_Base.OnIssueOrder += OnIssueOrder;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+         //   Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
         }
 
         /// <summary>
