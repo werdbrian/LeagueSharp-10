@@ -26,7 +26,7 @@ namespace ChallengerSeries
             Drawing.OnDraw += OnDraw;
             AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += OnPossibleToInterrupt;
-            Orbwalking.BeforeAttack += BeforeAttack;
+        //    Orbwalking.BeforeAttack += BeforeAttack;
            // Orbwalking.OnAttack += OnAttack;
             //Orbwalking.AfterAttack += AfterAttack;
             //Orbwalking.OnNonKillableMinion += OnNonKillableMinion;
