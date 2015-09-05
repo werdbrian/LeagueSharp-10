@@ -23,7 +23,7 @@ namespace ChallengerSeries.Utils
 
         public static void Load(Menu menu)
         {
- //           CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
+            CustomEvents.Game.OnGameLoad += GameBuff.OnGameLoad;
          //   new Cleansers().Initialize(ChallengerPlugin.ActivatorMenu);
          //   new PotionManager(ChallengerPlugin.ActivatorMenu);
             menu.AddItem(new MenuItem("activator", "Use CK Activator?").SetValue(true));
