@@ -20,7 +20,7 @@ namespace ChallengerSeries
         {
             InitMenu();
             FinishMenuInit();
-            InitSpells();
+     //       InitSpells();
             CustomEvents.Game.OnGameLoad += OnGameLoad;
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
