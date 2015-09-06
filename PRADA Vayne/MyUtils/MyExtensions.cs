@@ -37,7 +37,7 @@ namespace PRADA_Vayne.MyUtils
                     return true;
 
                 var hitchance = Program.ComboMenu.Item("EHitchance").GetValue<Slider>().Value;
-                var angle = 0.30*hitchance;
+                var angle = 0.20*hitchance;
                 var travelDistance = 0.469 + Game.Ping/2000f;
                 var alpha = new Vector2((float) (p.X + travelDistance*Math.Cos(Math.PI/180*angle)),
                     (float) (p.X + travelDistance*Math.Sin(Math.PI/180*angle)));
